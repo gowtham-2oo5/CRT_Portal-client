@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# unused files
+app/page.module.css
+app/loading.tsx
+ARCHITECTURE.md
+next.config.ts
