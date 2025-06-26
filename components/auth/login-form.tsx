@@ -31,7 +31,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
     try {
       const result = await ClientAuth.login(formData.usernameOrEmail, formData.password);
-      
+
       if (result.success && result.data) {
         onLoginSuccess(result.data.user, formData.usernameOrEmail);
       } else {
@@ -54,7 +54,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} method="POST" className="space-y-6">
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>

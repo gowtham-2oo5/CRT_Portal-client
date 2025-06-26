@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState, createContext, useContext } from "react";
 import type { User } from "@/lib/auth/types";
+import { DevAuthBypass } from "./dev-auth-bypass";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -23,15 +24,21 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
+// Development mode check
+const isDevelopment = process.env.NODE_ENV === 'development';
+const enableDevBypass = false; // Set this to false when you want to test real auth
+
 export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
   const [authState, setAuthState] = useState<{
     isLoading: boolean;
     user: User | null;
     isAuthenticated: boolean;
+    showDevBypass: boolean;
   }>({
     isLoading: true,
     user: null,
     isAuthenticated: false,
+    showDevBypass: false,
   });
 
   const router = useRouter();
@@ -42,6 +49,20 @@ export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
     const checkAuth = async () => {
       try {
         console.log("[AuthGuard] Starting auth check");
+
+        // Development bypass
+        if (isDevelopment && enableDevBypass) {
+          console.log("[AuthGuard] Development mode - showing bypass");
+          if (isMounted) {
+            setAuthState({
+              isLoading: false,
+              user: null,
+              isAuthenticated: false,
+              showDevBypass: true,
+            });
+          }
+          return;
+        }
 
         const isAuth = await ClientAuth.isAuthenticated();
         if (!isMounted) return;
@@ -77,12 +98,23 @@ export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
             isLoading: false,
             user: currentUser,
             isAuthenticated: true,
+            showDevBypass: false,
           });
         }
       } catch (error) {
         console.error("[AuthGuard] Auth check failed:", error);
         if (isMounted) {
-          router.replace("/");
+          // In development, show bypass instead of redirecting
+          if (isDevelopment && enableDevBypass) {
+            setAuthState({
+              isLoading: false,
+              user: null,
+              isAuthenticated: false,
+              showDevBypass: true,
+            });
+          } else {
+            router.replace("/");
+          }
         }
       }
     };
@@ -93,6 +125,16 @@ export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
       isMounted = false;
     };
   }, [requiredRoles, router]);
+
+  const handleDevUserSelect = (user: User) => {
+    console.log("[AuthGuard] Dev user selected:", user);
+    setAuthState({
+      isLoading: false,
+      user,
+      isAuthenticated: true,
+      showDevBypass: false,
+    });
+  };
 
   if (authState.isLoading) {
     return (
@@ -105,6 +147,10 @@ export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
         </div>
       </div>
     );
+  }
+
+  if (authState.showDevBypass) {
+    return <DevAuthBypass onSelectUser={handleDevUserSelect} />;
   }
 
   return (

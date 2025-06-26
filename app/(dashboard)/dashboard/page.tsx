@@ -1,45 +1,33 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-guard";
-import { DashboardStats } from "@/components/dashboard/dashboard-stats";
-import { RecentActivity } from "@/components/dashboard/recent-activity";
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/3 mb-2"></div>
-          <div className="h-4 bg-muted rounded w-1/2"></div>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isLoading && user) {
+      // Immediate redirect based on user role
+      if (user.role === 'FACULTY') {
+        router.replace('/dashboard/faculty');
+      } else if (user.role === 'ADMIN') {
+        router.replace('/dashboard/admin');
+      }
+    }
+  }, [user, isLoading, router]);
 
-  if (!user) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Loading user information...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Show minimal loading while redirecting
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Welcome back, {user.name}!</h1>
-        <p className="text-muted-foreground">
-          Here&apos;s what&apos;s happening with your CRT portal today.
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="text-sm text-muted-foreground">
+          {isLoading ? "Loading..." : "Redirecting to your dashboard..."}
         </p>
       </div>
-
-      <DashboardStats userRole={user.role} />
-      <RecentActivity userRole={user.role} />
     </div>
   );
 }

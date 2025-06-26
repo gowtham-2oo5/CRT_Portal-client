@@ -33,10 +33,14 @@ export const createClientSecuredApi = (
   clientApi.interceptors.response.use(
     (response: AxiosResponse) => response,
     async (error) => {
-      if (error.response?.status === 401 && refreshToken) {
+      const originalRequest = error.config;
+
+      if (error.response?.status === 401 && !originalRequest._retry && refreshToken) {
+        originalRequest._retry = true;
+
         try {
           console.log("[API] Attempting token refresh");
-          // Try to refresh token
+          
           const refreshResponse = await publicApi.post(
             "/auth/refresh-token",
             {},
@@ -47,43 +51,44 @@ export const createClientSecuredApi = (
 
           if (refreshResponse.data.token) {
             console.log("[API] Token refresh successful");
-            // Update tokens in sessionStorage (consistent with ClientAuth)
-            sessionStorage.setItem("auth-token", refreshResponse.data.token);
-            sessionStorage.setItem(
-              "refresh-token",
-              refreshResponse.data.refreshToken
-            );
+            
+            const newToken = refreshResponse.data.token;
+            const newRefreshToken = refreshResponse.data.refreshToken;
+            
+            // Update tokens in storage
+            sessionStorage.setItem("auth-token", newToken);
+            sessionStorage.setItem("refresh-token", newRefreshToken);
+            
+            // Update cookies for middleware
+            document.cookie = `auth-token=${newToken}; path=/; secure; samesite=strict`;
+            document.cookie = `refresh-token=${newRefreshToken}; path=/; secure; samesite=strict`;
 
-            // Update cookies
-            document.cookie = `auth-token=${refreshResponse.data.token}; path=/`;
-            document.cookie = `refresh-token=${refreshResponse.data.refreshToken}; path=/`;
-
-            // Retry original request
-            error.config.headers.Authorization = `Bearer ${refreshResponse.data.token}`;
-            return clientApi.request(error.config);
+            // Update the authorization header and retry the original request
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return clientApi.request(originalRequest);
           }
         } catch (refreshError) {
-          console.error("[API] Token refresh failed", refreshError);
-          // Refresh failed, logout user
+          console.error("[API] Token refresh failed:", refreshError);
+          // Refresh failed, clear tokens and redirect to login
           sessionStorage.removeItem("auth-token");
           sessionStorage.removeItem("refresh-token");
-          document.cookie =
-            "auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-          document.cookie =
-            "refresh-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          document.cookie = "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
           window.location.href = "/";
+          return Promise.reject(refreshError);
         }
-      } else if (error.response?.status === 401) {
-        console.log("[API] Unauthorized, logging out");
-        // No refresh token, logout
+      }
+
+      // If 401 and no refresh token, or refresh failed, logout
+      if (error.response?.status === 401) {
+        console.log("[API] Unauthorized, clearing tokens");
         sessionStorage.removeItem("auth-token");
         sessionStorage.removeItem("refresh-token");
-        document.cookie =
-          "auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie =
-          "refresh-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         window.location.href = "/";
       }
+
       return Promise.reject(error);
     }
   );

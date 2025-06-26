@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 // Define the JWT payload type
 interface TokenPayload {
   role: "ADMIN" | "FACULTY";
+  exp: number;
   [key: string]: any;
 }
 
@@ -45,10 +46,22 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    // Decode token to get user role
+    // Decode token to get user role and check expiration
     const decoded = jwtDecode<TokenPayload>(token);
     const userRole = decoded.role;
+    const now = Math.floor(Date.now() / 1000);
+    
     console.log("[Middleware] User role:", userRole);
+    console.log("[Middleware] Token expires at:", decoded.exp, "Current time:", now);
+
+    // Check if token is expired
+    if (decoded.exp < now) {
+      console.log("[Middleware] Token expired, redirecting to login");
+      const url = new URL('/', request.url);
+      url.searchParams.set('from', pathname);
+      url.searchParams.set('expired', 'true');
+      return NextResponse.redirect(url);
+    }
 
     // Check if route requires specific role
     for (const [route, allowedRoles] of Object.entries(protectedRoutes)) {
@@ -68,6 +81,7 @@ export async function middleware(request: NextRequest) {
     // If token is invalid, redirect to login
     const url = new URL('/', request.url);
     url.searchParams.set('from', pathname);
+    url.searchParams.set('invalid', 'true');
     return NextResponse.redirect(url);
   }
 }

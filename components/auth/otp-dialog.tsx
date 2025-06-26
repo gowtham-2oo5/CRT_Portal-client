@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -57,19 +56,12 @@ export function OtpDialog({
       const result = await ClientAuth.verifyOtp(usernameOrEmail, otp);
 
       if (result.success && result.data) {
-        console.log(
-          "[OTP] Verification successful, closing dialog and showing loader"
-        );
-        toast.success("Verification successful!");
+        console.log("[OTP] Verification successful");
+        toast.success("Login successful!");
 
-        // Close the dialog and show dashboard loader
+        // Close dialog and show loader
         onOpenChange(false);
-
-        // Small delay before showing loader to ensure dialog closes
-        setTimeout(() => {
-          console.log("[OTP] Showing dashboard loader");
-          setShowDashboardLoader(true);
-        }, 200);
+        setShowDashboardLoader(true);
       } else {
         setError(result.message || "Invalid OTP");
       }
@@ -81,33 +73,10 @@ export function OtpDialog({
     }
   };
 
-  const handleDashboardLoaderComplete = async () => {
-    try {
-      console.log("[OTP] Dashboard loader complete, attempting redirect");
-
-      // Force a small delay to ensure everything is ready
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Try multiple redirect methods
-      console.log("[OTP] Using router.push to /dashboard");
-      router.push("/dashboard");
-
-      // Fallback: if router.push doesn't work, use window.location
-      setTimeout(() => {
-        if (window.location.pathname !== "/dashboard") {
-          console.log("[OTP] Router.push failed, using window.location");
-          window.location.href = "/dashboard";
-        }
-      }, 1000);
-    } catch (error) {
-      console.error("[OTP] Dashboard redirect error:", error);
-      toast.error("Redirect failed. Trying alternative method...");
-
-      // Ultimate fallback
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 500);
-    }
+  const handleDashboardLoaderComplete = () => {
+    console.log("[OTP] Redirecting to dashboard");
+    // Simple redirect using router.push
+    router.push("/dashboard");
   };
 
   const handleResendOtp = async () => {
@@ -115,6 +84,8 @@ export function OtpDialog({
     setError("");
 
     try {
+      // In a real app, you'd call a resend OTP endpoint
+      // For now, just simulate the action
       setCountdown(60);
       setOtp("");
       toast.success("Verification code sent!");
