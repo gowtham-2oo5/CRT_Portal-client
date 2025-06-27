@@ -15,9 +15,9 @@ import { ClientAuth } from '@/lib/auth/client';
 
 const facultyNavigation = [
   { name: 'Dashboard', href: '/dashboard/faculty', icon: LayoutDashboard },
-  { name: 'Timetable', href: '/faculty/timetable', icon: Calendar },
-  { name: 'Submit Attendance', href: '/faculty/attendance', icon: Check },
-  { name: 'View Reports', href: '/faculty/reports', icon: FileBarChart },
+  { name: 'Timetable', href: '/dashboard/faculty/timetable', icon: Calendar },
+  { name: 'Submit Attendance', href: '/dashboard/faculty/attendance', icon: Check },
+  { name: 'View Reports', href: '/dashboard/faculty/reports', icon: FileBarChart },
 ];
 
 export function FacultyNav() {

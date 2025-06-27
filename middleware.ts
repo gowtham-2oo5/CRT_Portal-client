@@ -14,7 +14,8 @@ type UserRole = TokenPayload["role"];
 // Define protected routes and their required roles
 const protectedRoutes: Record<string, UserRole[]> = {
   '/dashboard': ['ADMIN', 'FACULTY'],
-  '/admin': ['ADMIN'],
+  '/dashboard/admin': ['ADMIN'],
+  '/dashboard/faculty': ['FACULTY'],
 } as const;
 
 const publicRoutes = [
@@ -32,7 +33,18 @@ export async function middleware(request: NextRequest) {
     console.log("[Middleware] Public route, allowing access");
     return NextResponse.next();
   }
-
+  // Handle backward compatibility redirects
+  if (pathname.startsWith('/admin/') && !pathname.startsWith('/dashboard/admin/')) {
+    console.log("[Middleware] Redirecting old admin route to new structure");
+    const newPath = pathname.replace('/admin/', '/dashboard/admin/');
+    return NextResponse.redirect(new URL(newPath, request.url));
+  }
+  
+  if (pathname.startsWith('/faculty/') && !pathname.startsWith('/dashboard/faculty/')) {
+    console.log("[Middleware] Redirecting old faculty route to new structure");
+    const newPath = pathname.replace('/faculty/', '/dashboard/faculty/');
+    return NextResponse.redirect(new URL(newPath, request.url));
+  }
   // Get auth token from cookies
   const token = request.cookies.get('auth-token')?.value;
   console.log("[Middleware] Token present:", !!token);

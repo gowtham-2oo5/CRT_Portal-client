@@ -26,7 +26,7 @@ export const useAuth = () => useContext(AuthContext);
 
 // Development mode check
 const isDevelopment = process.env.NODE_ENV === 'development';
-const enableDevBypass = false; // Set this to false when you want to test real auth
+const enableDevBypass = true; // Set this to false when you want to test real auth
 
 export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
   const [authState, setAuthState] = useState<{
