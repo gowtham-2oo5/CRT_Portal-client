@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
     const newPath = pathname.replace('/admin/', '/dashboard/admin/');
     return NextResponse.redirect(new URL(newPath, request.url));
   }
-  
+
   if (pathname.startsWith('/faculty/') && !pathname.startsWith('/dashboard/faculty/')) {
     console.log("[Middleware] Redirecting old faculty route to new structure");
     const newPath = pathname.replace('/faculty/', '/dashboard/faculty/');
@@ -61,9 +61,12 @@ export async function middleware(request: NextRequest) {
     // Decode token to get user role and check expiration
     const decoded = jwtDecode<TokenPayload>(token);
     const userRole = decoded.role;
+    const isFirstLogin = decoded.isFirstLogin;
     const now = Math.floor(Date.now() / 1000);
-    
+
     console.log("[Middleware] User role:", userRole);
+    // @ts-ignore
+    console.log("[Middleware] TOKEN: ", decoded);
     console.log("[Middleware] Token expires at:", decoded.exp, "Current time:", now);
 
     // Check if token is expired

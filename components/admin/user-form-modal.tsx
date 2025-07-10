@@ -44,7 +44,7 @@ const createUserSchema = z.object({
 
   email: z.string()
     .email('Please enter a valid email address')
-    .endsWith('@klu.ac.in', 'Email must be a KLU domain (@klu.ac.in)'),
+    .endsWith('@kluniversity.in', 'Email must be a KLU domain (@kluniversity.in)'),
 
   phone: z.string()
     .regex(/^\+91-\d{10}$/, 'Phone must be in format +91-XXXXXXXXXX')
@@ -86,7 +86,7 @@ const updateUserSchema = z.object({
 
   email: z.string()
     .email('Please enter a valid email address')
-    .endsWith('@klu.ac.in', 'Email must be a KLU domain (@klu.ac.in)'),
+    .endsWith('@kluniversity.in', 'Email must be a KLU domain (@kluniversity.in)'),
 
   phone: z.string()
     .regex(/^\+91-\d{10}$/, 'Phone must be in format +91-XXXXXXXXXX')
@@ -311,7 +311,7 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="john.doe@klu.ac.in"
+                          placeholder="john.doe@kluniversity.in"
                           {...field}
                           disabled={isLoading}
                         />

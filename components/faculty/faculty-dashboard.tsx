@@ -25,7 +25,7 @@ const mockFacultyData: FacultyDashboardData = {
   profile: {
     id: '1',
     name: 'Dr. Sarah Johnson',
-    email: 'sarah.johnson@klu.ac.in',
+    email: 'sarah.johnson@kluniversity.in',
     department: 'Computer Science & Engineering',
     employeeId: 'FAC001',
     subjects: ['Data Structures', 'Algorithms', 'Database Systems']

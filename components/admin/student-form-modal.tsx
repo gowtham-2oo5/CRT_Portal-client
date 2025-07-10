@@ -37,7 +37,7 @@ import { DEPARTMENTS, BATCHES } from '@/lib/types/student-management';
 import { toast } from 'sonner';
 import type { Student, CreateStudentRequest, UpdateStudentRequest } from '@/lib/types/student-management';
 
-// Form validation schema
+// Form validation schema with proper enum handling
 const studentSchema = z.object({
   name: z.string()
     .min(2, 'Name must be at least 2 characters')
@@ -46,7 +46,7 @@ const studentSchema = z.object({
 
   email: z.string()
     .email('Please enter a valid email address')
-    .endsWith('@klu.ac.in', 'Email must be a KLU domain (@klu.ac.in)'),
+    .endsWith('@kluniversity.in', 'Email must be a KLU domain (@kluniversity.in)'),
 
   phone: z.string()
     .regex(/^\+91-\d{10}$/, 'Phone must be in format +91-XXXXXXXXXX')
@@ -57,16 +57,9 @@ const studentSchema = z.object({
     .max(20, 'Registration number must be less than 20 characters')
     .regex(/^[A-Z0-9]+$/, 'Registration number can only contain uppercase letters and numbers'),
 
-  department: z.enum(DEPARTMENTS, {
-    required_error: 'Please select a department',
-  }),
-
-  batch: z.enum(BATCHES, {
-    required_error: 'Please select a batch',
-  }),
-
+  department: z.string(),
+  batch: z.string(),
   crtEligibility: z.boolean().optional().default(true),
-
   feedback: z.string()
     .max(500, 'Feedback must be less than 500 characters')
     .optional(),
@@ -77,7 +70,7 @@ type StudentFormData = z.infer<typeof studentSchema>;
 interface StudentFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  student?: Student | null; // If provided, it's edit mode
+  student?: Student | null;
   onSuccess: () => void;
 }
 
@@ -88,24 +81,14 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
   const isEditMode = !!student;
 
   const form = useForm<StudentFormData>({
-    // @ts-ignore - Complex type inference issue between Zod and React Hook Form
     resolver: zodResolver(studentSchema),
-    defaultValues: isEditMode ? {
-      name: student.name,
-      email: student.email,
-      phone: student.phone,
-      regNum: student.regNum,
-      department: student.department as any,
-      batch: student.batch as any,
-      crtEligibility: student.crtEligibility,
-      feedback: student.feedback || '',
-    } : {
+    defaultValues: {
       name: '',
       email: '',
       phone: '+91-',
       regNum: '',
-      department: 'Computer Science & Engineering' as any,
-      batch: '2024-2028' as any,
+      department: 'Computer Science & Engineering',
+      batch: '2024-2028',
       crtEligibility: true,
       feedback: '',
     },
@@ -119,8 +102,8 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
         email: student.email,
         phone: student.phone,
         regNum: student.regNum,
-        department: student.department as any,
-        batch: student.batch as any,
+        department: student.department,
+        batch: student.batch,
         crtEligibility: student.crtEligibility,
         feedback: student.feedback || '',
       });
@@ -130,8 +113,8 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
         email: '',
         phone: '+91-',
         regNum: '',
-        department: 'Computer Science & Engineering' as any,
-        batch: '2024-2028' as any,
+        department: 'Computer Science & Engineering',
+        batch: '2024-2028',
         crtEligibility: true,
         feedback: '',
       });
@@ -259,7 +242,7 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="aarav.sharma@klu.ac.in"
+                          placeholder="aarav.sharma@kluniversity.in"
                           {...field}
                           disabled={isLoading}
                         />

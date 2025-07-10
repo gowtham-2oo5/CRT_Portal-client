@@ -14,7 +14,7 @@ interface DevAuthBypassProps {
 const mockUsers: UserType[] = [
   {
     name: 'Dr. Sarah Johnson',
-    email: 'sarah.johnson@klu.ac.in',
+    email: 'sarah.johnson@kluniversity.in',
     userId: 'FAC001',
     sub: 'faculty-001',
     role: 'FACULTY',
@@ -22,7 +22,7 @@ const mockUsers: UserType[] = [
   },
   {
     name: 'Prof. Michael Chen',
-    email: 'michael.chen@klu.ac.in',
+    email: 'michael.chen@kluniversity.in',
     userId: 'FAC002',
     sub: 'faculty-002',
     role: 'FACULTY',
@@ -30,7 +30,7 @@ const mockUsers: UserType[] = [
   },
   {
     name: 'Admin User',
-    email: 'admin@klu.ac.in',
+    email: 'admin@kluniversity.in',
     userId: 'ADM001',
     sub: 'admin-001',
     role: 'ADMIN',

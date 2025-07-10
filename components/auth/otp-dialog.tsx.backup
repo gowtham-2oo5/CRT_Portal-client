@@ -25,7 +25,6 @@ interface OtpDialogProps {
   onOpenChange: (open: boolean) => void;
   user: User;
   usernameOrEmail: string;
-  onOtpSuccess?: (user: User) => void;
 }
 
 export function OtpDialog({
@@ -33,7 +32,6 @@ export function OtpDialog({
   onOpenChange,
   user,
   usernameOrEmail,
-  onOtpSuccess,
 }: OtpDialogProps) {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -59,36 +57,11 @@ export function OtpDialog({
 
       if (result.success && result.data) {
         console.log("[OTP] Verification successful");
-        
-        // Get the current user to check token metadata
-        const currentUser = await ClientAuth.getCurrentUser();
-        console.log("[OTP] Current user after verification:", currentUser);
-        console.log("[OTP] isFirstLogin flag:", currentUser?.isFirstLogin);
-        
-        // Decode and log the token for debugging
-        if (result.data.token) {
-          try {
-            const { jwtDecode } = await import('jwt-decode');
-            const decodedToken = jwtDecode(result.data.token);
-            console.log("[OTP] Decoded token:", decodedToken);
-          } catch (decodeError) {
-            console.error("[OTP] Error decoding token:", decodeError);
-          }
-        }
-        
         toast.success("Login successful!");
 
-        // Close dialog
+        // Close dialog and show loader
         onOpenChange(false);
-
-        // Check if we have a callback for OTP success
-        if (onOtpSuccess && currentUser) {
-          console.log("[OTP] Calling onOtpSuccess callback");
-          onOtpSuccess(currentUser);
-        } else {
-          console.log("[OTP] No callback, showing dashboard loader");
-          setShowDashboardLoader(true);
-        }
+        setShowDashboardLoader(true);
       } else {
         setError(result.message || "Invalid OTP");
       }
@@ -102,6 +75,7 @@ export function OtpDialog({
 
   const handleDashboardLoaderComplete = () => {
     console.log("[OTP] Redirecting to dashboard");
+    // Simple redirect using router.push
     router.push("/dashboard");
   };
 
@@ -222,14 +196,12 @@ export function OtpDialog({
         </DialogContent>
       </Dialog>
 
-      {/* Dashboard Loader - only show if no callback provided */}
-      {!onOtpSuccess && (
-        <DashboardLoader
-          isVisible={showDashboardLoader}
-          onComplete={handleDashboardLoaderComplete}
-          type="dashboard"
-        />
-      )}
+      {/* Dashboard Loader */}
+      <DashboardLoader
+        isVisible={showDashboardLoader}
+        onComplete={handleDashboardLoaderComplete}
+        type="dashboard"
+      />
     </>
   );
 }

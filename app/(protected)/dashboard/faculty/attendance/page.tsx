@@ -31,16 +31,16 @@ const mockCurrentSlot: TimeSlot = {
 };
 
 const mockStudents: Student[] = [
-  { id: '1', rollNumber: '21CSE001', name: 'Aarav Sharma', email: 'aarav@klu.ac.in', section: 'CSE-A' },
-  { id: '2', rollNumber: '21CSE002', name: 'Priya Patel', email: 'priya@klu.ac.in', section: 'CSE-A' },
-  { id: '3', rollNumber: '21CSE003', name: 'Arjun Kumar', email: 'arjun@klu.ac.in', section: 'CSE-A' },
-  { id: '4', rollNumber: '21CSE004', name: 'Sneha Reddy', email: 'sneha@klu.ac.in', section: 'CSE-A' },
-  { id: '5', rollNumber: '21CSE005', name: 'Vikram Singh', email: 'vikram@klu.ac.in', section: 'CSE-A' },
-  { id: '6', rollNumber: '21CSE006', name: 'Ananya Gupta', email: 'ananya@klu.ac.in', section: 'CSE-A' },
-  { id: '7', rollNumber: '21CSE007', name: 'Rohit Verma', email: 'rohit@klu.ac.in', section: 'CSE-A' },
-  { id: '8', rollNumber: '21CSE008', name: 'Kavya Nair', email: 'kavya@klu.ac.in', section: 'CSE-A' },
-  { id: '9', rollNumber: '21CSE009', name: 'Aditya Joshi', email: 'aditya@klu.ac.in', section: 'CSE-A' },
-  { id: '10', rollNumber: '21CSE010', name: 'Riya Agarwal', email: 'riya@klu.ac.in', section: 'CSE-A' },
+  { id: '1', rollNumber: '21CSE001', name: 'Aarav Sharma', email: 'aarav@kluniversity.in', section: 'CSE-A' },
+  { id: '2', rollNumber: '21CSE002', name: 'Priya Patel', email: 'priya@kluniversity.in', section: 'CSE-A' },
+  { id: '3', rollNumber: '21CSE003', name: 'Arjun Kumar', email: 'arjun@kluniversity.in', section: 'CSE-A' },
+  { id: '4', rollNumber: '21CSE004', name: 'Sneha Reddy', email: 'sneha@kluniversity.in', section: 'CSE-A' },
+  { id: '5', rollNumber: '21CSE005', name: 'Vikram Singh', email: 'vikram@kluniversity.in', section: 'CSE-A' },
+  { id: '6', rollNumber: '21CSE006', name: 'Ananya Gupta', email: 'ananya@kluniversity.in', section: 'CSE-A' },
+  { id: '7', rollNumber: '21CSE007', name: 'Rohit Verma', email: 'rohit@kluniversity.in', section: 'CSE-A' },
+  { id: '8', rollNumber: '21CSE008', name: 'Kavya Nair', email: 'kavya@kluniversity.in', section: 'CSE-A' },
+  { id: '9', rollNumber: '21CSE009', name: 'Aditya Joshi', email: 'aditya@kluniversity.in', section: 'CSE-A' },
+  { id: '10', rollNumber: '21CSE010', name: 'Riya Agarwal', email: 'riya@kluniversity.in', section: 'CSE-A' },
 ];
 
 export default function FacultyAttendancePage() {

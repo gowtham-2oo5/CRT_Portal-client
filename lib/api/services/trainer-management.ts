@@ -228,7 +228,7 @@ export class TrainerManagementService {
       {
         id: "1",
         name: "Dr. Rajesh Kumar",
-        email: "rajesh.kumar@klu.ac.in",
+        email: "rajesh.kumar@kluniversity.in",
         sn: "RK001",
         sectionsCount: 3,
         createdAt: "2023-01-15T10:00:00Z",
@@ -237,7 +237,7 @@ export class TrainerManagementService {
       {
         id: "2",
         name: "Prof. Anita Sharma",
-        email: "anita.sharma@klu.ac.in",
+        email: "anita.sharma@kluniversity.in",
         sn: "AS002",
         sectionsCount: 4,
         createdAt: "2022-08-10T09:00:00Z",
@@ -246,7 +246,7 @@ export class TrainerManagementService {
       {
         id: "3",
         name: "Mr. Vikram Singh",
-        email: "vikram.singh@klu.ac.in",
+        email: "vikram.singh@kluniversity.in",
         sn: "VS003",
         sectionsCount: 0,
         createdAt: "2023-03-05T09:00:00Z",
@@ -255,7 +255,7 @@ export class TrainerManagementService {
       {
         id: "4",
         name: "Ms. Priya Patel",
-        email: "priya.patel@klu.ac.in",
+        email: "priya.patel@kluniversity.in",
         sn: "PP004",
         sectionsCount: 2,
         createdAt: "2023-06-12T08:00:00Z",
@@ -264,7 +264,7 @@ export class TrainerManagementService {
       {
         id: "5",
         name: "Dr. Suresh Reddy",
-        email: "suresh.reddy@klu.ac.in",
+        email: "suresh.reddy@kluniversity.in",
         sn: "SR005",
         sectionsCount: 5,
         createdAt: "2021-09-20T07:30:00Z",
@@ -273,7 +273,7 @@ export class TrainerManagementService {
       {
         id: "6",
         name: "Ms. Kavya Nair",
-        email: "kavya.nair@klu.ac.in",
+        email: "kavya.nair@kluniversity.in",
         sn: "KN006",
         sectionsCount: 6,
         createdAt: "2023-11-10T10:00:00Z",
@@ -282,7 +282,7 @@ export class TrainerManagementService {
       {
         id: "7",
         name: "Mr. Arun Kumar",
-        email: "arun.kumar@klu.ac.in",
+        email: "arun.kumar@kluniversity.in",
         sn: "AK007",
         sectionsCount: 3,
         createdAt: "2022-12-05T09:30:00Z",
@@ -291,7 +291,7 @@ export class TrainerManagementService {
       {
         id: "8",
         name: "Dr. Meera Gupta",
-        email: "meera.gupta@klu.ac.in",
+        email: "meera.gupta@kluniversity.in",
         sn: "MG008",
         sectionsCount: 4,
         createdAt: "2021-05-18T08:45:00Z",

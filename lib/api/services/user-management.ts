@@ -169,7 +169,7 @@ export class UserManagementService {
       {
         id: "1",
         name: "Dr. Sarah Johnson",
-        email: "sarah.johnson@klu.ac.in",
+        email: "sarah.johnson@kluniversity.in",
         phone: "+91-9876543210",
         username: "sarah.johnson",
         role: "FACULTY",
@@ -183,7 +183,7 @@ export class UserManagementService {
       {
         id: "2",
         name: "Prof. Michael Chen",
-        email: "michael.chen@klu.ac.in",
+        email: "michael.chen@kluniversity.in",
         phone: "+91-9876543211",
         username: "michael.chen",
         role: "FACULTY",
@@ -197,7 +197,7 @@ export class UserManagementService {
       {
         id: "3",
         name: "Admin User",
-        email: "admin@klu.ac.in",
+        email: "admin@kluniversity.in",
         phone: "+91-9876543212",
         username: "admin",
         role: "ADMIN",
@@ -210,7 +210,7 @@ export class UserManagementService {
       {
         id: "4",
         name: "Dr. Priya Sharma",
-        email: "priya.sharma@klu.ac.in",
+        email: "priya.sharma@kluniversity.in",
         phone: "+91-9876543213",
         username: "priya.sharma",
         role: "FACULTY",
@@ -224,7 +224,7 @@ export class UserManagementService {
       {
         id: "5",
         name: "Prof. Raj Kumar",
-        email: "raj.kumar@klu.ac.in",
+        email: "raj.kumar@kluniversity.in",
         phone: "+91-9876543214",
         username: "raj.kumar",
         role: "FACULTY",

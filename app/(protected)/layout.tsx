@@ -30,28 +30,36 @@ function DashboardContent({ children }: DashboardLayoutProps) {
 
   const handlePasswordResetSuccess = () => {
     setShowPasswordModal(false);
-    toast.success("Welcome to your dashboard! Your account is now secure.");
+    toast.success(`Welcome to your ${user?.role === 'FACULTY' ? 'faculty ' : ''}dashboard! Your account is now secure.`);
   };
 
-  // Route based on user role
-  if (user?.role === 'FACULTY') {
-    return <FacultyLayout>{children}</FacultyLayout>;
-  }
+  // Render layout based on user role
+  const renderLayout = () => {
+    if (user?.role === 'FACULTY') {
+      return <FacultyLayout>{children}</FacultyLayout>;
+    }
 
-  // Default admin layout
-  return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-      <div className="flex h-[calc(100vh-73px)]">
-        <DashboardNav />
-        <ScrollArea className="flex-1">
-          <main className="p-6">
-            {children}
-          </main>
-        </ScrollArea>
+    // Default admin layout
+    return (
+      <div className="min-h-screen bg-background">
+        <DashboardHeader />
+        <div className="flex h-[calc(100vh-73px)]">
+          <DashboardNav />
+          <ScrollArea className="flex-1">
+            <main className="p-6">
+              {children}
+            </main>
+          </ScrollArea>
+        </div>
       </div>
+    );
+  };
 
-      {/* First Login Password Reset Modal */}
+  return (
+    <>
+      {renderLayout()}
+      
+      {/* First Login Password Reset Modal - Applied to ALL roles */}
       {user && (
         <PasswordResetModal
           open={showPasswordModal}
@@ -60,7 +68,7 @@ function DashboardContent({ children }: DashboardLayoutProps) {
           onSuccess={handlePasswordResetSuccess}
         />
       )}
-    </div>
+    </>
   );
 }
 

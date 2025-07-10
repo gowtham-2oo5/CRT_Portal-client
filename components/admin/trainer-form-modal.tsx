@@ -36,7 +36,7 @@ const trainerSchema = z.object({
   
   email: z.string()
     .email('Please enter a valid email address')
-    .endsWith('@klu.ac.in', 'Email must be a KLU domain (@klu.ac.in)'),
+    .endsWith('@kluniversity.in', 'Email must be a KLU domain (@kluniversity.in)'),
   
   sn: z.string()
     .min(2, 'Serial number must be at least 2 characters')
@@ -195,7 +195,7 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
                   <FormControl>
                     <Input 
                       type="email"
-                      placeholder="rajesh.kumar@klu.ac.in (KLU domain required)" 
+                      placeholder="rajesh.kumar@kluniversity.in (KLU domain required)" 
                       {...field} 
                       disabled={isLoading}
                     />

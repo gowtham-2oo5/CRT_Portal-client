@@ -286,7 +286,7 @@ export class StudentManagementService {
       {
         id: "1",
         name: "Aarav Sharma",
-        email: "aarav.sharma@klu.ac.in",
+        email: "aarav.sharma@kluniversity.in",
         phone: "+91-9876543210",
         regNum: "21CSE001",
         department: "Computer Science & Engineering",
@@ -300,7 +300,7 @@ export class StudentManagementService {
       {
         id: "2",
         name: "Priya Patel",
-        email: "priya.patel@klu.ac.in",
+        email: "priya.patel@kluniversity.in",
         phone: "+91-9876543211",
         regNum: "22ECE045",
         department: "Electronics & Communication Engineering",
@@ -314,7 +314,7 @@ export class StudentManagementService {
       {
         id: "3",
         name: "Arjun Kumar",
-        email: "arjun.kumar@klu.ac.in",
+        email: "arjun.kumar@kluniversity.in",
         phone: "+91-9876543212",
         regNum: "21ME078",
         department: "Mechanical Engineering",
@@ -328,7 +328,7 @@ export class StudentManagementService {
       {
         id: "4",
         name: "Sneha Reddy",
-        email: "sneha.reddy@klu.ac.in",
+        email: "sneha.reddy@kluniversity.in",
         phone: "+91-9876543213",
         regNum: "23CSE112",
         department: "Computer Science & Engineering",
@@ -342,7 +342,7 @@ export class StudentManagementService {
       {
         id: "5",
         name: "Vikram Singh",
-        email: "vikram.singh@klu.ac.in",
+        email: "vikram.singh@kluniversity.in",
         phone: "+91-9876543214",
         regNum: "22EEE089",
         department: "Electrical & Electronics Engineering",
@@ -355,7 +355,7 @@ export class StudentManagementService {
       {
         id: "6",
         name: "Kavya Nair",
-        email: "kavya.nair@klu.ac.in",
+        email: "kavya.nair@kluniversity.in",
         phone: "+91-9876543215",
         regNum: "21CE034",
         department: "Civil Engineering",
@@ -369,7 +369,7 @@ export class StudentManagementService {
       {
         id: "7",
         name: "Aditya Joshi",
-        email: "aditya.joshi@klu.ac.in",
+        email: "aditya.joshi@kluniversity.in",
         phone: "+91-9876543216",
         regNum: "24IT067",
         department: "Information Technology",
@@ -382,7 +382,7 @@ export class StudentManagementService {
       {
         id: "8",
         name: "Riya Agarwal",
-        email: "riya.agarwal@klu.ac.in",
+        email: "riya.agarwal@kluniversity.in",
         phone: "+91-9876543217",
         regNum: "22CHE023",
         department: "Chemical Engineering",
