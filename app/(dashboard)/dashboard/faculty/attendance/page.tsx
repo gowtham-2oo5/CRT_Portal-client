@@ -1,24 +1,22 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { PageHeader } from '@/components/dashboard/breadcrumb';
-import { 
-  Check, 
-  X, 
-  Clock, 
-  MapPin, 
-  Users, 
-  CheckCircle,
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { AttendanceRecord, Student, TimeSlot } from '@/lib/types/faculty';
+import {
   AlertCircle,
-  BookOpen
+  Check,
+  CheckCircle,
+  Clock,
+  MapPin,
+  Users,
+  X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import type { TimeSlot, Student, AttendanceRecord } from '@/lib/types/faculty';
 
 // Mock data
 const mockCurrentSlot: TimeSlot = {

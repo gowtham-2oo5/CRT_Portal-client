@@ -5,10 +5,9 @@ import { PageHeader } from "@/components/dashboard/breadcrumb";
 export default function AdminAttendancePage() {
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Attendance Management" 
-        description="Monitor attendance, generate reports, and manage records"
-      />
+      <PageHeader>
+        <h1 className="text-3xl font-bold">Attendance Management</h1>
+      </PageHeader>
       
       <div className="text-center py-12">
         <h2 className="text-xl font-semibold mb-2">Attendance Management System</h2>

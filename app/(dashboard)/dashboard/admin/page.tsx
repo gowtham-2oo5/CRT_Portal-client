@@ -5,11 +5,10 @@ import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminDashboardPage() {
   return (
-    <div>
-      <PageHeader 
-        title="Admin Dashboard" 
-        description="Overview of system statistics and recent activities"
-      />
+    <div className="space-y-6">
+      <PageHeader>
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+      </PageHeader>
       <AdminDashboard />
     </div>
   );

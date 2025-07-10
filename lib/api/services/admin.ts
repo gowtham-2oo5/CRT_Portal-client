@@ -3,14 +3,17 @@ import { AdminMockService } from "./admin-mock";
 import type { DashboardMetrics, RecentAction } from "@/lib/types/admin";
 
 // Toggle this to switch between real API and mock data
-const USE_MOCK_DATA = true; // Set to false when backend is ready
+const USE_MOCK_DATA = false; // Set to false when backend is ready
 
 export class AdminService {
   private static async getAuthenticatedApi() {
     try {
       return ClientAuth.createAuthenticatedApi();
     } catch (error) {
-      console.error("[AdminService] Failed to create authenticated API:", error);
+      console.error(
+        "[AdminService] Failed to create authenticated API:",
+        error
+      );
       throw new Error("Authentication required");
     }
   }
@@ -24,7 +27,7 @@ export class AdminService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.get('/admin/dashboard/metrics');
+      const response = await api.get("/admin/dashboard/metrics");
 
       console.log("[AdminService] Dashboard metrics fetched:", response.data);
       return response.data;
@@ -43,7 +46,9 @@ export class AdminService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/admin/dashboard/recent-actions?limit=${limit}`);
+      const response = await api.get(
+        `/admin/dashboard/recent-actions?limit=${limit}`
+      );
 
       console.log("[AdminService] Recent actions fetched:", response.data);
       return response.data;
@@ -66,7 +71,7 @@ export class AdminService {
     try {
       const [metrics, recentActions] = await Promise.all([
         this.getDashboardMetrics(),
-        this.getRecentActions(limit)
+        this.getRecentActions(limit),
       ]);
 
       return { metrics, recentActions };

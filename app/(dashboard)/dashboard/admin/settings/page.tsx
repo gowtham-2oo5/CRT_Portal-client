@@ -5,10 +5,9 @@ import { PageHeader } from "@/components/dashboard/breadcrumb";
 export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="System Settings" 
-        description="Configure system preferences and global settings"
-      />
+      <PageHeader>
+        <h1 className="text-3xl font-bold">System Settings</h1>
+      </PageHeader>
       
       <div className="text-center py-12">
         <h2 className="text-xl font-semibold mb-2">System Settings</h2>

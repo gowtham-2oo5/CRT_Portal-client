@@ -5,11 +5,10 @@ import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminTrainersPage() {
   return (
-    <div>
-      <PageHeader 
-        title="Trainer Management" 
-        description="Manage external trainers and their assignments"
-      />
+    <div className="space-y-6">
+      <PageHeader>
+        <h1 className="text-3xl font-bold">Trainer Management</h1>
+      </PageHeader>
       <TrainerManagement />
     </div>
   );

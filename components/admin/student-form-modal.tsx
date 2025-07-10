@@ -57,15 +57,15 @@ const studentSchema = z.object({
     .max(20, 'Registration number must be less than 20 characters')
     .regex(/^[A-Z0-9]+$/, 'Registration number can only contain uppercase letters and numbers'),
 
-  department: z.enum(DEPARTMENTS as [string, ...string[]], {
+  department: z.enum(DEPARTMENTS, {
     required_error: 'Please select a department',
   }),
 
-  batch: z.enum(BATCHES as [string, ...string[]], {
+  batch: z.enum(BATCHES, {
     required_error: 'Please select a batch',
   }),
 
-  crtEligibility: z.boolean().default(true),
+  crtEligibility: z.boolean().optional().default(true),
 
   feedback: z.string()
     .max(500, 'Feedback must be less than 500 characters')
@@ -88,6 +88,7 @@ export function StudentFormModal({ open, onOpenChange, student, onSuccess }: Stu
   const isEditMode = !!student;
 
   const form = useForm<StudentFormData>({
+    // @ts-ignore - Complex type inference issue between Zod and React Hook Form
     resolver: zodResolver(studentSchema),
     defaultValues: isEditMode ? {
       name: student.name,

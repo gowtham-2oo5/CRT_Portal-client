@@ -6,8 +6,7 @@ export default function AdminRoomsPage() {
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="Room Management" 
-        description="Manage classrooms and training facilities"
+        
       />
       
       <div className="text-center py-12">

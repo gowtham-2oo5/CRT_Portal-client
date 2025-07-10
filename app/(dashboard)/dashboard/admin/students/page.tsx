@@ -7,8 +7,6 @@ export default function AdminStudentsPage() {
   return (
     <div>
       <PageHeader 
-        title="Student Management" 
-        description="Manage student records, CRT eligibility, and bulk operations"
       />
       <StudentManagement />
     </div>

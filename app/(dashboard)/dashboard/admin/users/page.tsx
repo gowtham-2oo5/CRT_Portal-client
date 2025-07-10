@@ -5,11 +5,10 @@ import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminUsersPage() {
   return (
-    <div>
-      <PageHeader 
-        title="User Management" 
-        description="Manage admin and faculty user accounts"
-      />
+    <div className="space-y-6">
+      <PageHeader>
+        <h1 className="text-3xl font-bold">User Management</h1>
+      </PageHeader>
       <UserManagement />
     </div>
   );
