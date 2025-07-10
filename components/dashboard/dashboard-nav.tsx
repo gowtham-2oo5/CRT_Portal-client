@@ -16,7 +16,7 @@ import {
     Upload,
     Settings,
     ChevronRight,
-    ChevronLeft
+    ChevronLeft, FileBarChart
 } from 'lucide-react';
 import {useState} from 'react';
 import {Button} from "@/components/ui/button";
@@ -31,56 +31,52 @@ const adminNavigation = [
         name: 'Users',
         href: '/dashboard/admin/users',
         icon: Users,
-        // description: 'Manage system users and roles'
     },
     {
         name: 'Students',
         href: '/dashboard/admin/students',
         icon: GraduationCap,
-        // description: 'Student management and CRT eligibility'
     },
     {
         name: 'Trainers',
         href: '/dashboard/admin/trainers',
         icon: UserCheck,
-        // description: 'Trainer management and assignments'
     },
     {
         name: 'Rooms',
         href: '/dashboard/admin/rooms',
         icon: Building2,
-        // description: 'Classroom and facility management'
     },
     {
         name: 'Sections',
         href: '/dashboard/admin/sections',
         icon: BookOpen,
-        // description: 'Section and class organization'
     },
     {
         name: 'Time Slots',
         href: '/dashboard/admin/time-slots',
         icon: Clock,
-        // description: 'Schedule and time slot management'
     },
     {
         name: 'Attendance',
         href: '/dashboard/admin/attendance',
         icon: BarChart3,
-        // description: 'Attendance monitoring and reports'
     },
     {
         name: 'Bulk Operations',
         href: '/dashboard/admin/bulk-operations',
         icon: Upload,
-        // description: 'Import/export and bulk operations'
     },
     {
         name: 'Settings',
         href: '/dashboard/admin/settings',
         icon: Settings,
-        // description: 'System configuration and preferences'
     },
+    {
+        name: 'View Reports',
+        href: '/dashboard/admin/reports',
+        icon: FileBarChart
+    }
 ];
 
 export function DashboardNav() {

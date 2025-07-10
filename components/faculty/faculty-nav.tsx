@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Check, 
-  FileBarChart, 
+import {
+  LayoutDashboard,
+  Calendar,
+  Check,
+  FileBarChart,
   Clock,
   LogOut
 } from 'lucide-react';
@@ -17,7 +17,6 @@ const facultyNavigation = [
   { name: 'Dashboard', href: '/dashboard/faculty', icon: LayoutDashboard },
   { name: 'Timetable', href: '/dashboard/faculty/timetable', icon: Calendar },
   { name: 'Submit Attendance', href: '/dashboard/faculty/attendance', icon: Check },
-  { name: 'View Reports', href: '/dashboard/faculty/reports', icon: FileBarChart },
 ];
 
 export function FacultyNav() {
@@ -33,7 +32,7 @@ export function FacultyNav() {
         {facultyNavigation.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href !== '/dashboard/faculty' && pathname.startsWith(item.href));
-          
+
           return (
             <Link
               key={item.name}
