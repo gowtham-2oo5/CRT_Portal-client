@@ -59,7 +59,7 @@ const studentSchema = z.object({
 
   department: z.string(),
   batch: z.string(),
-  crtEligibility: z.boolean().optional().default(true),
+  crtEligibility: z.boolean(),
   feedback: z.string()
     .max(500, 'Feedback must be less than 500 characters')
     .optional(),

@@ -43,9 +43,9 @@ export interface CRTEligibilityRequest {
 
 export interface StudentFilters {
   search?: string;
-  department?: string | 'ALL';
-  batch?: string | 'ALL';
-  crtEligibility?: 'ALL' | 'ELIGIBLE' | 'NOT_ELIGIBLE';
+  department?: string | "ALL";
+  batch?: string | "ALL";
+  crtEligibility?: "ALL" | "ELIGIBLE" | "NOT_ELIGIBLE";
   attendanceRange?: {
     min: number;
     max: number;
@@ -54,30 +54,27 @@ export interface StudentFilters {
 
 export interface BulkStudentOperation {
   studentIds: string[];
-  operation: 'DELETE' | 'ADD_TO_CRT' | 'REMOVE_FROM_CRT';
+  operation: "DELETE" | "ADD_TO_CRT" | "REMOVE_FROM_CRT";
   reason?: string; // For CRT operations
 }
 
 // Department options
 export const DEPARTMENTS = [
-  'Computer Science & Engineering',
-  'Electronics & Communication Engineering', 
-  'Mechanical Engineering',
-  'Civil Engineering',
-  'Electrical & Electronics Engineering',
-  'Information Technology',
-  'Chemical Engineering',
-  'Biotechnology'
+  "AIDS",
+  "BT",
+  "CE",
+  "CSEH",
+  "CSER",
+  "CSIT",
+  "ECE",
+  "EEE",
+  "IOT",
+  "ME",
+  "MECH",
 ] as const;
 
 // Batch/Year options
-export const BATCHES = [
-  '2021-2025',
-  '2022-2026', 
-  '2023-2027',
-  '2024-2028',
-  '2025-2029'
-] as const;
+export const BATCHES = ["Y22", "Y23", "Y24"] as const;
 
-export type Department = typeof DEPARTMENTS[number];
-export type Batch = typeof BATCHES[number];
+export type Department = (typeof DEPARTMENTS)[number];
+export type Batch = (typeof BATCHES)[number];

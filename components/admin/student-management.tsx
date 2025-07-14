@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,24 +20,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+} from "@/components/ui/dropdown-menu";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   GraduationCap,
   Download,
   Upload,
@@ -50,14 +50,15 @@ import {
   TrendingUp,
   TrendingDown,
   Mail,
-  Phone
-} from 'lucide-react';
-import { StudentManagementService } from '@/lib/api/services/student-management';
-import { StudentFormModal } from './student-form-modal';
-import { CRTEligibilityModal } from './crt-eligibility-modal';
-import { DEPARTMENTS, BATCHES } from '@/lib/types/student-management';
-import { toast } from 'sonner';
-import type { Student, StudentFilters } from '@/lib/types/student-management';
+  Phone,
+  MessageSquareWarningIcon,
+} from "lucide-react";
+import { StudentManagementService } from "@/lib/api/services/student-management";
+import { StudentFormModal } from "./student-form-modal";
+import { CRTEligibilityModal } from "./crt-eligibility-modal";
+import { DEPARTMENTS, BATCHES } from "@/lib/types/student-management";
+import { toast } from "sonner";
+import type { Student, StudentFilters } from "@/lib/types/student-management";
 
 export function StudentManagement() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -68,14 +69,14 @@ export function StudentManagement() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [crtModalStudent, setCrtModalStudent] = useState<Student | null>(null);
-  const [crtModalAction, setCrtModalAction] = useState<'ADD' | 'REMOVE'>('ADD');
-  
+  const [crtModalAction, setCrtModalAction] = useState<"ADD" | "REMOVE">("ADD");
+
   // Filters
   const [filters, setFilters] = useState<StudentFilters>({
-    search: '',
-    department: 'ALL',
-    batch: 'ALL',
-    crtEligibility: 'ALL'
+    search: "",
+    department: "ALL",
+    batch: "ALL",
+    crtEligibility: "ALL",
   });
 
   // Pagination
@@ -91,8 +92,8 @@ export function StudentManagement() {
       setStudents(studentData);
       setFilteredStudents(studentData);
     } catch (error: any) {
-      console.error('Error loading students:', error);
-      setError(error.message || 'Failed to load students');
+      console.error("Error loading students:", error);
+      setError(error.message || "Failed to load students");
     } finally {
       setIsLoading(false);
     }
@@ -108,25 +109,30 @@ export function StudentManagement() {
 
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(student => 
-        student.name.toLowerCase().includes(searchTerm) ||
-        student.email.toLowerCase().includes(searchTerm) ||
-        student.regNum.toLowerCase().includes(searchTerm) ||
-        student.department.toLowerCase().includes(searchTerm)
+      filtered = filtered.filter(
+        (student) =>
+          student.name.toLowerCase().includes(searchTerm) ||
+          student.email.toLowerCase().includes(searchTerm) ||
+          student.regNum.toLowerCase().includes(searchTerm) ||
+          student.department.toLowerCase().includes(searchTerm)
       );
     }
 
-    if (filters.department && filters.department !== 'ALL') {
-      filtered = filtered.filter(student => student.department === filters.department);
+    if (filters.department && filters.department !== "ALL") {
+      filtered = filtered.filter(
+        (student) => student.department === filters.department
+      );
     }
 
-    if (filters.batch && filters.batch !== 'ALL') {
-      filtered = filtered.filter(student => student.batch === filters.batch);
+    if (filters.batch && filters.batch !== "ALL") {
+      filtered = filtered.filter((student) => student.batch === filters.batch);
     }
 
-    if (filters.crtEligibility && filters.crtEligibility !== 'ALL') {
-      const isEligible = filters.crtEligibility === 'ELIGIBLE';
-      filtered = filtered.filter(student => student.crtEligibility === isEligible);
+    if (filters.crtEligibility && filters.crtEligibility !== "ALL") {
+      const isEligible = filters.crtEligibility === "ELIGIBLE";
+      filtered = filtered.filter(
+        (student) => student.crtEligibility === isEligible
+      );
     }
 
     setFilteredStudents(filtered);
@@ -136,20 +142,23 @@ export function StudentManagement() {
   // Pagination
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedStudents = filteredStudents.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedStudents = filteredStudents.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   // Handle student selection
   const handleSelectStudent = (studentId: string, checked: boolean) => {
     if (checked) {
       setSelectedStudents([...selectedStudents, studentId]);
     } else {
-      setSelectedStudents(selectedStudents.filter(id => id !== studentId));
+      setSelectedStudents(selectedStudents.filter((id) => id !== studentId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedStudents(paginatedStudents.map(student => student.id));
+      setSelectedStudents(paginatedStudents.map((student) => student.id));
     } else {
       setSelectedStudents([]);
     }
@@ -159,27 +168,27 @@ export function StudentManagement() {
   const handleDeleteStudent = async (studentId: string) => {
     try {
       await StudentManagementService.deleteStudent(studentId);
-      toast.success('Student deleted successfully');
+      toast.success("Student deleted successfully");
       loadStudents();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete student');
+      toast.error(error.message || "Failed to delete student");
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedStudents.length === 0) return;
-    
+
     try {
       await StudentManagementService.bulkDeleteStudents(selectedStudents);
       toast.success(`${selectedStudents.length} students deleted successfully`);
       setSelectedStudents([]);
       loadStudents();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete students');
+      toast.error(error.message || "Failed to delete students");
     }
   };
 
-  const handleCRTAction = (student: Student, action: 'ADD' | 'REMOVE') => {
+  const handleCRTAction = (student: Student, action: "ADD" | "REMOVE") => {
     setCrtModalStudent(student);
     setCrtModalAction(action);
   };
@@ -201,9 +210,9 @@ export function StudentManagement() {
 
   // Get attendance color
   const getAttendanceColor = (percentage: number) => {
-    if (percentage >= 85) return 'text-green-600';
-    if (percentage >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 85) return "text-green-600";
+    if (percentage >= 70) return "text-yellow-600";
+    return "text-red-600";
   };
 
   if (isLoading) {
@@ -216,7 +225,7 @@ export function StudentManagement() {
           </div>
           <div className="h-10 bg-muted rounded w-32 animate-pulse"></div>
         </div>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="space-y-4">
@@ -264,9 +273,9 @@ export function StudentManagement() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             {error}
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={loadStudents}
               className="ml-2"
             >
@@ -284,47 +293,59 @@ export function StudentManagement() {
               <GraduationCap className="h-5 w-5 text-blue-600" />
               <div>
                 <div className="text-2xl font-bold">{students.length}</div>
-                <div className="text-sm text-muted-foreground">Total Students</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Students
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <UserCheck className="h-5 w-5 text-green-600" />
               <div>
                 <div className="text-2xl font-bold text-green-600">
-                  {students.filter(s => s.crtEligibility).length}
+                  {students.filter((s) => s.crtEligibility).length}
                 </div>
-                <div className="text-sm text-muted-foreground">CRT Eligible</div>
+                <div className="text-sm text-muted-foreground">
+                  CRT Eligible
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-5 w-5 text-purple-600" />
               <div>
                 <div className="text-2xl font-bold text-purple-600">
-                  {Math.round(students.reduce((acc, s) => acc + s.attendancePercentage, 0) / students.length) || 0}%
+                  {Math.round(
+                    students.reduce(
+                      (acc, s) => acc + s.attendancePercentage,
+                      0
+                    ) / students.length
+                  ) || 0}
+                  %
                 </div>
-                <div className="text-sm text-muted-foreground">Avg Attendance</div>
+                <div className="text-sm text-muted-foreground">
+                  Avg Attendance
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-orange-600" />
               <div>
                 <div className="text-2xl font-bold text-orange-600">
-                  {new Set(students.map(s => s.department)).size}
+                  {new Set(students.map((s) => s.department)).size}
                 </div>
                 <div className="text-sm text-muted-foreground">Departments</div>
               </div>
@@ -349,15 +370,19 @@ export function StudentManagement() {
                 <Input
                   placeholder="Search by name, email, registration number, or department..."
                   value={filters.search}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, search: e.target.value })
+                  }
                   className="pl-10"
                 />
               </div>
             </div>
-            
-            <Select 
-              value={filters.department} 
-              onValueChange={(value: any) => setFilters({ ...filters, department: value })}
+
+            <Select
+              value={filters.department}
+              onValueChange={(value: any) =>
+                setFilters({ ...filters, department: value })
+              }
             >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Department" />
@@ -366,15 +391,17 @@ export function StudentManagement() {
                 <SelectItem value="ALL">All Departments</SelectItem>
                 {DEPARTMENTS.map((dept) => (
                   <SelectItem key={dept} value={dept}>
-                    {dept.split(' ')[0]} {/* Show abbreviated name */}
+                    {dept.split(" ")[0]} {/* Show abbreviated name */}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            
-            <Select 
-              value={filters.batch} 
-              onValueChange={(value: any) => setFilters({ ...filters, batch: value })}
+
+            <Select
+              value={filters.batch}
+              onValueChange={(value: any) =>
+                setFilters({ ...filters, batch: value })
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Batch" />
@@ -388,10 +415,12 @@ export function StudentManagement() {
                 ))}
               </SelectContent>
             </Select>
-            
-            <Select 
-              value={filters.crtEligibility} 
-              onValueChange={(value: any) => setFilters({ ...filters, crtEligibility: value })}
+
+            <Select
+              value={filters.crtEligibility}
+              onValueChange={(value: any) =>
+                setFilters({ ...filters, crtEligibility: value })
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="CRT Status" />
@@ -413,14 +442,23 @@ export function StudentManagement() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="font-medium">
-                  {selectedStudents.length} student{selectedStudents.length > 1 ? 's' : ''} selected
+                  {selectedStudents.length} student
+                  {selectedStudents.length > 1 ? "s" : ""} selected
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setSelectedStudents([])}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedStudents([])}
+                >
                   Clear Selection
                 </Button>
-                <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Selected
                 </Button>
@@ -442,7 +480,10 @@ export function StudentManagement() {
                 <TableRow>
                   <TableHead className="w-12">
                     <Checkbox
-                      checked={selectedStudents.length === paginatedStudents.length && paginatedStudents.length > 0}
+                      checked={
+                        selectedStudents.length === paginatedStudents.length &&
+                        paginatedStudents.length > 0
+                      }
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
@@ -460,36 +501,48 @@ export function StudentManagement() {
                     <TableCell>
                       <Checkbox
                         checked={selectedStudents.includes(student.id)}
-                        onCheckedChange={(checked) => handleSelectStudent(student.id, checked as boolean)}
+                        onCheckedChange={(checked) =>
+                          handleSelectStudent(student.id, checked as boolean)
+                        }
                       />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
-                            {student.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                            {student.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium">{student.name}</div>
-                          <div className="text-sm text-muted-foreground">{student.regNum}</div>
-                          <div className="text-xs text-muted-foreground">{student.email}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {student.regNum}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {student.email}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <span className="text-sm font-medium">
-                        {student.department.split(' ')[0]}
+                        {student.department.split(" ")[0]}
                       </span>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{student.batch}</Badge>
                     </TableCell>
+                    <TableCell>{getCRTBadge(student.crtEligibility)}</TableCell>
                     <TableCell>
-                      {getCRTBadge(student.crtEligibility)}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`font-medium ${getAttendanceColor(student.attendancePercentage)}`}>
+                      <span
+                        className={`font-medium ${getAttendanceColor(
+                          student.attendancePercentage
+                        )}`}
+                      >
                         {student.attendancePercentage.toFixed(1)}%
                       </span>
                     </TableCell>
@@ -502,22 +555,34 @@ export function StudentManagement() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => setEditingStudent(student)}>
+
+                          <DropdownMenuItem
+                            onClick={() => setEditingStudent(student)}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Student
                           </DropdownMenuItem>
+                          {/*
+                          <DropdownMenuItem
+                            onClick={() => console.log("sending warning mail")}
+                            className="text-yellow-700"
+                          >
+                            <MessageSquareWarningIcon className="h-4 w-4 mr-2" />
+                            Send warning mail
+                          </DropdownMenuItem> */}
+
                           <DropdownMenuSeparator />
                           {student.crtEligibility ? (
-                            <DropdownMenuItem 
-                              onClick={() => handleCRTAction(student, 'REMOVE')}
+                            <DropdownMenuItem
+                              onClick={() => handleCRTAction(student, "REMOVE")}
                               className="text-red-600"
                             >
                               <UserX className="h-4 w-4 mr-2" />
                               Remove from CRT
                             </DropdownMenuItem>
                           ) : (
-                            <DropdownMenuItem 
-                              onClick={() => handleCRTAction(student, 'ADD')}
+                            <DropdownMenuItem
+                              onClick={() => handleCRTAction(student, "ADD")}
                               className="text-green-600"
                             >
                               <UserCheck className="h-4 w-4 mr-2" />
@@ -525,7 +590,7 @@ export function StudentManagement() {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDeleteStudent(student.id)}
                             className="text-red-600"
                           >
@@ -545,7 +610,9 @@ export function StudentManagement() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredStudents.length)} of {filteredStudents.length} students
+                Showing {startIndex + 1} to{" "}
+                {Math.min(startIndex + itemsPerPage, filteredStudents.length)}{" "}
+                of {filteredStudents.length} students
               </div>
               <div className="flex items-center space-x-2">
                 <Button

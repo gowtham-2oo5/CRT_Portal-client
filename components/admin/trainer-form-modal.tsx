@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,30 +18,35 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, CheckCircle, UserCheck } from 'lucide-react';
-import { TrainerManagementService } from '@/lib/api/services/trainer-management';
-import { toast } from 'sonner';
-import type { Trainer, CreateTrainerRequest, UpdateTrainerRequest } from '@/lib/types/trainer-management';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, AlertCircle, CheckCircle, UserCheck } from "lucide-react";
+import { TrainerManagementService } from "@/lib/api/services/trainer-management";
+import { toast } from "sonner";
+import type {
+  Trainer,
+  CreateTrainerRequest,
+  UpdateTrainerRequest,
+} from "@/lib/types/trainer-management";
 
 // Form validation schema
 const trainerSchema = z.object({
-  name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must be less than 100 characters')
-    .regex(/^[a-zA-Z\s.]+$/, 'Name can only contain letters, spaces, and dots'),
-  
-  email: z.string()
-    .email('Please enter a valid email address')
-    .endsWith('@kluniversity.in', 'Email must be a KLU domain (@kluniversity.in)'),
-  
-  sn: z.string()
-    .min(2, 'Serial number must be at least 2 characters')
-    .max(20, 'Serial number must be less than 20 characters')
-    .regex(/^[A-Z0-9]+$/, 'Serial number can only contain uppercase letters and numbers'),
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .regex(/^[a-zA-Z\s.]+$/, "Name can only contain letters, spaces, and dots"),
+
+  sn: z
+    .string()
+    .min(2, "Short Name must be at least 2 characters")
+    .max(20, "Short Name must be less than 20 characters")
+    .regex(
+      /^[A-Z0-9]+$/,
+      "Short Name can only contain uppercase letters and numbers"
+    ),
 });
 
 type TrainerFormData = z.infer<typeof trainerSchema>;
@@ -53,7 +58,12 @@ interface TrainerFormModalProps {
   onSuccess: () => void;
 }
 
-export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: TrainerFormModalProps) {
+export function TrainerFormModal({
+  open,
+  onOpenChange,
+  trainer,
+  onSuccess,
+}: TrainerFormModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,15 +71,15 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
 
   const form = useForm<TrainerFormData>({
     resolver: zodResolver(trainerSchema),
-    defaultValues: isEditMode ? {
-      name: trainer.name,
-      email: trainer.email,
-      sn: trainer.sn,
-    } : {
-      name: '',
-      email: '',
-      sn: '',
-    },
+    defaultValues: isEditMode
+      ? {
+          name: trainer.name,
+          sn: trainer.sn,
+        }
+      : {
+          name: "",
+          sn: "",
+        },
   });
 
   // Reset form when trainer changes
@@ -77,14 +87,12 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
     if (isEditMode && trainer) {
       form.reset({
         name: trainer.name,
-        email: trainer.email,
         sn: trainer.sn,
       });
     } else if (!isEditMode) {
       form.reset({
-        name: '',
-        email: '',
-        sn: '',
+        name: "",
+        sn: "",
       });
     }
   }, [trainer, isEditMode, form]);
@@ -98,29 +106,29 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
         // Update trainer
         const updateData: UpdateTrainerRequest = {
           name: data.name,
-          email: data.email,
           sn: data.sn,
         };
 
         await TrainerManagementService.updateTrainer(trainer.id, updateData);
-        toast.success('Trainer updated successfully!');
+        toast.success("Trainer updated successfully!");
       } else {
         // Create trainer
         const createData: CreateTrainerRequest = {
           name: data.name,
-          email: data.email,
           sn: data.sn,
         };
 
         await TrainerManagementService.createTrainer(createData);
-        toast.success('Trainer created successfully!');
+        toast.success("Trainer created successfully!");
       }
 
       onSuccess();
       onOpenChange(false);
     } catch (error: any) {
-      console.error('Error saving trainer:', error);
-      setError(error.message || `Failed to ${isEditMode ? 'update' : 'create'} trainer`);
+      console.error("Error saving trainer:", error);
+      setError(
+        error.message || `Failed to ${isEditMode ? "update" : "create"} trainer`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -152,10 +160,9 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
             )}
           </DialogTitle>
           <DialogDescription>
-            {isEditMode 
-              ? 'Update trainer information.'
-              : 'Add a new trainer to the system.'
-            }
+            {isEditMode
+              ? "Update trainer information."
+              : "Add a new trainer to the system."}
           </DialogDescription>
         </DialogHeader>
 
@@ -175,28 +182,9 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
                 <FormItem>
                   <FormLabel>Full Name *</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Dr. Rajesh Kumar" 
-                      {...field} 
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="email"
-                      placeholder="rajesh.kumar@kluniversity.in (KLU domain required)" 
-                      {...field} 
+                    <Input
+                      placeholder="Java Full Stack Dev"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -210,13 +198,15 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
               name="sn"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Serial Number *</FormLabel>
+                  <FormLabel>Short Name *</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="RK001 (Unique trainer short form)" 
-                      {...field} 
+                    <Input
+                      placeholder="WTN / PYTH/ JFS/... (Unique training short form - if any)"
+                      {...field}
                       disabled={isLoading}
-                      onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.toUpperCase())
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -226,9 +216,9 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
 
             {/* Form Actions */}
             <div className="flex items-center justify-end space-x-2 pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={handleClose}
                 disabled={isLoading}
               >
@@ -238,12 +228,12 @@ export function TrainerFormModal({ open, onOpenChange, trainer, onSuccess }: Tra
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditMode ? 'Updating...' : 'Creating...'}
+                    {isEditMode ? "Updating..." : "Creating..."}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="mr-2 h-4 w-4" />
-                    {isEditMode ? 'Update Trainer' : 'Create Trainer'}
+                    {isEditMode ? "Update Trainer" : "Create Trainer"}
                   </>
                 )}
               </Button>

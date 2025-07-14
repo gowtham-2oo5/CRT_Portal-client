@@ -214,7 +214,6 @@ export class StudentManagementService {
   // Remove student from CRT
   static async removeFromCRT(id: string, reason: string): Promise<void> {
     if (USE_MOCK_DATA) {
-      // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 800));
       return;
     }

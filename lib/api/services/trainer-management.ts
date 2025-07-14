@@ -34,7 +34,7 @@ export class TrainerManagementService {
 
       if (filters?.search) params.append("search", filters.search);
 
-      const response = await api.get(`/trainers?${params.toString()}`);
+      const response = await api.get(`/trainings?${params.toString()}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -56,7 +56,7 @@ export class TrainerManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/trainers/${id}`);
+      const response = await api.get(`/trainings/${id}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -79,7 +79,7 @@ export class TrainerManagementService {
     try {
       const api = await this.getAuthenticatedApi();
       const response = await api.get(
-        `/trainers/email/${encodeURIComponent(email)}`
+        `/trainings/email/${encodeURIComponent(email)}`
       );
       return response.data;
     } catch (error) {
@@ -91,7 +91,7 @@ export class TrainerManagementService {
     }
   }
 
-  // Get trainer by serial number (sn)
+  // Get trainer by Short Name (sn)
   static async getTrainerBySN(sn: string): Promise<Trainer> {
     if (USE_MOCK_DATA) {
       const trainers = await this.getMockTrainers();
@@ -102,7 +102,7 @@ export class TrainerManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/trainers/sn/${encodeURIComponent(sn)}`);
+      const response = await api.get(`/trainings/sn/${encodeURIComponent(sn)}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -124,7 +124,7 @@ export class TrainerManagementService {
       const newTrainer: Trainer = {
         id: `trainer-${Date.now()}`,
         ...trainerData,
-        sectionsCount: 0,
+        sections: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -134,7 +134,7 @@ export class TrainerManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.post("/trainers", trainerData);
+      const response = await api.post("/trainings", trainerData);
       return response.data;
     } catch (error) {
       console.error(
@@ -166,7 +166,7 @@ export class TrainerManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.put(`/trainers/${id}`, trainerData);
+      const response = await api.put(`/trainings/${id}`, trainerData);
       return response.data;
     } catch (error) {
       console.error(
@@ -187,7 +187,7 @@ export class TrainerManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      await api.delete(`/trainers/${id}`);
+      await api.delete(`/trainings/${id}`);
     } catch (error) {
       console.error(
         "[TrainerManagementService] Error deleting trainer:",
@@ -207,7 +207,7 @@ export class TrainerManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      await api.post("/trainers/bulk-delete", { trainerIds });
+      await api.post("/trainings/bulk-delete", { trainerIds });
     } catch (error) {
       console.error(
         "[TrainerManagementService] Error bulk deleting trainers:",
@@ -230,7 +230,7 @@ export class TrainerManagementService {
         name: "Dr. Rajesh Kumar",
         email: "rajesh.kumar@kluniversity.in",
         sn: "RK001",
-        sectionsCount: 3,
+        sections: 3,
         createdAt: "2023-01-15T10:00:00Z",
         updatedAt: "2024-06-20T14:30:00Z",
       },
@@ -239,7 +239,7 @@ export class TrainerManagementService {
         name: "Prof. Anita Sharma",
         email: "anita.sharma@kluniversity.in",
         sn: "AS002",
-        sectionsCount: 4,
+        sections: 4,
         createdAt: "2022-08-10T09:00:00Z",
         updatedAt: "2024-06-25T11:15:00Z",
       },
@@ -248,7 +248,7 @@ export class TrainerManagementService {
         name: "Mr. Vikram Singh",
         email: "vikram.singh@kluniversity.in",
         sn: "VS003",
-        sectionsCount: 0,
+        sections: 0,
         createdAt: "2023-03-05T09:00:00Z",
         updatedAt: "2024-06-15T16:45:00Z",
       },
@@ -257,7 +257,7 @@ export class TrainerManagementService {
         name: "Ms. Priya Patel",
         email: "priya.patel@kluniversity.in",
         sn: "PP004",
-        sectionsCount: 2,
+        sections: 2,
         createdAt: "2023-06-12T08:00:00Z",
         updatedAt: "2024-06-22T13:20:00Z",
       },
@@ -266,7 +266,7 @@ export class TrainerManagementService {
         name: "Dr. Suresh Reddy",
         email: "suresh.reddy@kluniversity.in",
         sn: "SR005",
-        sectionsCount: 5,
+        sections: 5,
         createdAt: "2021-09-20T07:30:00Z",
         updatedAt: "2024-06-26T09:15:00Z",
       },
@@ -275,7 +275,7 @@ export class TrainerManagementService {
         name: "Ms. Kavya Nair",
         email: "kavya.nair@kluniversity.in",
         sn: "KN006",
-        sectionsCount: 6,
+        sections: 6,
         createdAt: "2023-11-10T10:00:00Z",
         updatedAt: "2024-06-24T12:40:00Z",
       },
@@ -284,7 +284,7 @@ export class TrainerManagementService {
         name: "Mr. Arun Kumar",
         email: "arun.kumar@kluniversity.in",
         sn: "AK007",
-        sectionsCount: 3,
+        sections: 3,
         createdAt: "2022-12-05T09:30:00Z",
         updatedAt: "2024-06-23T15:10:00Z",
       },
@@ -293,7 +293,7 @@ export class TrainerManagementService {
         name: "Dr. Meera Gupta",
         email: "meera.gupta@kluniversity.in",
         sn: "MG008",
-        sectionsCount: 4,
+        sections: 4,
         createdAt: "2021-05-18T08:45:00Z",
         updatedAt: "2024-06-21T14:25:00Z",
       },

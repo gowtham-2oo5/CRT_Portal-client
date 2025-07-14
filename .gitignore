@@ -47,3 +47,5 @@ ARCHITECTURE.md
 next.config.ts
 
 .idea
+*.md
+!README.md

@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,24 +20,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+} from "@/components/ui/dropdown-menu";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   UserCheck,
   Download,
   Upload,
@@ -49,12 +49,12 @@ import {
   BookOpen,
   TrendingUp,
   Mail,
-  Phone
-} from 'lucide-react';
-import { TrainerManagementService } from '@/lib/api/services/trainer-management';
-import { TrainerFormModal } from './trainer-form-modal';
-import { toast } from 'sonner';
-import type { Trainer, TrainerFilters } from '@/lib/types/trainer-management';
+  Phone,
+} from "lucide-react";
+import { TrainerManagementService } from "@/lib/api/services/trainer-management";
+import { TrainerFormModal } from "./trainer-form-modal";
+import { toast } from "sonner";
+import type { Trainer, TrainerFilters } from "@/lib/types/trainer-management";
 
 export function TrainerManagement() {
   const [trainers, setTrainers] = useState<Trainer[]>([]);
@@ -64,10 +64,10 @@ export function TrainerManagement() {
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingTrainer, setEditingTrainer] = useState<Trainer | null>(null);
-  
+
   // Filters
   const [filters, setFilters] = useState<TrainerFilters>({
-    search: ''
+    search: "",
   });
 
   // Pagination
@@ -83,8 +83,8 @@ export function TrainerManagement() {
       setTrainers(trainerData);
       setFilteredTrainers(trainerData);
     } catch (error: any) {
-      console.error('Error loading trainers:', error);
-      setError(error.message || 'Failed to load trainers');
+      console.error("Error loading trainers:", error);
+      setError(error.message || "Failed to load trainers");
     } finally {
       setIsLoading(false);
     }
@@ -100,10 +100,10 @@ export function TrainerManagement() {
 
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(trainer => 
-        trainer.name.toLowerCase().includes(searchTerm) ||
-        trainer.email.toLowerCase().includes(searchTerm) ||
-        trainer.sn.toLowerCase().includes(searchTerm)
+      filtered = filtered.filter(
+        (trainer) =>
+          trainer.name.toLowerCase().includes(searchTerm) ||
+          trainer.sn.toLowerCase().includes(searchTerm)
       );
     }
 
@@ -114,20 +114,23 @@ export function TrainerManagement() {
   // Pagination
   const totalPages = Math.ceil(filteredTrainers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTrainers = filteredTrainers.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedTrainers = filteredTrainers.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   // Handle trainer selection
   const handleSelectTrainer = (trainerId: string, checked: boolean) => {
     if (checked) {
       setSelectedTrainers([...selectedTrainers, trainerId]);
     } else {
-      setSelectedTrainers(selectedTrainers.filter(id => id !== trainerId));
+      setSelectedTrainers(selectedTrainers.filter((id) => id !== trainerId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedTrainers(paginatedTrainers.map(trainer => trainer.id));
+      setSelectedTrainers(paginatedTrainers.map((trainer) => trainer.id));
     } else {
       setSelectedTrainers([]);
     }
@@ -137,32 +140,32 @@ export function TrainerManagement() {
   const handleDeleteTrainer = async (trainerId: string) => {
     try {
       await TrainerManagementService.deleteTrainer(trainerId);
-      toast.success('Trainer deleted successfully');
+      toast.success("Trainer deleted successfully");
       loadTrainers();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete trainer');
+      toast.error(error.message || "Failed to delete trainer");
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedTrainers.length === 0) return;
-    
+
     try {
       await TrainerManagementService.bulkDeleteTrainers(selectedTrainers);
       toast.success(`${selectedTrainers.length} trainers deleted successfully`);
       setSelectedTrainers([]);
       loadTrainers();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete trainers');
+      toast.error(error.message || "Failed to delete trainers");
     }
   };
 
   // Get sections color based on count
   const getSectionsColor = (count: number) => {
-    if (count >= 5) return 'text-purple-600';
-    if (count >= 3) return 'text-blue-600';
-    if (count >= 1) return 'text-green-600';
-    return 'text-gray-600';
+    if (count >= 5) return "text-purple-600";
+    if (count >= 3) return "text-blue-600";
+    if (count >= 1) return "text-green-600";
+    return "text-gray-600";
   };
 
   if (isLoading) {
@@ -175,7 +178,7 @@ export function TrainerManagement() {
           </div>
           <div className="h-10 bg-muted rounded w-32 animate-pulse"></div>
         </div>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="space-y-4">
@@ -223,9 +226,9 @@ export function TrainerManagement() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             {error}
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={loadTrainers}
               className="ml-2"
             >
@@ -243,49 +246,60 @@ export function TrainerManagement() {
               <UserCheck className="h-5 w-5 text-blue-600" />
               <div>
                 <div className="text-2xl font-bold">{trainers.length}</div>
-                <div className="text-sm text-muted-foreground">Total Trainers</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Trainings
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-5 w-5 text-green-600" />
               <div>
                 <div className="text-2xl font-bold text-green-600">
-                  {trainers.reduce((acc, t) => acc + (t.sectionsCount || 0), 0)}
+                  {trainers.reduce((acc, t) => acc + (t.sections || 0), 0)}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Sections</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Sections
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <BookOpen className="h-5 w-5 text-purple-600" />
               <div>
                 <div className="text-2xl font-bold text-purple-600">
-                  {Math.round(trainers.reduce((acc, t) => acc + (t.sectionsCount || 0), 0) / trainers.length) || 0}
+                  {Math.round(
+                    trainers.reduce((acc, t) => acc + (t.sections || 0), 0) /
+                      trainers.length
+                  ) || 0}
                 </div>
-                <div className="text-sm text-muted-foreground">Avg Sections</div>
+                <div className="text-sm text-muted-foreground">
+                  Avg Sections
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Award className="h-5 w-5 text-orange-600" />
               <div>
                 <div className="text-2xl font-bold text-orange-600">
-                  {trainers.filter(t => (t.sectionsCount || 0) > 0).length}
+                  {trainers.filter((t) => (t.sections || 0) > 0).length}
                 </div>
-                <div className="text-sm text-muted-foreground">Active Trainers</div>
+                <div className="text-sm text-muted-foreground">
+                  Active Trainers
+                </div>
               </div>
             </div>
           </CardContent>
@@ -306,9 +320,11 @@ export function TrainerManagement() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name, email, or serial number..."
+                  placeholder="Search by name, or Short Name..."
                   value={filters.search}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, search: e.target.value })
+                  }
                   className="pl-10"
                 />
               </div>
@@ -324,14 +340,23 @@ export function TrainerManagement() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="font-medium">
-                  {selectedTrainers.length} trainer{selectedTrainers.length > 1 ? 's' : ''} selected
+                  {selectedTrainers.length} trainer
+                  {selectedTrainers.length > 1 ? "s" : ""} selected
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setSelectedTrainers([])}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedTrainers([])}
+                >
                   Clear Selection
                 </Button>
-                <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Selected
                 </Button>
@@ -344,7 +369,7 @@ export function TrainerManagement() {
       {/* Trainers Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Trainers ({filteredTrainers.length})</CardTitle>
+          <CardTitle>Trainings ({filteredTrainers.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -353,13 +378,15 @@ export function TrainerManagement() {
                 <TableRow>
                   <TableHead className="w-12">
                     <Checkbox
-                      checked={selectedTrainers.length === paginatedTrainers.length && paginatedTrainers.length > 0}
+                      checked={
+                        selectedTrainers.length === paginatedTrainers.length &&
+                        paginatedTrainers.length > 0
+                      }
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
-                  <TableHead>Trainer</TableHead>
-                  <TableHead>Serial Number</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>Training</TableHead>
+                  <TableHead>Short Name</TableHead>
                   <TableHead>Sections</TableHead>
                   <TableHead className="w-12">Actions</TableHead>
                 </TableRow>
@@ -370,14 +397,20 @@ export function TrainerManagement() {
                     <TableCell>
                       <Checkbox
                         checked={selectedTrainers.includes(trainer.id)}
-                        onCheckedChange={(checked) => handleSelectTrainer(trainer.id, checked as boolean)}
+                        onCheckedChange={(checked) =>
+                          handleSelectTrainer(trainer.id, checked as boolean)
+                        }
                       />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
-                            {trainer.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                            {trainer.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -391,14 +424,11 @@ export function TrainerManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm text-muted-foreground">
-                        {trainer.email}
-                      </span>
-                    </TableCell>
-                    <TableCell>
                       <div className="flex items-center space-x-1">
                         <BookOpen className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm font-medium">{trainer.sectionsCount || 0}</span>
+                        <span className="text-sm font-medium">
+                          {trainer.sections || 0}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -410,12 +440,14 @@ export function TrainerManagement() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => setEditingTrainer(trainer)}>
+                          <DropdownMenuItem
+                            onClick={() => setEditingTrainer(trainer)}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Trainer
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDeleteTrainer(trainer.id)}
                             className="text-red-600"
                           >
@@ -435,7 +467,9 @@ export function TrainerManagement() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTrainers.length)} of {filteredTrainers.length} trainers
+                Showing {startIndex + 1} to{" "}
+                {Math.min(startIndex + itemsPerPage, filteredTrainers.length)}{" "}
+                of {filteredTrainers.length} trainers
               </div>
               <div className="flex items-center space-x-2">
                 <Button

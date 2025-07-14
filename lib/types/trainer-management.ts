@@ -4,15 +4,14 @@ export interface Trainer {
   id: string;
   name: string;
   email: string;
-  sn: string; // Serial number/short form
-  sectionsCount?: number; // Derived from sections relationship
+  sn: string; // Short Name/short form
+  sections?: number; // Derived from sections relationship
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface CreateTrainerRequest {
   name: string;
-  email: string;
   sn: string;
 }
 
@@ -28,5 +27,5 @@ export interface TrainerFilters {
 
 export interface BulkTrainerOperation {
   trainerIds: string[];
-  operation: 'DELETE';
+  operation: "DELETE";
 }
