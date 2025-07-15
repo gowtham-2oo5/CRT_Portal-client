@@ -46,10 +46,12 @@ import {
   GraduationCap,
   BookOpen,
   UserPlus,
+  Calendar,
 } from "lucide-react";
 import { SectionManagementService } from "@/lib/api/services/section-management";
 import { TrainerManagementService } from "@/lib/api/services/trainer-management";
 import { SectionFormModal } from "@/components/admin/section-form-modal";
+import { SectionScheduleComponent } from "@/components/admin/section-schedule";
 import { toast } from "sonner";
 import type { Section, SectionFilters } from "@/lib/types/section-management";
 import type { Trainer } from "@/lib/types/trainer-management";
@@ -63,6 +65,7 @@ export function SectionManagement() {
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingSection, setEditingSection] = useState<Section | null>(null);
+  const [viewingScheduleSection, setViewingScheduleSection] = useState<Section | null>(null);
 
   // Filters
   const [filters, setFilters] = useState<SectionFilters>({
@@ -248,6 +251,16 @@ export function SectionManagement() {
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>{error}</AlertDescription>
       </Alert>
+    );
+  }
+
+  // Show schedule view if a section is selected for viewing
+  if (viewingScheduleSection) {
+    return (
+      <SectionScheduleComponent
+        section={viewingScheduleSection}
+        onBack={() => setViewingScheduleSection(null)}
+      />
     );
   }
 
@@ -484,6 +497,13 @@ export function SectionManagement() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() => setViewingScheduleSection(section)}
+                            >
+                              <Calendar className="h-4 w-4 mr-2" />
+                              View Schedule
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => setEditingSection(section)}
                             >

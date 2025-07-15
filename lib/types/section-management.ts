@@ -20,6 +20,35 @@ export interface Student {
   crtEligibility: boolean;
   feedback?: string;
   attendancePercentage: number;
+  
+  // 🎯 ATTENDANCE SYSTEM EXTENSIONS
+  // Enhanced attendance tracking
+  totalSessions?: number; // Total sessions conducted
+  attendedSessions?: number; // Sessions attended
+  consecutiveAbsences?: number; // Current streak of absences
+  lastAttendanceDate?: string; // Last date student was present
+  attendanceTrend?: 'improving' | 'declining' | 'stable'; // Attendance trend
+  
+  // Attendance alerts and flags
+  lowAttendanceAlert?: boolean; // If attendance is below threshold
+  attendanceThreshold?: number; // Required attendance percentage
+  isEligibleForExam?: boolean; // Based on attendance criteria
+  
+  // Recent attendance history (last 5 sessions)
+  recentAttendance?: {
+    date: string;
+    present: boolean;
+    timeSlotId: string;
+    feedback?: string;
+  }[];
+  
+  // Attendance statistics
+  attendanceStats?: {
+    thisWeek: number; // This week's attendance percentage
+    thisMonth: number; // This month's attendance percentage
+    overall: number; // Overall attendance percentage
+    lastUpdated: string; // When stats were last calculated
+  };
 }
 
 export interface Section {

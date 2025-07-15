@@ -53,8 +53,8 @@ const adminNavigation = [
         icon: BookOpen,
     },
     {
-        name: 'Time Slots',
-        href: '/dashboard/admin/time-slots',
+        name: 'Schedule Management',
+        href: '/dashboard/admin/schedule-management',
         icon: Clock,
     },
     {

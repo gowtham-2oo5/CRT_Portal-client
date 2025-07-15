@@ -161,10 +161,10 @@ export class AuthService {
 
   static async logout(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await securedApi.post('/auth/logout');
+     // const response = await securedApi.post('/auth/logout');
       return {
         success: true,
-        message: response.data.message
+        message: "response.data.message"
       };
     } catch (error) {
       const apiError = handleApiError(error);

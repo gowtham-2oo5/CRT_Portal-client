@@ -1,287 +1,450 @@
 "use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { PageHeader } from '@/components/dashboard/breadcrumb';
-import { Calendar, Clock, MapPin, BookOpen, Users } from 'lucide-react';
-import Link from 'next/link';
-import type { TimeSlot } from '@/lib/types/faculty';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Clock,
+  MapPin,
+  Users,
+  Calendar,
+  RefreshCw,
+  AlertCircle,
+  Activity,
+  BookOpen,
+  ChevronLeft,
+  Building2,
+} from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/components/auth/auth-guard";
+import { PageHeader } from "@/components/dashboard/breadcrumb";
+import { toast } from "sonner";
 
-// Mock timetable data
-const mockTimetable: TimeSlot[] = [
-  // Monday
-  { id: '1', day: 'Monday', startTime: '09:00', endTime: '10:00', subject: 'Data Structures', section: 'CSE-A', room: 'Room 101' },
-  { id: '2', day: 'Monday', startTime: '11:00', endTime: '12:00', subject: 'Algorithms', section: 'CSE-B', room: 'Room 203' },
-  { id: '3', day: 'Monday', startTime: '14:00', endTime: '15:00', subject: 'Database Systems', section: 'CSE-A', room: 'Room 105' },
-  
-  // Tuesday
-  { id: '4', day: 'Tuesday', startTime: '10:00', endTime: '11:00', subject: 'Data Structures', section: 'CSE-B', room: 'Room 102' },
-  { id: '5', day: 'Tuesday', startTime: '13:00', endTime: '14:00', subject: 'Algorithms', section: 'CSE-A', room: 'Room 201' },
-  { id: '6', day: 'Tuesday', startTime: '15:00', endTime: '16:00', subject: 'Database Systems', section: 'CSE-C', room: 'Room 106' },
-  
-  // Wednesday
-  { id: '7', day: 'Wednesday', startTime: '09:00', endTime: '10:00', subject: 'Data Structures', section: 'CSE-C', room: 'Room 103' },
-  { id: '8', day: 'Wednesday', startTime: '11:00', endTime: '12:00', subject: 'Database Systems', section: 'CSE-B', room: 'Room 107' },
-  
-  // Thursday
-  { id: '9', day: 'Thursday', startTime: '10:00', endTime: '11:00', subject: 'Algorithms', section: 'CSE-C', room: 'Room 204' },
-  { id: '10', day: 'Thursday', startTime: '14:00', endTime: '15:00', subject: 'Data Structures', section: 'CSE-A', room: 'Room 101' },
-  
-  // Friday
-  { id: '11', day: 'Friday', startTime: '09:00', endTime: '10:00', subject: 'Database Systems', section: 'CSE-A', room: 'Room 108' },
-  { id: '12', day: 'Friday', startTime: '13:00', endTime: '14:00', subject: 'Algorithms', section: 'CSE-B', room: 'Room 205' },
-];
-
-const timeSlots = [
-  '09:00-10:00',
-  '10:00-11:00',
-  '11:00-12:00',
-  '12:00-13:00',
-  '13:00-14:00',
-  '14:00-15:00',
-  '15:00-16:00',
-  '16:00-17:00'
-];
-
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+// Types matching your timetable API response
+interface TimeSlot {
+  id: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  sectionName: string;
+  room: string;
+  active: boolean;
+}
 
 export default function FacultyTimetablePage() {
-  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const { user } = useAuth();
+  const [timetable, setTimetable] = useState<TimeSlot[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  const getCurrentTimeSlot = () => {
+  // Load timetable data - Following admin pattern
+  const fetchTimetableData = async (showRefreshIndicator = false) => {
+    if (!user?.userId) return;
+
+    try {
+      if (showRefreshIndicator) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+      setError(null);
+
+      console.log("📅 Loading timetable for faculty:", user.userId);
+
+      // Using your timetable API endpoint
+      const response = await fetch(
+        `http://localhost:8080/api/faculty/timetable?id=${user.userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("auth-token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("✅ Timetable loaded:", data);
+
+      setTimetable(data);
+      setLastUpdated(new Date());
+
+      if (showRefreshIndicator) {
+        toast.success("Timetable updated successfully!");
+      }
+    } catch (err: any) {
+      console.error("❌ Error loading timetable:", err);
+      const errorMessage = err?.message || "Failed to load timetable";
+      setError(errorMessage);
+
+      if (showRefreshIndicator) {
+        toast.error("Failed to refresh timetable");
+      }
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  // Auto-refresh setup - Following admin pattern
+  useEffect(() => {
+    fetchTimetableData();
+
+    // Set up auto-refresh every 60 seconds
+    const interval = setInterval(() => {
+      fetchTimetableData(true);
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [user?.userId]);
+
+  // Manual refresh - Following admin pattern
+  const handleManualRefresh = () => {
+    fetchTimetableData(true);
+  };
+
+  const formatTimestamp = (date: Date) => {
+    return date.toLocaleTimeString();
+  };
+
+  const getTimeStatus = (startTime: string, endTime: string) => {
     const now = new Date();
-    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    const currentTimeMinutes = currentHour * 60 + currentMinute;
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
 
-    return mockTimetable.find(slot => {
-      if (slot.day !== currentDay) return false;
-      
-      const [startHour, startMinute] = slot.startTime.split(':').map(Number);
-      const [endHour, endMinute] = slot.endTime.split(':').map(Number);
-      
-      const startTime = startHour * 60 + startMinute;
-      const endTime = endHour * 60 + endMinute;
-      
-      return currentTimeMinutes >= startTime && currentTimeMinutes <= endTime;
-    });
+    const start = new Date();
+    start.setHours(startHour, startMinute, 0, 0);
+
+    const end = new Date();
+    end.setHours(endHour, endMinute, 0, 0);
+
+    if (now >= start && now <= end) {
+      return "current";
+    } else if (now > end) {
+      return "past";
+    } else {
+      return "upcoming";
+    }
   };
 
-  const getSlotForDayAndTime = (day: string, timeSlot: string) => {
-    const [startTime] = timeSlot.split('-');
-    return mockTimetable.find(slot => 
-      slot.day === day && slot.startTime === startTime
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "current":
+        return "text-green-600 bg-green-100 dark:bg-green-950/20";
+      case "past":
+        return "text-muted-foreground bg-muted";
+      case "upcoming":
+        return "text-blue-600 bg-blue-100 dark:bg-blue-950/20";
+      default:
+        return "text-muted-foreground bg-muted";
+    }
+  };
+
+  const sortedTimetable = [...timetable].sort((a, b) => {
+    const timeA = a.startTime.split(":").map(Number);
+    const timeB = b.startTime.split(":").map(Number);
+    return timeA[0] * 60 + timeA[1] - (timeB[0] * 60 + timeB[1]);
+  });
+
+  // Loading skeleton - Following admin pattern
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader>
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard/faculty">
+              <Button variant="outline" size="sm">
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <div>
+              <div className="h-8 bg-muted rounded w-48 mb-2 animate-pulse"></div>
+              <div className="h-4 bg-muted rounded w-64 animate-pulse"></div>
+            </div>
+          </div>
+        </PageHeader>
+
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-8 bg-muted rounded w-64 mb-2 animate-pulse"></div>
+            <div className="h-4 bg-muted rounded w-96 animate-pulse"></div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-4 bg-muted rounded w-32 animate-pulse"></div>
+            <div className="h-9 bg-muted rounded w-20 animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Overview Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="h-4 bg-muted rounded w-24 animate-pulse"></div>
+                <div className="h-4 w-4 bg-muted rounded animate-pulse"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-muted rounded w-12 mb-1 animate-pulse"></div>
+                <div className="h-3 bg-muted rounded w-20 animate-pulse"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Schedule Skeleton */}
+        <Card>
+          <CardHeader>
+            <div className="h-6 bg-muted rounded w-32 animate-pulse"></div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-start space-x-4 p-4 border rounded-lg"
+                >
+                  <div className="h-10 w-10 bg-muted rounded animate-pulse"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                    <div className="h-3 bg-muted rounded w-1/2 animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
-  };
+  }
 
-  const currentSlot = getCurrentTimeSlot();
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <PageHeader>
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard/faculty">
+              <Button variant="outline" size="sm">
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold">Faculty Timetable</h1>
+              <p className="text-muted-foreground">
+                Your daily schedule and sessions
+              </p>
+            </div>
+          </div>
+        </PageHeader>
+
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchTimetableData()}
+              className="ml-2"
+            >
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      <PageHeader>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/faculty">
+            <Button variant="outline" size="sm">
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold">Faculty Timetable</h1>
+            <p className="text-muted-foreground">
+              Your daily schedule and sessions
+            </p>
+          </div>
+        </div>
+      </PageHeader>
+
+      {/* Header - Following admin pattern */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Weekly Timetable</h1>
-          <p className="text-muted-foreground">Your complete weekly schedule</p>
+          <h1 className="text-3xl font-bold">Daily Schedule</h1>
+          <p className="text-muted-foreground">
+            {sortedTimetable.length} sessions • Same schedule applies daily
+          </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Calendar className="h-5 w-5 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
-            Week of {new Date().toLocaleDateString()}
-          </span>
+          <div className="text-sm text-muted-foreground">
+            Last updated: {formatTimestamp(lastUpdated)}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            <span>Refresh</span>
+          </Button>
         </div>
       </div>
 
-      {/* Current Slot Alert */}
-      {currentSlot && (
-        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
-              <div className="flex-1">
-                <div className="font-semibold text-green-800 dark:text-green-200">
-                  Current Class: {currentSlot.subject}
-                </div>
-                <div className="text-sm text-green-600 dark:text-green-300">
-                  {currentSlot.section} • {currentSlot.room} • {currentSlot.startTime} - {currentSlot.endTime}
-                </div>
-              </div>
-              <Link href="/faculty/attendance">
-                <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  Take Attendance
-                </Button>
-              </Link>
-            </div>
+      {/* Overview Cards - Following admin metrics pattern */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Sessions
+            </CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{sortedTimetable.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Daily recurring schedule
+            </p>
           </CardContent>
         </Card>
-      )}
 
-      {/* Timetable Grid */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Completed Today
+            </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {
+                sortedTimetable.filter(
+                  (slot) =>
+                    getTimeStatus(slot.startTime, slot.endTime) === "past"
+                ).length
+              }
+            </div>
+            <p className="text-xs text-muted-foreground">Sessions finished</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {
+                sortedTimetable.filter(
+                  (slot) =>
+                    getTimeStatus(slot.startTime, slot.endTime) === "upcoming"
+                ).length
+              }
+            </div>
+            <p className="text-xs text-muted-foreground">Sessions remaining</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Detailed Schedule - Following admin recent actions pattern */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Calendar className="h-5 w-5" />
-            <span>Weekly Schedule</span>
+            <Clock className="h-5 w-5" />
+            <span>Detailed Schedule</span>
+            <Badge variant="secondary">{sortedTimetable.length}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
-              {/* Header Row */}
-              <div className="grid grid-cols-6 gap-2 mb-4">
-                <div className="p-3 font-semibold text-center bg-muted rounded-lg">
-                  Time
-                </div>
-                {days.map(day => (
-                  <div key={day} className="p-3 font-semibold text-center bg-muted rounded-lg">
-                    {day}
-                  </div>
-                ))}
-              </div>
+          {sortedTimetable.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No sessions scheduled</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sortedTimetable.map((slot) => {
+                const status = getTimeStatus(slot.startTime, slot.endTime);
 
-              {/* Timetable Rows */}
-              <div className="space-y-2">
-                {timeSlots.map(timeSlot => (
-                  <div key={timeSlot} className="grid grid-cols-6 gap-2">
-                    {/* Time Column */}
-                    <div className="p-3 text-center text-sm font-medium bg-card border rounded-lg">
-                      {timeSlot}
+                return (
+                  <div
+                    key={slot.id}
+                    className="flex items-start space-x-4 p-4 border rounded-lg"
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Clock className="h-5 w-5 text-primary" />
+                      </div>
                     </div>
-                    
-                    {/* Day Columns */}
-                    {days.map(day => {
-                      const slot = getSlotForDayAndTime(day, timeSlot);
-                      const isCurrentSlot = currentSlot?.id === slot?.id;
-                      
-                      return (
-                        <div
-                          key={`${day}-${timeSlot}`}
-                          className={`p-3 border rounded-lg min-h-[80px] cursor-pointer transition-all ${
-                            slot
-                              ? isCurrentSlot
-                                ? 'bg-green-100 border-green-300 dark:bg-green-950/30 dark:border-green-700'
-                                : 'bg-blue-50 border-blue-200 hover:bg-blue-100 dark:bg-blue-950/20 dark:border-blue-800 dark:hover:bg-blue-950/30'
-                              : 'bg-card hover:bg-muted'
-                          }`}
-                          onClick={() => slot && setSelectedSlot(slot)}
-                        >
-                          {slot ? (
-                            <div className="space-y-1">
-                              <div className="font-semibold text-sm text-blue-800 dark:text-blue-200">
-                                {slot.subject}
-                              </div>
-                              <div className="text-xs text-blue-600 dark:text-blue-300">
-                                {slot.section}
-                              </div>
-                              <div className="text-xs text-blue-500 dark:text-blue-400 flex items-center">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {slot.room}
-                              </div>
-                              {isCurrentSlot && (
-                                <Badge variant="secondary" className="text-xs bg-green-200 text-green-800">
-                                  Active
-                                </Badge>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="text-center text-muted-foreground text-sm">
-                              Free
-                            </div>
-                          )}
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium">{slot.sectionName}</div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={getStatusColor(status)}>
+                            {status === "current"
+                              ? "LIVE NOW"
+                              : status === "past"
+                              ? "Completed"
+                              : "Upcoming"}
+                          </Badge>
+                          <Link
+                            href={`/dashboard/faculty/attendance?sectionId=${slot.id}`}
+                          >
+                            <Button variant="outline" size="sm">
+                              <BookOpen className="h-4 w-4 mr-1" />
+                              {status === "current"
+                                ? "Mark Now"
+                                : "View Details"}
+                            </Button>
+                          </Link>
                         </div>
-                      );
-                    })}
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex items-center">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {slot.startTime} - {slot.endTime}
+                        </div>
+                        <div className="flex items-center">
+                          <Building2 className="h-3 w-3 mr-1" />
+                          {slot.room}
+                        </div>
+                        <div className="flex items-center">
+                          <Activity className="h-3 w-3 mr-1" />
+                          {Math.abs(
+                            parseInt(slot.endTime.split(":")[0]) * 60 +
+                              parseInt(slot.endTime.split(":")[1]) -
+                              (parseInt(slot.startTime.split(":")[0]) * 60 +
+                                parseInt(slot.startTime.split(":")[1]))
+                          )}{" "}
+                          minutes
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Slot Details Modal/Card */}
-      {selectedSlot && (
-        <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Class Details</span>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setSelectedSlot(null)}
-              >
-                ×
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex items-center space-x-2">
-                <BookOpen className="h-4 w-4 text-blue-600" />
-                <div>
-                  <div className="text-sm text-muted-foreground">Subject</div>
-                  <div className="font-semibold">{selectedSlot.subject}</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-blue-600" />
-                <div>
-                  <div className="text-sm text-muted-foreground">Section</div>
-                  <div className="font-semibold">{selectedSlot.section}</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-blue-600" />
-                <div>
-                  <div className="text-sm text-muted-foreground">Time</div>
-                  <div className="font-semibold">{selectedSlot.startTime} - {selectedSlot.endTime}</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 text-blue-600" />
-                <div>
-                  <div className="text-sm text-muted-foreground">Room</div>
-                  <div className="font-semibold">{selectedSlot.room}</div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 flex space-x-2">
-              <Link href="/faculty/attendance">
-                <Button size="sm">
-                  Take Attendance
-                </Button>
-              </Link>
-              <Button variant="outline" size="sm">
-                View Section Details
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Legend */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Legend</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-green-100 border-green-300 rounded"></div>
-              <span className="text-sm">Current Class</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-blue-50 border-blue-200 rounded"></div>
-              <span className="text-sm">Scheduled Class</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-card border rounded"></div>
-              <span className="text-sm">Free Period</span>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

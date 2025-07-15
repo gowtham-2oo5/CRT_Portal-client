@@ -32,32 +32,34 @@ export class ClientAuth {
     sessionStorage.removeItem("refresh-token");
 
     // Clear cookies
-    document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie = "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie =
+      "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie =
+      "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
 
   static getTokens(): { token: string | null; refreshToken: string | null } {
     if (typeof window === "undefined") {
       return { token: null, refreshToken: null };
     }
-    
+
     const token = sessionStorage.getItem("auth-token");
     const refreshToken = sessionStorage.getItem("refresh-token");
-    
+
     return { token, refreshToken };
   }
 
   static async getCurrentUser(): Promise<User | null> {
     try {
       const { token } = this.getTokens();
-      
+
       if (!token) {
         return null;
       }
 
       // Decode token to get user info
       const decoded = jwtDecode<TokenClaims>(token);
-      
+
       // Check if token is expired
       const now = Date.now() / 1000;
       if (decoded.exp < now) {
@@ -96,7 +98,7 @@ export class ClientAuth {
   ): Promise<{ success: boolean; data?: LoginResponse; message: string }> {
     try {
       console.log("[ClientAuth] Attempting login for:", usernameOrEmail);
-      
+
       const response = await publicApi.post("/auth/login", {
         usernameOrEmail,
         password,
@@ -129,7 +131,7 @@ export class ClientAuth {
   }> {
     try {
       console.log("[ClientAuth] Verifying OTP for:", usernameOrEmail);
-      
+
       const response = await publicApi.post("/auth/verify-otp", {
         usernameOrEmail,
         otp,
@@ -198,19 +200,19 @@ export class ClientAuth {
   // Logout method
   static async logout(): Promise<void> {
     console.log("[ClientAuth] Logging out");
-    
+
     try {
       // Optional: Call logout endpoint
       const { token } = this.getTokens();
-      if (token) {
-        await publicApi.post("/auth/logout", {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      }
+      // if (token) {
+      //   await publicApi.post("/auth/logout", {}, {
+      //     headers: { Authorization: `Bearer ${token}` }
+      //   });
+      // }
     } catch (error) {
       console.log("[ClientAuth] Logout endpoint error (non-critical):", error);
     }
-    
+
     this.clearTokens();
     window.location.href = "/";
   }

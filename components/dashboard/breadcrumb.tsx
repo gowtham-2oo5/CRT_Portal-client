@@ -24,7 +24,7 @@ const routeLabels: Record<string, string> = {
   timetable: "Timetable",
   rooms: "Room Management",
   sections: "Section Management",
-  "time-slots": "Time Slots",
+  "schedule-management": "Schedule Management",
   "bulk-operations": "Bulk Operations",
   settings: "Settings",
 };

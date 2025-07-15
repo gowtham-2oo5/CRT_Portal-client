@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,107 +18,147 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { UserManagementService } from '@/lib/api/services/user-management';
-import { toast } from 'sonner';
-import type { User, CreateUserRequest, UpdateUserRequest } from '@/lib/types/user-management';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { UserManagementService } from "@/lib/api/services/user-management";
+import { toast } from "sonner";
+import type {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+} from "@/lib/types/user-management";
 
 // Form validation schema
-const createUserSchema = z.object({
-  name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must be less than 100 characters')
-    .regex(/^[a-zA-Z\s.]+$/, 'Name can only contain letters, spaces, and dots'),
+const createUserSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(100, "Name must be less than 100 characters")
+      .regex(
+        /^[a-zA-Z\s.]+$/,
+        "Name can only contain letters, spaces, and dots"
+      ),
 
-  email: z.string()
-    .email('Please enter a valid email address')
-    .endsWith('@kluniversity.in', 'Email must be a KLU domain (@kluniversity.in)'),
+    email: z
+      .string()
+      .email("Please enter a valid email address")
+      .endsWith(
+        "@kluniversity.in",
+        "Email must be a KLU domain (@kluniversity.in)"
+      ),
 
-  phone: z.string()
-    .regex(/^\+91-\d{10}$/, 'Phone must be in format +91-XXXXXXXXXX')
-    .min(14, 'Phone number is required'),
+    phone: z
+      .string()
+      .regex(/^\+91-\d{10}$/, "Phone must be in format +91-XXXXXXXXXX")
+      .min(14, "Phone number is required"),
 
-  username: z.string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(50, 'Username must be less than 50 characters')
-    .regex(/^[a-zA-Z0-9._-]+$/, 'Username can only contain letters, numbers, dots, hyphens, and underscores')
-    .toLowerCase(),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(50, "Username must be less than 50 characters")
+      .regex(
+        /^[a-zA-Z0-9._-]+$/,
+        "Username can only contain letters, numbers, dots, hyphens, and underscores"
+      )
+      .toLowerCase(),
 
-  role: z.enum(['ADMIN', 'FACULTY'], {
-    required_error: 'Please select a role',
-  }),
+    role: z.enum(["ADMIN", "FACULTY"], {
+      required_error: "Please select a role",
+    }),
 
-  department: z.enum(['CSE', 'ME', 'CE', 'ECE', 'EEE'], {
-    required_error: 'Please select a department',
-  }),
+    department: z.enum(["CSE", "ME", "CE", "ECE", "EEE"], {
+      required_error: "Please select a department",
+    }),
 
-  employeeId: z.string().optional(),
+    employeeId: z.string().optional(),
 
-  isActive: z.boolean().default(true),
-}).refine((data) => {
-  // Employee ID is required for faculty
-  if (data.role === 'FACULTY') {
-    return data.employeeId && data.employeeId.length >= 3;
-  }
-  return true;
-}, {
-  message: "Employee ID is required for faculty members",
-  path: ["employeeId"],
-});
+    isActive: z.boolean().default(true),
+  })
+  .refine(
+    (data) => {
+      // Employee ID is required for faculty
+      if (data.role === "FACULTY") {
+        return data.employeeId && data.employeeId.length >= 3;
+      }
+      return true;
+    },
+    {
+      message: "Employee ID is required for faculty members",
+      path: ["employeeId"],
+    }
+  );
 
-const updateUserSchema = z.object({
-  name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must be less than 100 characters')
-    .regex(/^[a-zA-Z\s.]+$/, 'Name can only contain letters, spaces, and dots'),
+const updateUserSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(100, "Name must be less than 100 characters")
+      .regex(
+        /^[a-zA-Z\s.]+$/,
+        "Name can only contain letters, spaces, and dots"
+      ),
 
-  email: z.string()
-    .email('Please enter a valid email address')
-    .endsWith('@kluniversity.in', 'Email must be a KLU domain (@kluniversity.in)'),
+    email: z
+      .string()
+      .email("Please enter a valid email address")
+      .endsWith(
+        "@kluniversity.in",
+        "Email must be a KLU domain (@kluniversity.in)"
+      ),
 
-  phone: z.string()
-    .regex(/^\+91-\d{10}$/, 'Phone must be in format +91-XXXXXXXXXX')
-    .min(14, 'Phone number is required'),
+    phone: z
+      .string()
+      .regex(/^\+91-\d{10}$/, "Phone must be in format +91-XXXXXXXXXX")
+      .min(14, "Phone number is required"),
 
-  username: z.string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(50, 'Username must be less than 50 characters')
-    .regex(/^[a-zA-Z0-9._-]+$/, 'Username can only contain letters, numbers, dots, hyphens, and underscores')
-    .toLowerCase(),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(50, "Username must be less than 50 characters")
+      .regex(
+        /^[a-zA-Z0-9._-]+$/,
+        "Username can only contain letters, numbers, dots, hyphens, and underscores"
+      )
+      .toLowerCase(),
 
-  role: z.enum(['ADMIN', 'FACULTY'], {
-    required_error: 'Please select a role',
-  }),
+    role: z.enum(["ADMIN", "FACULTY"], {
+      required_error: "Please select a role",
+    }),
 
-  department: z.enum(['CSE', 'ME', 'CE', 'ECE', 'EEE'], {
-    required_error: 'Please select a department',
-  }),
+    department: z.enum(["CSE", "ME", "CE", "ECE", "EEE"], {
+      required_error: "Please select a department",
+    }),
 
-  employeeId: z.string().optional(),
+    employeeId: z.string().optional(),
 
-  isActive: z.boolean().default(true),
-}).refine((data) => {
-  // Employee ID is required for faculty
-  if (data.role === 'FACULTY') {
-    return data.employeeId && data.employeeId.length >= 3;
-  }
-  return true;
-}, {
-  message: "Employee ID is required for faculty members",
-  path: ["employeeId"],
-});
+    isActive: z.boolean().default(true),
+  })
+  .refine(
+    (data) => {
+      // Employee ID is required for faculty
+      if (data.role === "FACULTY") {
+        return data.employeeId && data.employeeId.length >= 3;
+      }
+      return true;
+    },
+    {
+      message: "Employee ID is required for faculty members",
+      path: ["employeeId"],
+    }
+  );
 
 type CreateUserFormData = z.infer<typeof createUserSchema>;
 type UpdateUserFormData = z.infer<typeof updateUserSchema>;
@@ -130,7 +170,12 @@ interface UserFormModalProps {
   onSuccess: () => void;
 }
 
-export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormModalProps) {
+export function UserFormModal({
+  open,
+  onOpenChange,
+  user,
+  onSuccess,
+}: UserFormModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -139,25 +184,27 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
 
   const form = useForm<CreateUserFormData | UpdateUserFormData>({
     resolver: zodResolver(schema),
-    defaultValues: isEditMode ? {
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      username: user.username,
-      role: user.role,
-      department: user.department,
-      employeeId: user.employeeId || '',
-      isActive: user.isActive ?? true,
-    } : {
-      name: '',
-      email: '',
-      phone: '+91-',
-      username: '',
-      role: 'FACULTY' as const,
-      department: 'CSE' as const,
-      employeeId: '',
-      isActive: true,
-    },
+    defaultValues: isEditMode
+      ? {
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          username: user.username,
+          role: user.role,
+          department: user.department,
+          employeeId: user.employeeId || "",
+          isActive: user.isActive ?? true,
+        }
+      : {
+          name: "",
+          email: "",
+          phone: "+91-",
+          username: "",
+          role: "FACULTY" as const,
+          department: "CSE" as const,
+          employeeId: "",
+          isActive: true,
+        },
   });
 
   // Reset form when user changes
@@ -170,25 +217,25 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
         username: user.username,
         role: user.role,
         department: user.department,
-        employeeId: user.employeeId || '',
+        employeeId: user.employeeId || "",
         isActive: user.isActive ?? true,
       });
     } else if (!isEditMode) {
       form.reset({
-        name: '',
-        email: '',
-        phone: '+91-',
-        username: '',
-        role: 'FACULTY' as const,
-        department: 'CSE' as const,
-        employeeId: '',
+        name: "",
+        email: "",
+        phone: "+91-",
+        username: "",
+        role: "FACULTY" as const,
+        department: "CSE" as const,
+        employeeId: "",
         isActive: true,
       });
     }
   }, [user, isEditMode, form]);
 
   // Watch role to show/hide employee ID field
-  const selectedRole = form.watch('role');
+  const selectedRole = form.watch("role");
 
   const onSubmit = async (data: CreateUserFormData | UpdateUserFormData) => {
     try {
@@ -208,8 +255,8 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
           isActive: data.isActive,
         };
 
-        await UserManagementService.updateUser(user.id, updateData);
-        toast.success('User updated successfully!');
+        await UserManagementService.updateUser(user.userId, updateData);
+        toast.success("User updated successfully!");
       } else {
         // Create user - server will handle password generation
         const createData = data as CreateUserFormData;
@@ -222,16 +269,20 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
           department: createData.department,
           employeeId: createData.employeeId || undefined,
         };
-
+        console.log("new user: ", newUserData);
         await UserManagementService.createUser(newUserData);
-        toast.success('User created successfully! Password will be sent via email.');
+        toast.success(
+          "User created successfully! Password will be sent via email."
+        );
       }
 
       onSuccess();
       onOpenChange(false);
     } catch (error: any) {
-      console.error('Error saving user:', error);
-      setError(error.message || `Failed to ${isEditMode ? 'update' : 'create'} user`);
+      console.error("Error saving user:", error);
+      setError(
+        error.message || `Failed to ${isEditMode ? "update" : "create"} user`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -264,9 +315,8 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
           </DialogTitle>
           <DialogDescription>
             {isEditMode
-              ? 'Update user information and permissions.'
-              : 'Add a new user to the system. Password will be automatically generated and sent via email.'
-            }
+              ? "Update user information and permissions."
+              : "Add a new user to the system. Password will be automatically generated and sent via email."}
           </DialogDescription>
         </DialogHeader>
 
@@ -409,11 +459,19 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="CSE">Computer Science & Engineering</SelectItem>
-                          <SelectItem value="ECE">Electronics & Communication</SelectItem>
-                          <SelectItem value="ME">Mechanical Engineering</SelectItem>
+                          <SelectItem value="CSE">
+                            Computer Science & Engineering
+                          </SelectItem>
+                          <SelectItem value="ECE">
+                            Electronics & Communication
+                          </SelectItem>
+                          <SelectItem value="ME">
+                            Mechanical Engineering
+                          </SelectItem>
                           <SelectItem value="CE">Civil Engineering</SelectItem>
-                          <SelectItem value="EEE">Electrical & Electronics</SelectItem>
+                          <SelectItem value="EEE">
+                            Electrical & Electronics
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -423,7 +481,7 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
               </div>
 
               {/* Employee ID (Faculty only) */}
-              {selectedRole === 'FACULTY' && (
+              {selectedRole === "FACULTY" && (
                 <FormField
                   control={form.control}
                   name="employeeId"
@@ -454,9 +512,7 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Active User
-                      </FormLabel>
+                      <FormLabel className="text-base">Active User</FormLabel>
                     </div>
                     <FormControl>
                       <Switch
@@ -484,12 +540,12 @@ export function UserFormModal({ open, onOpenChange, user, onSuccess }: UserFormM
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditMode ? 'Updating...' : 'Creating...'}
+                    {isEditMode ? "Updating..." : "Creating..."}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="mr-2 h-4 w-4" />
-                    {isEditMode ? 'Update User' : 'Create User'}
+                    {isEditMode ? "Update User" : "Create User"}
                   </>
                 )}
               </Button>

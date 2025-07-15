@@ -49,3 +49,6 @@ next.config.ts
 .idea
 *.md
 !README.md
+
+*.sh
+middleware.ts

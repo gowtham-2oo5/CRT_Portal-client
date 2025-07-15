@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,32 +20,32 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { 
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+} from "@/components/ui/dropdown-menu";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   UserPlus,
   Download,
   Upload,
@@ -54,12 +54,12 @@ import {
   EyeOff,
   AlertCircle,
   CheckCircle,
-  Users
-} from 'lucide-react';
-import { UserManagementService } from '@/lib/api/services/user-management';
-import { toast } from 'sonner';
-import { UserFormModal } from './user-form-modal';
-import type { User, UserFilters } from '@/lib/types/user-management';
+  Users,
+} from "lucide-react";
+import { UserManagementService } from "@/lib/api/services/user-management";
+import { toast } from "sonner";
+import { UserFormModal } from "./user-form-modal";
+import type { User, UserFilters } from "@/lib/types/user-management";
 
 export function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -69,13 +69,13 @@ export function UserManagement() {
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  
+
   // Filters
   const [filters, setFilters] = useState<UserFilters>({
-    search: '',
-    role: 'ALL',
-    department: 'ALL',
-    status: 'ALL'
+    search: "",
+    role: "ALL",
+    department: "ALL",
+    status: "ALL",
   });
 
   // Pagination
@@ -91,8 +91,8 @@ export function UserManagement() {
       setUsers(userData);
       setFilteredUsers(userData);
     } catch (error: any) {
-      console.error('Error loading users:', error);
-      setError(error.message || 'Failed to load users');
+      console.error("Error loading users:", error);
+      setError(error.message || "Failed to load users");
     } finally {
       setIsLoading(false);
     }
@@ -108,25 +108,29 @@ export function UserManagement() {
 
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(user => 
-        user.name.toLowerCase().includes(searchTerm) ||
-        user.email.toLowerCase().includes(searchTerm) ||
-        user.username.toLowerCase().includes(searchTerm) ||
-        (user.employeeId && user.employeeId.toLowerCase().includes(searchTerm))
+      filtered = filtered.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm) ||
+          user.email.toLowerCase().includes(searchTerm) ||
+          user.username.toLowerCase().includes(searchTerm) ||
+          (user.employeeId &&
+            user.employeeId.toLowerCase().includes(searchTerm))
       );
     }
 
-    if (filters.role && filters.role !== 'ALL') {
-      filtered = filtered.filter(user => user.role === filters.role);
+    if (filters.role && filters.role !== "ALL") {
+      filtered = filtered.filter((user) => user.role === filters.role);
     }
 
-    if (filters.department && filters.department !== 'ALL') {
-      filtered = filtered.filter(user => user.department === filters.department);
+    if (filters.department && filters.department !== "ALL") {
+      filtered = filtered.filter(
+        (user) => user.department === filters.department
+      );
     }
 
-    if (filters.status && filters.status !== 'ALL') {
-      const isActive = filters.status === 'ACTIVE';
-      filtered = filtered.filter(user => user.isActive === isActive);
+    if (filters.status && filters.status !== "ALL") {
+      const isActive = filters.status === "ACTIVE";
+      filtered = filtered.filter((user) => user.isActive === isActive);
     }
 
     setFilteredUsers(filtered);
@@ -136,20 +140,23 @@ export function UserManagement() {
   // Pagination
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedUsers = filteredUsers.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   // Handle user selection
   const handleSelectUser = (userId: string, checked: boolean) => {
     if (checked) {
       setSelectedUsers([...selectedUsers, userId]);
     } else {
-      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+      setSelectedUsers(selectedUsers.filter((id) => id !== userId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(paginatedUsers.map(user => user.id));
+      setSelectedUsers(paginatedUsers.map((user) => user.userId));
     } else {
       setSelectedUsers([]);
     }
@@ -159,35 +166,35 @@ export function UserManagement() {
   const handleDeleteUser = async (userId: string) => {
     try {
       await UserManagementService.deleteUser(userId);
-      toast.success('User deleted successfully');
+      toast.success("User deleted successfully");
       loadUsers();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete user');
+      toast.error(error.message || "Failed to delete user");
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedUsers.length === 0) return;
-    
+
     try {
       await UserManagementService.bulkDeleteUsers(selectedUsers);
       toast.success(`${selectedUsers.length} users deleted successfully`);
       setSelectedUsers([]);
       loadUsers();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete users');
+      toast.error(error.message || "Failed to delete users");
     }
   };
 
   // Get role badge color
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'ADMIN':
-        return 'bg-red-100 text-red-800 dark:bg-red-950/20 dark:text-red-400';
-      case 'FACULTY':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-950/20 dark:text-blue-400';
+      case "ADMIN":
+        return "bg-red-100 text-red-800 dark:bg-red-950/20 dark:text-red-400";
+      case "FACULTY":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-950/20 dark:text-blue-400";
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-950/20 dark:text-gray-400';
+        return "bg-gray-100 text-gray-800 dark:bg-gray-950/20 dark:text-gray-400";
     }
   };
 
@@ -216,7 +223,7 @@ export function UserManagement() {
           </div>
           <div className="h-10 bg-muted rounded w-32 animate-pulse"></div>
         </div>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="space-y-4">
@@ -264,9 +271,9 @@ export function UserManagement() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             {error}
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={loadUsers}
               className="ml-2"
             >
@@ -289,42 +296,44 @@ export function UserManagement() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <UserPlus className="h-5 w-5 text-green-600" />
               <div>
                 <div className="text-2xl font-bold">
-                  {users.filter(u => u.isActive).length}
+                  {users.filter((u) => u.isActive).length}
                 </div>
-                <div className="text-sm text-muted-foreground">Active Users</div>
+                <div className="text-sm text-muted-foreground">
+                  Active Users
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Eye className="h-5 w-5 text-red-600" />
               <div>
                 <div className="text-2xl font-bold">
-                  {users.filter(u => u.role === 'ADMIN').length}
+                  {users.filter((u) => u.role === "ADMIN").length}
                 </div>
                 <div className="text-sm text-muted-foreground">Admins</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-purple-600" />
               <div>
                 <div className="text-2xl font-bold">
-                  {users.filter(u => u.role === 'FACULTY').length}
+                  {users.filter((u) => u.role === "FACULTY").length}
                 </div>
                 <div className="text-sm text-muted-foreground">Faculty</div>
               </div>
@@ -349,15 +358,19 @@ export function UserManagement() {
                 <Input
                   placeholder="Search users by name, email, username, or employee ID..."
                   value={filters.search}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, search: e.target.value })
+                  }
                   className="pl-10"
                 />
               </div>
             </div>
-            
-            <Select 
-              value={filters.role} 
-              onValueChange={(value: any) => setFilters({ ...filters, role: value })}
+
+            <Select
+              value={filters.role}
+              onValueChange={(value: any) =>
+                setFilters({ ...filters, role: value })
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Role" />
@@ -368,10 +381,12 @@ export function UserManagement() {
                 <SelectItem value="FACULTY">Faculty</SelectItem>
               </SelectContent>
             </Select>
-            
-            <Select 
-              value={filters.department} 
-              onValueChange={(value: any) => setFilters({ ...filters, department: value })}
+
+            <Select
+              value={filters.department}
+              onValueChange={(value: any) =>
+                setFilters({ ...filters, department: value })
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Department" />
@@ -385,10 +400,12 @@ export function UserManagement() {
                 <SelectItem value="EEE">EEE</SelectItem>
               </SelectContent>
             </Select>
-            
-            <Select 
-              value={filters.status} 
-              onValueChange={(value: any) => setFilters({ ...filters, status: value })}
+
+            <Select
+              value={filters.status}
+              onValueChange={(value: any) =>
+                setFilters({ ...filters, status: value })
+              }
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Status" />
@@ -410,14 +427,23 @@ export function UserManagement() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="font-medium">
-                  {selectedUsers.length} user{selectedUsers.length > 1 ? 's' : ''} selected
+                  {selectedUsers.length} user
+                  {selectedUsers.length > 1 ? "s" : ""} selected
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setSelectedUsers([])}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedUsers([])}
+                >
                   Clear Selection
                 </Button>
-                <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Selected
                 </Button>
@@ -439,7 +465,10 @@ export function UserManagement() {
                 <TableRow>
                   <TableHead className="w-12">
                     <Checkbox
-                      checked={selectedUsers.length === paginatedUsers.length && paginatedUsers.length > 0}
+                      checked={
+                        selectedUsers.length === paginatedUsers.length &&
+                        paginatedUsers.length > 0
+                      }
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
@@ -453,25 +482,35 @@ export function UserManagement() {
               </TableHeader>
               <TableBody>
                 {paginatedUsers.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user.userId}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedUsers.includes(user.id)}
-                        onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
+                        checked={selectedUsers.includes(user.userId)}
+                        onCheckedChange={(checked) =>
+                          handleSelectUser(user.userId, checked as boolean)
+                        }
                       />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
-                            {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                            {user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium">{user.name}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {user.email}
+                          </div>
                           {user.employeeId && (
-                            <div className="text-xs text-muted-foreground">ID: {user.employeeId}</div>
+                            <div className="text-xs text-muted-foreground">
+                              ID: {user.employeeId}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -489,10 +528,9 @@ export function UserManagement() {
                     </TableCell>
                     <TableCell>
                       <span className="text-sm">
-                        {user.lastLogin 
+                        {user.lastLogin
                           ? new Date(user.lastLogin).toLocaleDateString()
-                          : 'Never'
-                        }
+                          : "Never"}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -504,13 +542,15 @@ export function UserManagement() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => setEditingUser(user)}>
+                          <DropdownMenuItem
+                            onClick={() => setEditingUser(user)}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit User
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteUser(user.id)}
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteUser(user.userId)}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
@@ -529,7 +569,9 @@ export function UserManagement() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of {filteredUsers.length} users
+                Showing {startIndex + 1} to{" "}
+                {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of{" "}
+                {filteredUsers.length} users
               </div>
               <div className="flex items-center space-x-2">
                 <Button
