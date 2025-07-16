@@ -321,10 +321,14 @@ export interface SessionStudentsResponse {
   sectionName: string;
   sectionId: string;
   timeSlot: {
-    id: string;
+    id: number;
     startTime: string;
     endTime: string;
-    room: string;
+    roomId: string;
+    sectionId: string;
+    inchargeFacultyId: string;
+    isBreak: boolean;
+    breakDescription: string;
   };
 }
 

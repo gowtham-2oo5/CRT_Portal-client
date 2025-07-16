@@ -205,6 +205,53 @@ export function StudentListCard({
             </Button>
           </div>
         </div>
+
+        {/* Quick Actions */}
+        <div className="flex gap-2 mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              students.forEach(student => {
+                onAttendanceChange(student.id, { present: true });
+              });
+            }}
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            <CheckCircle className="h-4 w-4" />
+            Mark All Present
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              students.forEach(student => {
+                onAttendanceChange(student.id, { present: false });
+              });
+            }}
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            <XCircle className="h-4 w-4" />
+            Mark All Absent
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              students.forEach(student => {
+                onAttendanceChange(student.id, { present: undefined });
+              });
+            }}
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            Clear All
+          </Button>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0">

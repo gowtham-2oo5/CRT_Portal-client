@@ -1,24 +1,24 @@
 // 🎯 CRT Portal Attendance System - Student Attendance Row
 // Created: 2025-07-15 | Phase 3 - Task 3.1
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  CheckCircle, 
-  XCircle, 
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  CheckCircle,
+  XCircle,
   Clock,
   MessageSquare,
   AlertTriangle,
   ChevronDown,
-  ChevronUp
-} from 'lucide-react';
-import type { Student } from '@/lib/types/section-management';
-import type { AttendanceRecord } from '@/lib/types/attendance';
+  ChevronUp,
+} from "lucide-react";
+import type { Student } from "@/lib/types/section-management";
+import type { AttendanceRecord } from "@/lib/types/attendance";
 
 interface StudentAttendanceRowProps {
   student: Student;
@@ -35,10 +35,10 @@ export function StudentAttendanceRow({
   onAttendanceChange,
   isSubmitting = false,
   index,
-  className = ""
+  className = "",
 }: StudentAttendanceRowProps) {
   const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState(attendanceRecord?.feedback || '');
+  const [feedback, setFeedback] = useState(attendanceRecord?.feedback || "");
 
   // Handle attendance status change
   const handleAttendanceChange = (present: boolean) => {
@@ -57,7 +57,7 @@ export function StudentAttendanceRow({
   // Handle feedback change
   const handleFeedbackChange = (newFeedback: string) => {
     setFeedback(newFeedback);
-    
+
     // Auto-save feedback if attendance is already marked
     if (attendanceRecord?.present !== undefined) {
       onAttendanceChange({
@@ -69,20 +69,21 @@ export function StudentAttendanceRow({
 
   // Get attendance status
   const getAttendanceStatus = () => {
-    if (attendanceRecord?.present === true) return 'present';
-    if (attendanceRecord?.present === false) return 'absent';
-    return 'unmarked';
+    if (attendanceRecord?.present === true) return "present";
+    if (attendanceRecord?.present === false) return "absent";
+    return "unmarked";
   };
 
   const attendanceStatus = getAttendanceStatus();
-  const hasLowAttendance = student.attendancePercentage && student.attendancePercentage < 75;
+  const hasLowAttendance =
+    student.attendancePercentage && student.attendancePercentage < 75;
 
   // Get student initials for avatar
   const getInitials = (name: string): string => {
     return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -92,12 +93,15 @@ export function StudentAttendanceRow({
       <div className="flex items-center gap-4">
         {/* Index Number */}
         <div className="text-sm text-muted-foreground font-mono w-8 text-center">
-          {index.toString().padStart(2, '0')}
+          {index.toString().padStart(2, "0")}
         </div>
 
         {/* Student Avatar */}
         <Avatar className="h-10 w-10">
-          <AvatarImage src={`/api/students/${student.id}/avatar`} alt={student.name} />
+          <AvatarImage
+            src={`https://api.dicebear.com/7.x/initials/svg?seed=${student.name}`}
+            alt={student.name}
+          />
           <AvatarFallback className="text-sm font-semibold">
             {getInitials(student.name)}
           </AvatarFallback>
@@ -107,7 +111,7 @@ export function StudentAttendanceRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h4 className="font-semibold text-sm truncate">{student.name}</h4>
-            
+
             {hasLowAttendance && (
               <Badge variant="destructive" className="text-xs">
                 <AlertTriangle className="h-3 w-3 mr-1" />
@@ -115,17 +119,23 @@ export function StudentAttendanceRow({
               </Badge>
             )}
           </div>
-          
+
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="font-mono">{student.rollNumber}</span>
             <span className="font-mono">{student.regNum}</span>
             <span>{student.department}</span>
             {student.attendancePercentage !== undefined && (
-              <span className={`font-semibold ${
-                student.attendancePercentage >= 90 ? 'text-green-600' :
-                student.attendancePercentage >= 75 ? 'text-blue-600' :
-                student.attendancePercentage >= 60 ? 'text-yellow-600' : 'text-red-600'
-              }`}>
+              <span
+                className={`font-semibold ${
+                  student.attendancePercentage >= 90
+                    ? "text-green-600"
+                    : student.attendancePercentage >= 75
+                    ? "text-blue-600"
+                    : student.attendancePercentage >= 60
+                    ? "text-yellow-600"
+                    : "text-red-600"
+                }`}
+              >
                 {student.attendancePercentage.toFixed(1)}% overall
               </span>
             )}
@@ -134,21 +144,21 @@ export function StudentAttendanceRow({
 
         {/* Attendance Status */}
         <div className="flex items-center gap-2">
-          {attendanceStatus === 'present' && (
+          {attendanceStatus === "present" && (
             <Badge variant="default" className="bg-green-600 text-white">
               <CheckCircle className="h-3 w-3 mr-1" />
               Present
             </Badge>
           )}
-          
-          {attendanceStatus === 'absent' && (
+
+          {attendanceStatus === "absent" && (
             <Badge variant="destructive">
               <XCircle className="h-3 w-3 mr-1" />
               Absent
             </Badge>
           )}
-          
-          {attendanceStatus === 'unmarked' && (
+
+          {attendanceStatus === "unmarked" && (
             <Badge variant="outline">
               <Clock className="h-3 w-3 mr-1" />
               Unmarked
@@ -160,21 +170,29 @@ export function StudentAttendanceRow({
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant={attendanceStatus === 'present' ? 'default' : 'outline'}
+            variant={attendanceStatus === "present" ? "default" : "outline"}
             onClick={() => handleAttendanceChange(true)}
             disabled={isSubmitting}
-            className={attendanceStatus === 'present' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-green-50 hover:text-green-700 hover:border-green-300'}
+            className={
+              attendanceStatus === "present"
+                ? "bg-green-600 hover:bg-green-700"
+                : "hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+            }
           >
             <CheckCircle className="h-4 w-4 mr-1" />
             Present
           </Button>
-          
+
           <Button
             size="sm"
-            variant={attendanceStatus === 'absent' ? 'destructive' : 'outline'}
+            variant={attendanceStatus === "absent" ? "destructive" : "outline"}
             onClick={() => handleAttendanceChange(false)}
             disabled={isSubmitting}
-            className={attendanceStatus !== 'absent' ? 'hover:bg-red-50 hover:text-red-700 hover:border-red-300' : ''}
+            className={
+              attendanceStatus !== "absent"
+                ? "hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                : ""
+            }
           >
             <XCircle className="h-4 w-4 mr-1" />
             Absent
@@ -186,10 +204,16 @@ export function StudentAttendanceRow({
           variant="ghost"
           size="sm"
           onClick={() => setShowFeedback(!showFeedback)}
-          className={`${feedback.trim() ? 'text-blue-600' : 'text-muted-foreground'}`}
+          className={`${
+            feedback.trim() ? "text-blue-600" : "text-muted-foreground"
+          }`}
         >
           <MessageSquare className="h-4 w-4 mr-1" />
-          {showFeedback ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          {showFeedback ? (
+            <ChevronUp className="h-3 w-3" />
+          ) : (
+            <ChevronDown className="h-3 w-3" />
+          )}
         </Button>
       </div>
 
@@ -213,7 +237,7 @@ export function StudentAttendanceRow({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleFeedbackChange('')}
+                onClick={() => handleFeedbackChange("")}
                 className="h-6 px-2 text-xs"
               >
                 Clear
@@ -226,7 +250,8 @@ export function StudentAttendanceRow({
       {/* Attendance Time */}
       {attendanceRecord?.attendanceTime && (
         <div className="mt-2 ml-16 text-xs text-muted-foreground">
-          Marked at: {new Date(attendanceRecord.attendanceTime).toLocaleTimeString()}
+          Marked at:{" "}
+          {new Date(attendanceRecord.attendanceTime).toLocaleTimeString()}
         </div>
       )}
     </div>

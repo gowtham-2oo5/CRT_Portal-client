@@ -53,7 +53,7 @@ export default function AttendanceMarkPage() {
           FacultyAttendanceService.getTodaySchedule(user.userId),
         ]);
 
-        setCurrentSession(sessionResponse.data);
+        setCurrentSession(sessionResponse.currentSlot);
         setTodaySchedule(scheduleResponse.data);
 
         console.log('✅ Session data loaded successfully');

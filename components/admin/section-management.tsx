@@ -47,11 +47,15 @@ import {
   BookOpen,
   UserPlus,
   Calendar,
+  ClipboardList,
+  BarChart,
 } from "lucide-react";
 import { SectionManagementService } from "@/lib/api/services/section-management";
 import { TrainerManagementService } from "@/lib/api/services/trainer-management";
 import { SectionFormModal } from "@/components/admin/section-form-modal";
 import { SectionScheduleComponent } from "@/components/admin/section-schedule";
+import { SectionAttendanceRecords } from "@/components/admin/section-attendance-records";
+import { SectionStudentsList } from "@/components/admin/section-students-list";
 import { toast } from "sonner";
 import type { Section, SectionFilters } from "@/lib/types/section-management";
 import type { Trainer } from "@/lib/types/trainer-management";
@@ -65,7 +69,12 @@ export function SectionManagement() {
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingSection, setEditingSection] = useState<Section | null>(null);
-  const [viewingScheduleSection, setViewingScheduleSection] = useState<Section | null>(null);
+  const [viewingScheduleSection, setViewingScheduleSection] =
+    useState<Section | null>(null);
+  const [viewingAttendanceSection, setViewingAttendanceSection] =
+    useState<Section | null>(null);
+  const [viewingStudentsSection, setViewingStudentsSection] =
+    useState<Section | null>(null);
 
   // Filters
   const [filters, setFilters] = useState<SectionFilters>({
@@ -86,11 +95,11 @@ export function SectionManagement() {
       console.log("🔍 Raw section data from API:", sectionData);
       console.log("🔍 First section structure:", sectionData[0]);
       if (sectionData[0]) {
-        console.log("🔍 First section trainer field:", sectionData[0].trainer);
-        console.log("🔍 Trainer field type:", typeof sectionData[0].trainer);
+        console.log("🔍 First section trainer field:", sectionData[0].training);
+        console.log("🔍 Trainer field type:", typeof sectionData[0].training);
         console.log(
-          "🔍 Trainer field keys:",
-          Object.keys(sectionData[0].trainer || {})
+          "🔍 training field keys:",
+          Object.keys(sectionData[0].training || {})
         );
       }
       setSections(sectionData);
@@ -260,6 +269,26 @@ export function SectionManagement() {
       <SectionScheduleComponent
         section={viewingScheduleSection}
         onBack={() => setViewingScheduleSection(null)}
+      />
+    );
+  }
+
+  // Show attendance records view if a section is selected for viewing
+  if (viewingAttendanceSection) {
+    return (
+      <SectionAttendanceRecords
+        section={viewingAttendanceSection}
+        onBack={() => setViewingAttendanceSection(null)}
+      />
+    );
+  }
+
+  // Show students list view if a section is selected for viewing
+  if (viewingStudentsSection) {
+    return (
+      <SectionStudentsList
+        section={viewingStudentsSection}
+        onBack={() => setViewingStudentsSection(null)}
       />
     );
   }
@@ -502,6 +531,20 @@ export function SectionManagement() {
                             >
                               <Calendar className="h-4 w-4 mr-2" />
                               View Schedule
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setViewingStudentsSection(section)}
+                            >
+                              <Users className="h-4 w-4 mr-2" />
+                              Get Students List
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setViewingAttendanceSection(section)
+                              }
+                            >
+                              <BarChart className="h-4 w-4 mr-2" />
+                              View Attendance Records
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem

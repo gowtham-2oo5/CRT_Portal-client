@@ -338,7 +338,7 @@ export function ConsistentFacultyDashboard() {
                 </div>
               </div>
               <Link
-                href={`/dashboard/faculty/attendance?sectionId=${currentSession.currentSlot.sectionId}`}
+                href={`/dashboard/faculty/attendance/${currentSession.currentSlot.id}`}
               >
                 <Button size="sm" className="bg-green-600 hover:bg-green-700">
                   <CheckCircle className="h-4 w-4 mr-2" />

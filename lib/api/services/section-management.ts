@@ -40,7 +40,10 @@ export class SectionManagementService {
       const response = await api.get(`/sections?${params.toString()}`);
       return response.data;
     } catch (error) {
-      console.error("[SectionManagementService] Error fetching sections:", error);
+      console.error(
+        "[SectionManagementService] Error fetching sections:",
+        error
+      );
       throw error;
     }
   }
@@ -88,7 +91,9 @@ export class SectionManagementService {
   }
 
   // Create new section
-  static async createSection(sectionData: CreateSectionRequest): Promise<Section> {
+  static async createSection(
+    sectionData: CreateSectionRequest
+  ): Promise<Section> {
     if (USE_MOCK_DATA) {
       const newSection: Section = {
         id: `section-${Date.now()}`,
@@ -110,7 +115,10 @@ export class SectionManagementService {
       const response = await api.post("/sections", sectionData);
       return response.data;
     } catch (error) {
-      console.error("[SectionManagementService] Error creating section:", error);
+      console.error(
+        "[SectionManagementService] Error creating section:",
+        error
+      );
       throw error;
     }
   }
@@ -124,12 +132,17 @@ export class SectionManagementService {
       const sections = await this.getMockSections();
       const existingSection = sections.find((s) => s.id === id);
       if (!existingSection) throw new Error("Section not found");
-      
+
       return {
         ...existingSection,
         name: sectionData.sectionName || existingSection.name,
-        training: sectionData.trainerId 
-          ? { id: sectionData.trainerId, name: "Updated Training", sn: "UT", sections: 1 }
+        training: sectionData.trainerId
+          ? {
+              id: sectionData.trainerId,
+              name: "Updated Training",
+              sn: "UT",
+              sections: 1,
+            }
           : existingSection.training,
       };
     }
@@ -171,12 +184,11 @@ export class SectionManagementService {
   }
 
   // Register students to section via file upload
-  static async registerStudents(
-    sectionId: string,
-    file: File
-  ): Promise<any> {
+  static async registerStudents(sectionId: string, file: File): Promise<any> {
     if (USE_MOCK_DATA) {
-      console.log(`Mock: Registering students to section ${sectionId} via file`);
+      console.log(
+        `Mock: Registering students to section ${sectionId} via file`
+      );
       return { message: "Students registered successfully" };
     }
 
@@ -185,11 +197,15 @@ export class SectionManagementService {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await api.post(`/sections/${sectionId}/students`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await api.post(
+        `/sections/${sectionId}/students`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error(
@@ -214,7 +230,9 @@ export class SectionManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.put(`/sections/student/${studentId}/section/${sectionId}`);
+      const response = await api.put(
+        `/sections/student/${studentId}/section/${sectionId}`
+      );
       return response.data;
     } catch (error) {
       console.error(
@@ -234,7 +252,7 @@ export class SectionManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      await Promise.all(sectionIds.map(id => api.delete(`/api/sections/${id}`)));
+      await Promise.all(sectionIds.map((id) => api.delete(`/sections/${id}`)));
     } catch (error) {
       console.error(
         "[SectionManagementService] Error bulk deleting sections:",
@@ -245,7 +263,9 @@ export class SectionManagementService {
   }
 
   // Mock data for development
-  private static async getMockSections(filters?: SectionFilters): Promise<Section[]> {
+  private static async getMockSections(
+    filters?: SectionFilters
+  ): Promise<Section[]> {
     const mockSections: Section[] = [
       {
         id: "1",

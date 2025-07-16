@@ -1,7 +1,7 @@
 // 🎯 CRT Portal Attendance System - Faculty Attendance Service
 // Created: 2025-07-15 | Phase 1 - Task 1.2
 
-import { publicApi, createClientSecuredApi } from '../client';
+import { publicApi, createClientSecuredApi } from "../client";
 import type {
   AttendanceSession,
   CurrentSession,
@@ -11,9 +11,9 @@ import type {
   AttendanceSubmissionResponse,
   AttendanceFilters,
   StudentAttendanceSummary,
-} from '../../types/attendance';
-import type { TimeSlot } from '../../types/section-schedule';
-import type { Student } from '../../types/section-management';
+} from "../../types/attendance";
+import type { TimeSlot } from "../../types/section-schedule";
+import type { Student } from "../../types/section-management";
 
 // Updated types to match actual API response
 interface FacultyDashboardApiResponse {
@@ -72,11 +72,10 @@ interface CurrentSessionApiResponse {
  * Handles faculty-specific attendance operations with role-based access control
  */
 export class FacultyAttendanceService {
-  
   // ============================================================================
   // FACULTY DASHBOARD & SESSION MANAGEMENT
   // ============================================================================
-  
+
   /**
    * Get faculty dashboard data with real-time session information
    */
@@ -84,26 +83,28 @@ export class FacultyAttendanceService {
     facultyId: string
   ): Promise<FacultyDashboardApiResponse> {
     try {
-      console.log('📊 Fetching faculty dashboard for:', facultyId);
-      
+      console.log("📊 Fetching faculty dashboard for:", facultyId);
+
       // Get auth token from session storage
-      const token = sessionStorage.getItem('auth-token');
+      const token = sessionStorage.getItem("auth-token");
       if (!token) {
-        throw new Error('Authentication token not found');
+        throw new Error("Authentication token not found");
       }
-      
+
       const api = createClientSecuredApi(token);
-      
+
       const response = await api.get(`/faculty/dashboard?id=${facultyId}`);
-      
-      console.log('✅ Faculty dashboard loaded:', response.data);
+
+      console.log("✅ Faculty dashboard loaded:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching faculty dashboard:', error);
-      throw new Error(error.response?.data?.message || 'Failed to load dashboard');
+      console.error("❌ Error fetching faculty dashboard:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to load dashboard"
+      );
     }
   }
-  
+
   /**
    * Get current active session for faculty
    */
@@ -111,31 +112,33 @@ export class FacultyAttendanceService {
     facultyId: string
   ): Promise<CurrentSessionApiResponse> {
     try {
-      console.log('🕐 Fetching current session for faculty:', facultyId);
-      
+      console.log("🕐 Fetching current session for faculty:", facultyId);
+
       // Get auth token from session storage
-      const token = sessionStorage.getItem('auth-token');
+      const token = sessionStorage.getItem("auth-token");
       if (!token) {
-        throw new Error('Authentication token not found');
+        throw new Error("Authentication token not found");
       }
-      
+
       const api = createClientSecuredApi(token);
-      const response = await api.get(`/faculty/current-session?id=${facultyId}`);
-      
-      console.log('✅ Current session loaded:', response.data);
+      const response = await api.get(
+        `/faculty/current-session?id=${facultyId}`
+      );
+
+      console.log("✅ Current session loaded:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching current session:', error);
-      throw new Error(error.response?.data?.message || 'Failed to get current session');
+      console.error("❌ Error fetching current session:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to get current session"
+      );
     }
   }
-  
+
   /**
    * Get today's schedule for faculty - returns the todaySchedule from dashboard
    */
-  static async getTodaySchedule(
-    facultyId: string
-  ): Promise<{
+  static async getTodaySchedule(facultyId: string): Promise<{
     data: Array<{
       id: string;
       day: string;
@@ -147,19 +150,21 @@ export class FacultyAttendanceService {
     }>;
   }> {
     try {
-      console.log('📅 Fetching today\'s schedule for faculty:', facultyId);
-      
+      console.log("📅 Fetching today's schedule for faculty:", facultyId);
+
       // Get from dashboard API since it includes today's schedule
       const dashboardData = await this.getFacultyDashboard(facultyId);
-      
-      console.log('✅ Today\'s schedule loaded:', dashboardData.todaySchedule);
+
+      console.log("✅ Today's schedule loaded:", dashboardData.todaySchedule);
       return { data: dashboardData.todaySchedule };
     } catch (error: any) {
-      console.error('❌ Error fetching today\'s schedule:', error);
-      throw new Error(error.response?.data?.message || 'Failed to get today\'s schedule');
+      console.error("❌ Error fetching today's schedule:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to get today's schedule"
+      );
     }
   }
-  
+
   /**
    * Get weekly timetable for faculty
    */
@@ -169,21 +174,25 @@ export class FacultyAttendanceService {
   ): Promise<AttendanceApiResponse<TimeSlot[]>> {
     try {
       const params = new URLSearchParams();
-      params.append('facultyId', facultyId);
-      if (week) params.append('week', week);
-      
-      const response = await publicApi.get(`/faculty/timetable/weekly?${params}`);
+      params.append("facultyId", facultyId);
+      if (week) params.append("week", week);
+
+      const response = await publicApi.get(
+        `/faculty/timetable/weekly?${params}`
+      );
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching weekly timetable:', error);
-      throw new Error(error.response?.data?.message || 'Failed to get weekly timetable');
+      console.error("❌ Error fetching weekly timetable:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to get weekly timetable"
+      );
     }
   }
-  
+
   // ============================================================================
   // ATTENDANCE MARKING
   // ============================================================================
-  
+
   /**
    * Get students for a specific time slot (faculty can only access assigned slots)
    */
@@ -191,27 +200,36 @@ export class FacultyAttendanceService {
     timeSlotId: string
   ): Promise<AttendanceApiResponse<SessionStudentsResponse>> {
     try {
-      console.log('👥 Fetching students for time slot:', timeSlotId);
-      
-      const response = await publicApi.get(`/faculty/session/${timeSlotId}/students`);
-      
-      console.log('✅ Session students loaded:', response.data);
-      return response.data;
+      console.log("👥 Fetching students for time slot:", timeSlotId);
+
+      const token = sessionStorage.getItem("auth-token");
+      const refreshToken = sessionStorage.getItem("refresh-token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      const api = createClientSecuredApi(token, refreshToken ?? "");
+      const response = await api.get(`/faculty/session/${timeSlotId}/students`);
+
+      console.log("✅ Session students loaded:", response.data);
+      return response;
     } catch (error: any) {
-      console.error('❌ Error fetching session students:', error);
-      
+      console.error("❌ Error fetching session students:", error);
+
       // Handle specific error cases
       if (error.response?.status === 403) {
-        throw new Error('You are not authorized to access this session');
+        throw new Error("You are not authorized to access this session");
       }
       if (error.response?.status === 404) {
-        throw new Error('Session not found or no students enrolled');
+        throw new Error("Session not found or no students enrolled");
       }
-      
-      throw new Error(error.response?.data?.message || 'Failed to load students');
+
+      throw new Error(
+        error.response?.data?.message || "Failed to load students"
+      );
     }
   }
-  
+
   /**
    * Submit attendance for faculty's assigned session
    */
@@ -219,36 +237,50 @@ export class FacultyAttendanceService {
     request: SubmitAttendanceRequest
   ): Promise<AttendanceApiResponse<AttendanceSubmissionResponse>> {
     try {
-      console.log('📝 Submitting attendance:', {
+      console.log("📝 Submitting attendance:", {
         timeSlotId: request.timeSlotId,
         sectionId: request.sectionId,
         date: request.date,
         topicTaught: request.topicTaught,
         recordCount: request.attendanceRecords.length,
       });
-      
-      const response = await publicApi.post('/faculty/attendance', request);
-      
-      console.log('✅ Attendance submitted successfully:', response.data);
+
+      const token = sessionStorage.getItem("auth-token");
+      const refreshToken = sessionStorage.getItem("refresh-token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      const api = createClientSecuredApi(token, refreshToken ?? "");
+
+      const response = await api.post("/faculty/attendance", request);
+
+      console.log("✅ Attendance submitted successfully:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error submitting attendance:', error);
-      
+      console.error("❌ Error submitting attendance:", error);
+
       // Handle specific error cases
       if (error.response?.status === 403) {
-        throw new Error('You are not authorized to mark attendance for this section');
+        throw new Error(
+          "You are not authorized to mark attendance for this section"
+        );
       }
       if (error.response?.status === 409) {
-        throw new Error('Attendance has already been marked for this session');
+        throw new Error("Attendance has already been marked for this session");
       }
       if (error.response?.status === 400) {
-        throw new Error(error.response?.data?.message || 'Invalid attendance data');
+        throw new Error(
+          error.response?.data?.message || "Invalid attendance data"
+        );
       }
-      
-      throw new Error(error.response?.data?.message || 'Failed to submit attendance');
+
+      throw new Error(
+        error.response?.data?.message || "Failed to submit attendance"
+      );
     }
   }
-  
+
   /**
    * Update existing attendance session (if faculty has permission)
    */
@@ -257,27 +289,34 @@ export class FacultyAttendanceService {
     updates: Partial<SubmitAttendanceRequest>
   ): Promise<AttendanceApiResponse<AttendanceSession>> {
     try {
-      console.log('🔄 Updating attendance session:', sessionId, updates);
-      
-      const response = await publicApi.put(`/faculty/attendance/${sessionId}`, updates);
-      
-      console.log('✅ Attendance updated successfully:', response.data);
+      console.log("🔄 Updating attendance session:", sessionId, updates);
+
+      const response = await publicApi.put(
+        `/faculty/attendance/${sessionId}`,
+        updates
+      );
+
+      console.log("✅ Attendance updated successfully:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error updating attendance:', error);
-      
+      console.error("❌ Error updating attendance:", error);
+
       if (error.response?.status === 403) {
-        throw new Error('You are not authorized to update this attendance session');
+        throw new Error(
+          "You are not authorized to update this attendance session"
+        );
       }
-      
-      throw new Error(error.response?.data?.message || 'Failed to update attendance');
+
+      throw new Error(
+        error.response?.data?.message || "Failed to update attendance"
+      );
     }
   }
-  
+
   // ============================================================================
   // FACULTY REPORTS & ANALYTICS
   // ============================================================================
-  
+
   /**
    * Get attendance reports for faculty's assigned sections
    */
@@ -286,27 +325,32 @@ export class FacultyAttendanceService {
     filters?: AttendanceFilters
   ): Promise<AttendanceApiResponse<AttendanceSession[]>> {
     try {
-      console.log('📊 Fetching faculty reports:', { facultyId, filters });
-      
+      console.log("📊 Fetching faculty reports:", { facultyId, filters });
+
       const params = new URLSearchParams();
-      params.append('facultyId', facultyId);
-      if (filters?.sectionId) params.append('sectionId', filters.sectionId);
-      if (filters?.startDate) params.append('startDate', filters.startDate);
-      if (filters?.endDate) params.append('endDate', filters.endDate);
+      params.append("facultyId", facultyId);
+      if (filters?.sectionId) params.append("sectionId", filters.sectionId);
+      if (filters?.startDate) params.append("startDate", filters.startDate);
+      if (filters?.endDate) params.append("endDate", filters.endDate);
       if (filters?.attendanceThreshold) {
-        params.append('attendanceThreshold', filters.attendanceThreshold.toString());
+        params.append(
+          "attendanceThreshold",
+          filters.attendanceThreshold.toString()
+        );
       }
-      
+
       const response = await publicApi.get(`/faculty/reports?${params}`);
-      
-      console.log('✅ Faculty reports loaded:', response.data);
+
+      console.log("✅ Faculty reports loaded:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching faculty reports:', error);
-      throw new Error(error.response?.data?.message || 'Failed to load reports');
+      console.error("❌ Error fetching faculty reports:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to load reports"
+      );
     }
   }
-  
+
   /**
    * Get student detail report (only for faculty's sections)
    */
@@ -314,114 +358,132 @@ export class FacultyAttendanceService {
     studentId: string
   ): Promise<AttendanceApiResponse<StudentAttendanceSummary>> {
     try {
-      console.log('👤 Fetching student detail report:', studentId);
-      
-      const response = await publicApi.get(`/faculty/reports/student/${studentId}`);
-      
-      console.log('✅ Student detail report loaded:', response.data);
+      console.log("👤 Fetching student detail report:", studentId);
+
+      const response = await publicApi.get(
+        `/faculty/reports/student/${studentId}`
+      );
+
+      console.log("✅ Student detail report loaded:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching student report:', error);
-      
+      console.error("❌ Error fetching student report:", error);
+
       if (error.response?.status === 403) {
-        throw new Error('You are not authorized to view this student\'s attendance');
+        throw new Error(
+          "You are not authorized to view this student's attendance"
+        );
       }
-      
-      throw new Error(error.response?.data?.message || 'Failed to load student report');
+
+      throw new Error(
+        error.response?.data?.message || "Failed to load student report"
+      );
     }
   }
-  
+
   /**
    * Get section-wise attendance summary for faculty
    */
   static async getSectionSummary(
     sectionId: string,
     filters?: AttendanceFilters
-  ): Promise<AttendanceApiResponse<{
-    section: { id: string; name: string; strength: number };
-    totalSessions: number;
-    averageAttendance: number;
-    lastSessionDate: string;
-    topPerformers: Student[];
-    lowPerformers: Student[];
-  }>> {
+  ): Promise<
+    AttendanceApiResponse<{
+      section: { id: string; name: string; strength: number };
+      totalSessions: number;
+      averageAttendance: number;
+      lastSessionDate: string;
+      topPerformers: Student[];
+      lowPerformers: Student[];
+    }>
+  > {
     try {
-      console.log('📈 Fetching section summary:', sectionId);
-      
+      console.log("📈 Fetching section summary:", sectionId);
+
       const params = new URLSearchParams();
-      if (filters?.startDate) params.append('startDate', filters.startDate);
-      if (filters?.endDate) params.append('endDate', filters.endDate);
-      
-      const response = await publicApi.get(`/faculty/reports/section/${sectionId}?${params}`);
-      
-      console.log('✅ Section summary loaded:', response.data);
+      if (filters?.startDate) params.append("startDate", filters.startDate);
+      if (filters?.endDate) params.append("endDate", filters.endDate);
+
+      const response = await publicApi.get(
+        `/faculty/reports/section/${sectionId}?${params}`
+      );
+
+      console.log("✅ Section summary loaded:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching section summary:', error);
-      
+      console.error("❌ Error fetching section summary:", error);
+
       if (error.response?.status === 403) {
-        throw new Error('You are not authorized to view this section\'s data');
+        throw new Error("You are not authorized to view this section's data");
       }
-      
-      throw new Error(error.response?.data?.message || 'Failed to load section summary');
+
+      throw new Error(
+        error.response?.data?.message || "Failed to load section summary"
+      );
     }
   }
-  
+
   // ============================================================================
   // FACULTY ANALYTICS
   // ============================================================================
-  
+
   /**
    * Get attendance analytics for faculty's sections
    */
   static async getFacultyAnalytics(
     facultyId: string,
     filters?: AttendanceFilters
-  ): Promise<AttendanceApiResponse<{
-    overallStats: {
-      totalSessions: number;
-      totalStudents: number;
-      averageAttendance: number;
-      presentToday: number;
-      absentToday: number;
-    };
-    sectionStats: Array<{
-      sectionId: string;
-      sectionName: string;
-      totalSessions: number;
-      averageAttendance: number;
-      totalStudents: number;
-      lastSessionDate: string;
-    }>;
-    dailyTrends: Array<{
-      date: string;
-      attendancePercentage: number;
-      totalSessions: number;
-      presentCount: number;
-      absentCount: number;
-    }>;
-    topPerformers: Student[];
-    lowPerformers: Student[];
-  }>> {
+  ): Promise<
+    AttendanceApiResponse<{
+      overallStats: {
+        totalSessions: number;
+        totalStudents: number;
+        averageAttendance: number;
+        presentToday: number;
+        absentToday: number;
+      };
+      sectionStats: Array<{
+        sectionId: string;
+        sectionName: string;
+        totalSessions: number;
+        averageAttendance: number;
+        totalStudents: number;
+        lastSessionDate: string;
+      }>;
+      dailyTrends: Array<{
+        date: string;
+        attendancePercentage: number;
+        totalSessions: number;
+        presentCount: number;
+        absentCount: number;
+      }>;
+      topPerformers: Student[];
+      lowPerformers: Student[];
+    }>
+  > {
     try {
-      console.log('📊 Fetching faculty analytics:', { facultyId, filters });
-      
+      console.log("📊 Fetching faculty analytics:", { facultyId, filters });
+
       const params = new URLSearchParams();
-      params.append('facultyId', facultyId);
-      if (filters?.sectionId) params.append('sectionId', filters.sectionId);
-      if (filters?.startDate) params.append('startDate', filters.startDate);
-      if (filters?.endDate) params.append('endDate', filters.endDate);
-      
-      const response = await publicApi.get(`/faculty/analytics/attendance?${params}`);
-      
-      console.log('✅ Faculty analytics loaded:', response.data);
+      params.append("facultyId", facultyId);
+      if (filters?.sectionId) params.append("sectionId", filters.sectionId);
+      if (filters?.startDate) params.append("startDate", filters.startDate);
+      if (filters?.endDate) params.append("endDate", filters.endDate);
+
+      const response = await publicApi.get(
+        `/faculty/analytics/attendance?${params}`
+      );
+
+      console.log("✅ Faculty analytics loaded:", response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching faculty analytics:', error);
-      throw new Error(error.response?.data?.message || 'Failed to load analytics');
+      console.error("❌ Error fetching faculty analytics:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to load analytics"
+      );
     }
   }
-  
+
   /**
    * Export faculty attendance data as CSV
    */
@@ -430,30 +492,36 @@ export class FacultyAttendanceService {
     filters?: AttendanceFilters
   ): Promise<Blob> {
     try {
-      console.log('📤 Exporting faculty attendance data:', { facultyId, filters });
-      
-      const params = new URLSearchParams();
-      params.append('facultyId', facultyId);
-      if (filters?.sectionId) params.append('sectionId', filters.sectionId);
-      if (filters?.startDate) params.append('startDate', filters.startDate);
-      if (filters?.endDate) params.append('endDate', filters.endDate);
-      
-      const response = await publicApi.get(`/faculty/analytics/export/csv?${params}`, {
-        responseType: 'blob',
+      console.log("📤 Exporting faculty attendance data:", {
+        facultyId,
+        filters,
       });
-      
-      console.log('✅ Faculty data exported successfully');
+
+      const params = new URLSearchParams();
+      params.append("facultyId", facultyId);
+      if (filters?.sectionId) params.append("sectionId", filters.sectionId);
+      if (filters?.startDate) params.append("startDate", filters.startDate);
+      if (filters?.endDate) params.append("endDate", filters.endDate);
+
+      const response = await publicApi.get(
+        `/faculty/analytics/export/csv?${params}`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      console.log("✅ Faculty data exported successfully");
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error exporting faculty data:', error);
-      throw new Error(error.response?.data?.message || 'Failed to export data');
+      console.error("❌ Error exporting faculty data:", error);
+      throw new Error(error.response?.data?.message || "Failed to export data");
     }
   }
-  
+
   // ============================================================================
   // UTILITY METHODS
   // ============================================================================
-  
+
   /**
    * Check if faculty can mark attendance for a time slot
    */
@@ -462,40 +530,46 @@ export class FacultyAttendanceService {
     timeSlotId: string
   ): Promise<boolean> {
     try {
-      const response = await publicApi.get(`/faculty/can-mark-attendance?facultyId=${facultyId}&timeSlotId=${timeSlotId}`);
+      const response = await publicApi.get(
+        `/faculty/can-mark-attendance?facultyId=${facultyId}&timeSlotId=${timeSlotId}`
+      );
       return response.data.canMark;
     } catch (error: any) {
-      console.error('❌ Error checking attendance permission:', error);
+      console.error("❌ Error checking attendance permission:", error);
       return false;
     }
   }
-  
+
   /**
    * Get faculty's assigned sections
    */
-  static async getAssignedSections(
-    facultyId: string
-  ): Promise<AttendanceApiResponse<Array<{
-    id: string;
-    name: string;
-    strength: number;
-    training: { id: string; name: string };
-  }>>> {
+  static async getAssignedSections(facultyId: string): Promise<
+    AttendanceApiResponse<
+      Array<{
+        id: string;
+        name: string;
+        strength: number;
+        training: { id: string; name: string };
+      }>
+    >
+  > {
     try {
-      const response = await publicApi.get(`/faculty/assigned-sections?id=${facultyId}`);
+      const response = await publicApi.get(
+        `/faculty/assigned-sections?id=${facultyId}`
+      );
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error fetching assigned sections:', error);
-      throw new Error(error.response?.data?.message || 'Failed to get assigned sections');
+      console.error("❌ Error fetching assigned sections:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to get assigned sections"
+      );
     }
   }
-  
+
   /**
    * Format attendance submission for display
    */
-  static formatAttendanceSubmission(
-    session: AttendanceSession
-  ): {
+  static formatAttendanceSubmission(session: AttendanceSession): {
     title: string;
     summary: string;
     details: string;
@@ -503,50 +577,56 @@ export class FacultyAttendanceService {
     const date = new Date(session.date).toLocaleDateString();
     const timeSlot = `${session.startTime}-${session.endTime}`;
     const percentage = session.attendancePercentage.toFixed(1);
-    
+
     return {
-      title: `${session.section?.name || 'Section'} - ${date}`,
+      title: `${session.section?.name || "Section"} - ${date}`,
       summary: `${session.presentCount}/${session.totalStudents} students present (${percentage}%)`,
       details: `Topic: ${session.topicTaught} | Room: ${session.room} | Time: ${timeSlot}`,
     };
   }
-  
+
   /**
    * Validate attendance data before submission
    */
-  static validateAttendanceData(
-    request: SubmitAttendanceRequest
-  ): { isValid: boolean; errors: string[] } {
+  static validateAttendanceData(request: SubmitAttendanceRequest): {
+    isValid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
-    
+
     // Check required fields
-    if (!request.timeSlotId) errors.push('Time slot ID is required');
-    if (!request.sectionId) errors.push('Section ID is required');
-    if (!request.date) errors.push('Date is required');
-    if (!request.topicTaught?.trim()) errors.push('Topic taught is required');
-    if (!request.attendanceRecords?.length) errors.push('Attendance records are required');
-    
+    if (!request.timeSlotId) errors.push("Time slot ID is required");
+    if (!request.sectionId) errors.push("Section ID is required");
+    if (!request.date) errors.push("Date is required");
+    if (!request.topicTaught?.trim()) errors.push("Topic taught is required");
+    if (!request.attendanceRecords?.length)
+      errors.push("Attendance records are required");
+
     // Validate date format and not future date
     if (request.date) {
       const submissionDate = new Date(request.date);
       const today = new Date();
       today.setHours(23, 59, 59, 999); // End of today
-      
+
       if (submissionDate > today) {
-        errors.push('Cannot mark attendance for future dates');
+        errors.push("Cannot mark attendance for future dates");
       }
     }
-    
+
     // Validate attendance records
     if (request.attendanceRecords) {
       request.attendanceRecords.forEach((record, index) => {
-        if (!record.studentId) errors.push(`Student ID missing for record ${index + 1}`);
-        if (!record.rollNumber) errors.push(`Roll number missing for record ${index + 1}`);
-        if (!record.name?.trim()) errors.push(`Student name missing for record ${index + 1}`);
-        if (typeof record.present !== 'boolean') errors.push(`Attendance status invalid for record ${index + 1}`);
+        if (!record.studentId)
+          errors.push(`Student ID missing for record ${index + 1}`);
+        if (!record.rollNumber)
+          errors.push(`Roll number missing for record ${index + 1}`);
+        if (!record.name?.trim())
+          errors.push(`Student name missing for record ${index + 1}`);
+        if (typeof record.present !== "boolean")
+          errors.push(`Attendance status invalid for record ${index + 1}`);
       });
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
