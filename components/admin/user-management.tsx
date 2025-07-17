@@ -156,7 +156,7 @@ export function UserManagement() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(paginatedUsers.map((user) => user.userId));
+      setSelectedUsers(paginatedUsers.map((user) => user.id));
     } else {
       setSelectedUsers([]);
     }
@@ -393,7 +393,11 @@ export function UserManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Depts</SelectItem>
-                <SelectItem value="CSE">CSE</SelectItem>
+
+                <SelectItem value="CSE-1">CSE-1</SelectItem>
+                <SelectItem value="CSE-2">CSE-2</SelectItem>
+                <SelectItem value="CSE-3">CSE-3</SelectItem>
+                <SelectItem value="CSE-4">CSE-4</SelectItem>
                 <SelectItem value="ECE">ECE</SelectItem>
                 <SelectItem value="ME">ME</SelectItem>
                 <SelectItem value="CE">CE</SelectItem>
@@ -472,7 +476,7 @@ export function UserManagement() {
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
-                  <TableHead>User</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Department</TableHead>
                   <TableHead>Status</TableHead>
@@ -482,12 +486,12 @@ export function UserManagement() {
               </TableHeader>
               <TableBody>
                 {paginatedUsers.map((user) => (
-                  <TableRow key={user.userId}>
+                  <TableRow key={user.id}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedUsers.includes(user.userId)}
+                        checked={selectedUsers.includes(user.id)}
                         onCheckedChange={(checked) =>
-                          handleSelectUser(user.userId, checked as boolean)
+                          handleSelectUser(user.id, checked as boolean)
                         }
                       />
                     </TableCell>
@@ -550,7 +554,7 @@ export function UserManagement() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => handleDeleteUser(user.userId)}
+                            onClick={() => handleDeleteUser(user.id)}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />

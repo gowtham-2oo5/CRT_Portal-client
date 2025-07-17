@@ -21,7 +21,10 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import type { Section, CreateSectionRequest } from "@/lib/types/section-management";
+import type {
+  Section,
+  CreateSectionRequest,
+} from "@/lib/types/section-management";
 import type { Trainer } from "@/lib/types/trainer-management";
 
 interface SectionFormModalProps {
@@ -42,23 +45,22 @@ export function SectionFormModal({
   mode,
 }: SectionFormModalProps) {
   const [formData, setFormData] = useState<CreateSectionRequest>({
-    trainerId: "",
+    TrainingId: "",
     sectionName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when modal opens/closes or initial data changes
   useEffect(() => {
     if (open) {
       if (initialData && mode === "edit") {
         setFormData({
-          trainerId: initialData.training?.id || "",
+          TrainingId: initialData.training?.id || "",
           sectionName: initialData.name,
         });
       } else {
         setFormData({
-          trainerId: "",
+          TrainingId: "",
           sectionName: "",
         });
       }
@@ -75,20 +77,20 @@ export function SectionFormModal({
       setError("Section name is required");
       return;
     }
-    if (!formData.trainerId) {
+    if (!formData.TrainingId) {
       setError("Trainer is required");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      
+
       // Clean up the data before submitting
       const submitData: CreateSectionRequest = {
-        trainerId: formData.trainerId,
+        TrainingId: formData.TrainingId,
         sectionName: formData.sectionName.trim(),
       };
-
+      console.log("SECTION SUBMITTING: ", submitData);
       await onSubmit(submitData);
       onOpenChange(false);
     } catch (error: any) {
@@ -140,10 +142,10 @@ export function SectionFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="trainerId">Trainer *</Label>
+            <Label htmlFor="TrainingId">Trainer *</Label>
             <Select
-              value={formData.trainerId}
-              onValueChange={(value) => handleInputChange("trainerId", value)}
+              value={formData.TrainingId}
+              onValueChange={(value) => handleInputChange("TrainingId", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a trainer" />

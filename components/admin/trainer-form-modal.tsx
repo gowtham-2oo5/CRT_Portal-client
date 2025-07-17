@@ -103,7 +103,6 @@ export function TrainerFormModal({
       setError(null);
 
       if (isEditMode && trainer) {
-        // Update trainer
         const updateData: UpdateTrainerRequest = {
           name: data.name,
           sn: data.sn,

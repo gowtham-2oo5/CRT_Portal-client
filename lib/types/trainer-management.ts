@@ -3,7 +3,6 @@
 export interface Trainer {
   id: string;
   name: string;
-  email: string;
   sn: string; // Short Name/short form
   sections?: number; // Derived from sections relationship
   createdAt?: string;
@@ -26,6 +25,6 @@ export interface TrainerFilters {
 }
 
 export interface BulkTrainerOperation {
-  trainerIds: string[];
+  TrainingIds: string[];
   operation: "DELETE";
 }

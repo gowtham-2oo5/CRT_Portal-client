@@ -120,11 +120,11 @@ export function TrainerManagement() {
   );
 
   // Handle trainer selection
-  const handleSelectTrainer = (trainerId: string, checked: boolean) => {
+  const handleSelectTrainer = (TrainingId: string, checked: boolean) => {
     if (checked) {
-      setSelectedTrainers([...selectedTrainers, trainerId]);
+      setSelectedTrainers([...selectedTrainers, TrainingId]);
     } else {
-      setSelectedTrainers(selectedTrainers.filter((id) => id !== trainerId));
+      setSelectedTrainers(selectedTrainers.filter((id) => id !== TrainingId));
     }
   };
 
@@ -137,9 +137,9 @@ export function TrainerManagement() {
   };
 
   // Handle trainer actions
-  const handleDeleteTrainer = async (trainerId: string) => {
+  const handleDeleteTrainer = async (TrainingId: string) => {
     try {
-      await TrainerManagementService.deleteTrainer(trainerId);
+      await TrainerManagementService.deleteTrainer(TrainingId);
       toast.success("Trainer deleted successfully");
       loadTrainers();
     } catch (error: any) {
