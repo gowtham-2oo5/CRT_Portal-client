@@ -23,7 +23,7 @@ import {
   CheckCircle,
   GraduationCap,
 } from "lucide-react";
-
+import { ClientAuth } from "@/lib/auth/client";
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -36,8 +36,11 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setIsSuccess(true);
+      const res = await ClientAuth.forgotPassword(email);
+      if (res.success) {
+        setIsSuccess(true);
+        alert("Password reset mail sent");
+      }
     } catch {
       setError("Failed to send reset email. Please try again.");
     } finally {

@@ -1,3 +1,5 @@
+"use server";
+
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -11,6 +13,7 @@ const API_TIMEOUT = 10000;
 export const getAuthToken = async (): Promise<string | null> => {
   try {
     const cookieStore = await cookies();
+    console.log("Getting token: ", cookieStore.get("auth-token"));
     return cookieStore.get("auth-token")?.value || null;
   } catch {
     return null;

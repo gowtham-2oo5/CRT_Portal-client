@@ -203,10 +203,8 @@ export function TrainerManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Trainer Management</h1>
-          <p className="text-muted-foreground">
-            Manage trainers, assignments, and schedules
-          </p>
+          <h1 className="text-3xl font-bold">Trainings / Tools Management</h1>
+          <p className="text-muted-foreground">Manage Tool based Learnings</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" onClick={loadTrainers}>
