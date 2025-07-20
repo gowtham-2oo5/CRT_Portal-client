@@ -232,6 +232,7 @@ export class FacultyAttendanceService {
 
   /**
    * Submit attendance for faculty's assigned session
+   * Now supports admin override with isAdminRequest flag
    */
   static async submitAttendance(
     request: SubmitAttendanceRequest
@@ -242,6 +243,7 @@ export class FacultyAttendanceService {
         sectionId: request.sectionId,
         date: request.date,
         topicTaught: request.topicTaught,
+        isAdminRequest: request.isAdminRequest,
         recordCount: request.attendanceRecords.length,
       });
 
@@ -253,7 +255,23 @@ export class FacultyAttendanceService {
 
       const api = createClientSecuredApi(token, refreshToken ?? "");
 
-      const response = await api.post("/faculty/attendance", request);
+      // Check if this is an admin request
+      const isAdminRequest =
+        sessionStorage.getItem("isAdminRequest") === "true";
+
+      // If it's an admin request, add the flag to the request
+      const requestWithFlag = isAdminRequest
+        ? { ...request, isAdminRequest: true }
+        : request;
+
+      // Log if this is an admin request
+      if (isAdminRequest) {
+        console.log("⚠️ Admin override request detected");
+        // Clear the flag after use
+        sessionStorage.removeItem("isAdminRequest");
+      }
+
+      const response = await api.post("/faculty/attendance", requestWithFlag);
 
       console.log("✅ Attendance submitted successfully:", response.data);
       return response.data;

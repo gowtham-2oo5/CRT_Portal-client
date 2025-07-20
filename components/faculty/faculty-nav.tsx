@@ -10,6 +10,7 @@ import {
   FileBarChart,
   Clock,
   LogOut,
+  Layers,
 } from "lucide-react";
 import { ClientAuth } from "@/lib/auth/client";
 
@@ -24,6 +25,11 @@ const facultyNavigation = [
     name: "Submit Attendance",
     href: "/dashboard/faculty/attendance",
     icon: Check,
+  },
+  {
+    name: "Batch Attendance",
+    href: "/dashboard/faculty/attendance/batch",
+    icon: Layers,
   },
 ];
 

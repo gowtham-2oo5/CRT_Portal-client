@@ -464,7 +464,7 @@ export function ConsistentFacultyDashboard() {
                             </Badge>
                           )}
                           <Link
-                            href={`/dashboard/faculty/attendance?sectionId=${slot.id}`}
+                            href={`/dashboard/faculty/attendance/${slot.id}`}
                           >
                             <Button variant="outline" size="sm">
                               <CheckCircle className="h-4 w-4 mr-1" />
@@ -525,16 +525,14 @@ export function ConsistentFacultyDashboard() {
                       <div className="font-medium">{section.name}</div>
                       <div className="flex items-center space-x-2">
                         <Link
-                          href={`/dashboard/faculty/attendance?sectionId=${section.id}`}
+                          href={`/dashboard/faculty/attendance/{section.id}`}
                         >
                           <Button variant="outline" size="sm">
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Attendance
                           </Button>
                         </Link>
-                        <Link
-                          href={`/dashboard/faculty/reports?sectionId=${section.id}`}
-                        >
+                        <Link href={`/dashboard/faculty/reports/{section.id}`}>
                           <Button variant="outline" size="sm">
                             <BarChart3 className="h-4 w-4 mr-1" />
                             Reports

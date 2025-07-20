@@ -12,6 +12,7 @@ class StudentServiceClass {
     body: string,
     emailIds: string[]
   ): Promise<void> {
+    console.log("Emails: ", emailIds);
     await apiClient.post("/students/send-mail-in-bulk", {
       subject,
       body,

@@ -24,6 +24,7 @@ import {
   FileDown,
 } from "lucide-react";
 import { SectionAttendanceService, SectionAttendanceRecord } from "@/lib/api/services/section-attendance";
+import { downloadCSV } from "@/lib/utils/csv-export";
 import { toast } from "sonner";
 import type { Section } from "@/lib/types/section-management";
 
@@ -117,21 +118,29 @@ export function SectionAttendanceRecords({ section, onBack }: SectionAttendanceR
   // Handle export to CSV
   const handleExportCSV = async () => {
     try {
-      const blob = await SectionAttendanceService.exportSectionAttendanceCSV(
-        section.id,
-        startDate,
-        endDate
-      );
+      // Use our new CSV export utility
+      const csvData = attendanceRecords.map(record => ({
+        id: record.regNum,
+        name: record.name,
+        email: record.email || `${record.regNum}@kluniversity.in`, // Fallback if email not available
+        attendancePercentage: `${record.attendancePercentage.toFixed(1)}%`,
+        totalClasses: record.totalClasses,
+        absences: record.absences,
+        status: record.attendancePercentage >= 75 ? "Good Standing" : "Attendance Warning"
+      }));
       
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${section.name}-attendance-${startDate}-to-${endDate}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const headers = [
+        { key: "id" as const, label: "Registration Number" },
+        { key: "name" as const, label: "Student Name" },
+        { key: "email" as const, label: "Email" },
+        { key: "attendancePercentage" as const, label: "Attendance %" },
+        { key: "totalClasses" as const, label: "Total Classes" },
+        { key: "absences" as const, label: "Absences" },
+        { key: "status" as const, label: "Status" }
+      ];
+      
+      const filename = `${section.name}-attendance-${startDate}-to-${endDate}`;
+      downloadCSV(csvData, filename, headers);
       
       toast.success("Attendance records exported successfully");
     } catch (error: any) {

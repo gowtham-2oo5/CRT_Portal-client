@@ -54,11 +54,13 @@ import {
   MessageSquareWarningIcon,
 } from "lucide-react";
 import { StudentManagementService } from "@/lib/api/services/student-management";
+import { SectionManagementService } from "@/lib/api/services/section-management";
 import { StudentFormModal } from "./student-form-modal";
 import { CRTEligibilityModal } from "./crt-eligibility-modal";
 import { DEPARTMENTS, BATCHES } from "@/lib/types/student-management";
 import { toast } from "sonner";
 import type { Student, StudentFilters } from "@/lib/types/student-management";
+import type { Section } from "@/lib/types/section-management";
 
 export function StudentManagement() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -70,6 +72,7 @@ export function StudentManagement() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [crtModalStudent, setCrtModalStudent] = useState<Student | null>(null);
   const [crtModalAction, setCrtModalAction] = useState<"ADD" | "REMOVE">("ADD");
+  const [sections, setSections] = useState<Section[]>([]);
 
   // Filters
   const [filters, setFilters] = useState<StudentFilters>({
@@ -102,6 +105,15 @@ export function StudentManagement() {
 
   useEffect(() => {
     loadStudents();
+    const loadSectionsData = async () => {
+      try {
+        const sectionsData = await SectionManagementService.getSections();
+        setSections(sectionsData);
+      } catch (error) {
+        toast.error("Failed to load sections for filter.");
+      }
+    };
+    loadSectionsData();
   }, []);
 
   // Apply filters
@@ -434,11 +446,11 @@ export function StudentManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Sections</SelectItem>
-                {/* You'll need to fetch sections from your API */}
-                {/* For now, using a placeholder */}
-                <SelectItem value="A">A</SelectItem>
-                <SelectItem value="B">B</SelectItem>
-                <SelectItem value="C">C</SelectItem>
+                {sections.map((section) => (
+                  <SelectItem key={section.id} value={section.name}>
+                    {section.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 

@@ -38,17 +38,13 @@ export function StudentAttendanceRow({
   className = "",
 }: StudentAttendanceRowProps) {
   const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState(attendanceRecord?.feedback || "");
+  const [feedback, setFeedback] = useState(attendanceRecord?.present || "");
 
   // Handle attendance status change
   const handleAttendanceChange = (present: boolean) => {
     const newRecord: Partial<AttendanceRecord> = {
       studentId: student.id,
-      rollNumber: student.rollNumber,
-      name: student.name,
       present,
-      feedback: feedback.trim() || undefined,
-      attendanceTime: new Date().toISOString(),
     };
 
     onAttendanceChange(newRecord);
@@ -79,13 +75,17 @@ export function StudentAttendanceRow({
     student.attendancePercentage && student.attendancePercentage < 75;
 
   // Get student initials for avatar
-  const getInitials = (name: string): string => {
-    return name
-      .split(" ")
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const getInitials = (name: string | undefined, regNum: string): string => {
+    if (name) {
+      return name
+        .split(" ")
+        .map((word) => word.charAt(0))
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    // Fallback to regNum if name is undefined/null
+    return regNum.toUpperCase().slice(0, 2);
   };
 
   return (
@@ -93,7 +93,7 @@ export function StudentAttendanceRow({
       <div className="flex items-center gap-4">
         {/* Index Number */}
         <div className="text-sm text-muted-foreground font-mono w-8 text-center">
-          {index.toString().padStart(2, "0")}
+          {index}
         </div>
 
         {/* Student Avatar */}
@@ -103,14 +103,14 @@ export function StudentAttendanceRow({
             alt={student.name}
           />
           <AvatarFallback className="text-sm font-semibold">
-            {getInitials(student.name)}
+            {getInitials(student.name, student.regNum)}
           </AvatarFallback>
         </Avatar>
 
         {/* Student Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-semibold text-sm truncate">{student.name}</h4>
+            <h4 className="font-semibold text-sm truncate">{student.name || student.regNum}</h4>
 
             {hasLowAttendance && (
               <Badge variant="destructive" className="text-xs">
@@ -121,7 +121,7 @@ export function StudentAttendanceRow({
           </div>
 
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="font-mono">{student.rollNumber}</span>
+            <span className="font-mono">{student.regNum}</span>
             <span className="font-mono">{student.regNum}</span>
             <span>{student.department}</span>
             {student.attendancePercentage !== undefined && (

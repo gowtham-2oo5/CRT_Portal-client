@@ -408,7 +408,7 @@ export default function FacultyTimetablePage() {
                               : "Upcoming"}
                           </Badge>
                           <Link
-                            href={`/dashboard/faculty/attendance?sectionId=${slot.id}`}
+                            href={`/dashboard/faculty/attendance/${slot.id}`}
                           >
                             <Button variant="outline" size="sm">
                               <BookOpen className="h-4 w-4 mr-1" />

@@ -115,6 +115,7 @@ export function TimeSlotFormModal({
           isBreak: initialData.isBreak,
           breakDescription: initialData.breakDescription || "",
           inchargeFacultyId: initialData.inchargeFacultyId || "",
+          inchargeFacultyName: initialData.inchargeFaculty?.name || "",
           sectionId: initialData.sectionId,
           roomId: initialData.roomId,
         });
@@ -123,6 +124,7 @@ export function TimeSlotFormModal({
           isBreak: false,
           breakDescription: "",
           inchargeFacultyId: "",
+          inchargeFacultyName: "",
           sectionId,
           roomId: scheduleRoomId || "",
           startTime: "", // Will be set by template

@@ -12,43 +12,15 @@ export interface Student {
   name: string;
   email: string;
   phone: string;
-  rollNumber: string;
-  regNum: string;
+  regNum: string; // Registration number (unique)
   department: string;
-  section: string;
-  batch: "Y22" | "Y23" | "Y24" | "Y25";
+  batch: string; // Academic batch/year
+  section: string; // Section of the student
   crtEligibility: boolean;
-  feedback?: string;
+  feedback?: string; // Max 500 characters
   attendancePercentage: number;
-
-  // 🎯 ATTENDANCE SYSTEM EXTENSIONS
-  // Enhanced attendance tracking
-  totalSessions?: number; // Total sessions conducted
-  attendedSessions?: number; // Sessions attended
-  consecutiveAbsences?: number; // Current streak of absences
-  lastAttendanceDate?: string; // Last date student was present
-  attendanceTrend?: "improving" | "declining" | "stable"; // Attendance trend
-
-  // Attendance alerts and flags
-  lowAttendanceAlert?: boolean; // If attendance is below threshold
-  attendanceThreshold?: number; // Required attendance percentage
-  isEligibleForExam?: boolean; // Based on attendance criteria
-
-  // Recent attendance history (last 5 sessions)
-  recentAttendance?: {
-    date: string;
-    present: boolean;
-    timeSlotId: string;
-    feedback?: string;
-  }[];
-
-  // Attendance statistics
-  attendanceStats?: {
-    thisWeek: number; // This week's attendance percentage
-    thisMonth: number; // This month's attendance percentage
-    overall: number; // Overall attendance percentage
-    lastUpdated: string; // When stats were last calculated
-  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Section {

@@ -549,7 +549,7 @@ export function WebSocketFacultyDashboardFixed() {
                 </div>
               </div>
               <Link
-                href={`/dashboard/faculty/attendance?sectionId=${currentSession.currentSlot.sectionId}`}
+                href={`/dashboard/faculty/attendance/${currentSession.currentSlot.sectionId}`}
               >
                 <Button size="sm" className="bg-green-600 hover:bg-green-700">
                   <CheckCircle className="h-4 w-4 mr-2" />
@@ -721,9 +721,7 @@ export function WebSocketFacultyDashboardFixed() {
                         </Badge>
                       )}
 
-                      <Link
-                        href={`/dashboard/faculty/attendance?sectionId=${slot.id}`}
-                      >
+                      <Link href={`/dashboard/faculty/attendance/${slot.id}`}>
                         <Button
                           size="sm"
                           variant={isActive ? "default" : "outline"}
@@ -771,9 +769,7 @@ export function WebSocketFacultyDashboardFixed() {
                         students
                       </div>
                     </div>
-                    <Link
-                      href={`/dashboard/faculty/attendance?sectionId=${section.id}`}
-                    >
+                    <Link href={`/dashboard/faculty/attendance/${section.id}`}>
                       <Button size="sm" variant="outline">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Attendance
@@ -805,7 +801,7 @@ export function WebSocketFacultyDashboardFixed() {
             </Link>
             {currentSession?.hasActiveSession && currentSession.currentSlot && (
               <Link
-                href={`/dashboard/faculty/attendance?sectionId=${currentSession.currentSlot.sectionId}`}
+                href={`/dashboard/faculty/attendance/${currentSession.currentSlot.sectionId}`}
               >
                 <Button className="w-full">
                   <Play className="h-4 w-4 mr-2" />

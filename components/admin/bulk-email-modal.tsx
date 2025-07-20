@@ -22,10 +22,16 @@ interface BulkEmailModalProps {
   emailIds: string[];
 }
 
-export function BulkEmailModal({ open, onOpenChange, emailIds }: BulkEmailModalProps) {
+export function BulkEmailModal({
+  open,
+  onOpenChange,
+  emailIds,
+}: BulkEmailModalProps) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [isSending, setIsSending] = useState(false);
+
+  console.log("Inside modal begin", emailIds);
 
   const handleSendEmail = async () => {
     if (!subject.trim() || !body.trim()) {
@@ -56,11 +62,18 @@ export function BulkEmailModal({ open, onOpenChange, emailIds }: BulkEmailModalP
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Subject</Label>
-            <Input value={subject} onChange={e => setSubject(e.target.value)} />
+            <Input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <Label>Body</Label>
-            <Textarea value={body} onChange={e => setBody(e.target.value)} rows={10} />
+            <Textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={10}
+            />
           </div>
         </div>
         <DialogFooter>

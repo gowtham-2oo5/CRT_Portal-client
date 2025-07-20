@@ -60,12 +60,6 @@ const adminNavigation: NavItem[] = [
         icon: GraduationCap,
         type: "link",
       },
-      {
-        name: "Trainers",
-        href: "/dashboard/admin/trainers",
-        icon: UserCheck,
-        type: "link",
-      },
     ],
   },
   {
@@ -77,6 +71,12 @@ const adminNavigation: NavItem[] = [
         name: "Rooms",
         href: "/dashboard/admin/rooms",
         icon: Building2,
+        type: "link",
+      },
+      {
+        name: "Trainings",
+        href: "/dashboard/admin/trainers",
+        icon: UserCheck,
         type: "link",
       },
       {
@@ -153,7 +153,11 @@ function NavGroup({
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={handleToggle} className="space-y-1">
+    <Collapsible
+      open={isOpen}
+      onOpenChange={handleToggle}
+      className="space-y-1"
+    >
       <CollapsibleTrigger asChild>
         <Button
           variant="ghost"
@@ -213,7 +217,7 @@ function NavGroup({
 }
 
 export function DashboardNav() {
-  const pathname = useusePathname();
+  const pathname = usePathname();
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeGroup, setActiveGroup] = useState<string | null>(null); // State to manage active group
@@ -223,7 +227,9 @@ export function DashboardNav() {
     let initialActiveGroup: string | null = null;
     for (const item of adminNavigation) {
       if (item.type === "group") {
-        if (item.children?.some(child => pathname.startsWith(child.href || ""))) {
+        if (
+          item.children?.some((child) => pathname.startsWith(child.href || ""))
+        ) {
           initialActiveGroup = item.name;
           break;
         }

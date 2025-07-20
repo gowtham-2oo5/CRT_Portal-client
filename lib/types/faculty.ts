@@ -22,13 +22,11 @@ export interface TimeSlot {
 }
 
 export interface Student {
-  id: string;
-  rollNumber: string;
-  name: string;
-  email: string;
-  phone?: string;
-  section: string;
-  profileImage?: string;
+    id: string;
+    regNum: string; // Changed from rollNumber to regNum
+    name: string;
+    email: string;
+    section: string;
 }
 
 export interface AttendanceRecord {
