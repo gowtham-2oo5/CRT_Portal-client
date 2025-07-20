@@ -126,6 +126,26 @@ export class StudentManagementService {
     }
   }
 
+  // Get students by section ID
+  static async getStudentsBySection(sectionId: string): Promise<Student[]> {
+    if (USE_MOCK_DATA) {
+      const allStudents = await this.getMockStudents();
+      return allStudents.filter(student => student.section === sectionId);
+    }
+
+    try {
+      const api = await this.getAuthenticatedApi();
+      const response = await api.get(`/students/by-section/${sectionId}`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "[StudentManagementService] Error fetching students by section:",
+        error
+      );
+      throw error;
+    }
+  }
+
   // Create new student
   static async createStudent(
     studentData: CreateStudentRequest

@@ -8,6 +8,7 @@ export interface Student {
   regNum: string; // Registration number (unique)
   department: string;
   batch: string; // Academic batch/year
+  section: string; // Section of the student
   crtEligibility: boolean;
   feedback?: string; // Max 500 characters
   attendancePercentage: number;
@@ -45,6 +46,7 @@ export interface StudentFilters {
   search?: string;
   department?: string | "ALL";
   batch?: string | "ALL";
+  section?: string | "ALL";
   crtEligibility?: "ALL" | "ELIGIBLE" | "NOT_ELIGIBLE";
   attendanceRange?: {
     min: number;

@@ -156,7 +156,7 @@ export function UserManagement() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(paginatedUsers.map((user) => user.userId));
+      setSelectedUsers(paginatedUsers.map((user) => user.id));
     } else {
       setSelectedUsers([]);
     }
@@ -482,12 +482,12 @@ export function UserManagement() {
               </TableHeader>
               <TableBody>
                 {paginatedUsers.map((user) => (
-                  <TableRow key={user.userId}>
+                  <TableRow key={user.id}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedUsers.includes(user.userId)}
+                        checked={selectedUsers.includes(user.id)}
                         onCheckedChange={(checked) =>
-                          handleSelectUser(user.userId, checked as boolean)
+                          handleSelectUser(user.id, checked as boolean)
                         }
                       />
                     </TableCell>
@@ -550,7 +550,7 @@ export function UserManagement() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => handleDeleteUser(user.userId)}
+                            onClick={() => handleDeleteUser(user.id)}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />

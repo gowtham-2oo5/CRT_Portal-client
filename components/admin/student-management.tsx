@@ -76,6 +76,7 @@ export function StudentManagement() {
     search: "",
     department: "ALL",
     batch: "ALL",
+    section: "ALL",
     crtEligibility: "ALL",
   });
 
@@ -126,6 +127,12 @@ export function StudentManagement() {
 
     if (filters.batch && filters.batch !== "ALL") {
       filtered = filtered.filter((student) => student.batch === filters.batch);
+    }
+
+    if (filters.section && filters.section !== "ALL") {
+      filtered = filtered.filter(
+        (student) => student.section === filters.section
+      );
     }
 
     if (filters.crtEligibility && filters.crtEligibility !== "ALL") {
@@ -417,6 +424,25 @@ export function StudentManagement() {
             </Select>
 
             <Select
+              value={filters.section}
+              onValueChange={(value: any) =>
+                setFilters({ ...filters, section: value })
+              }
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Section" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Sections</SelectItem>
+                {/* You'll need to fetch sections from your API */}
+                {/* For now, using a placeholder */}
+                <SelectItem value="A">A</SelectItem>
+                <SelectItem value="B">B</SelectItem>
+                <SelectItem value="C">C</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
               value={filters.crtEligibility}
               onValueChange={(value: any) =>
                 setFilters({ ...filters, crtEligibility: value })
@@ -489,6 +515,7 @@ export function StudentManagement() {
                   </TableHead>
                   <TableHead>Student</TableHead>
                   <TableHead>Department</TableHead>
+                  <TableHead>Section</TableHead>
                   <TableHead>Batch</TableHead>
                   <TableHead>CRT Status</TableHead>
                   <TableHead>Attendance</TableHead>
@@ -531,6 +558,11 @@ export function StudentManagement() {
                     <TableCell>
                       <span className="text-sm font-medium">
                         {student.department.split(" ")[0]}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm font-medium">
+                        {student.section}
                       </span>
                     </TableCell>
                     <TableCell>

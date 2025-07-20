@@ -25,24 +25,24 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { SectionScheduleService } from "@/lib/api/services/section-schedule";
 import { RoomManagementService } from "@/lib/api/services/room-management";
+import { TimeSlotTemplateService } from "@/lib/api/services/timeslot-template";
 import type {
   TimeSlot,
   CreateTimeSlotRequest,
   Faculty,
 } from "@/lib/types/section-schedule";
 import type { Room } from "@/lib/types/room-management";
-
-const DURATIONS = [10, 50, 60, 100];
+import type { TimeSlotTemplate } from "@/lib/types/timeslot-template";
 
 interface TimeSlotFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CreateTimeSlotRequest) => Promise<void>;
   initialData?: TimeSlot | null;
-  scheduleId: string; // Changed from sectionId to scheduleId
-  sectionId: string; // Keep sectionId for the TimeSlot data
-  scheduleRoomId?: string; // Room ID from the section's schedule
-  existingTimeSlots?: TimeSlot[]; // For overlap validation
+  scheduleId: string;
+  sectionId: string;
+  scheduleRoomId?: string;
+  existingTimeSlots?: TimeSlot[];
   mode: "create" | "edit";
 }
 
@@ -57,38 +57,42 @@ export function TimeSlotFormModal({
   existingTimeSlots = [],
   mode,
 }: TimeSlotFormModalProps) {
+  const timeToMinutes = (timeStr: string): number => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
   const [formData, setFormData] = useState<CreateTimeSlotRequest>({
-    startTime: "09:00",
-    endTime: "09:50",
     isBreak: false,
     breakDescription: "",
     inchargeFacultyId: "",
     sectionId,
     roomId: "",
+    startTime: "", // Will be set by template
+    endTime: "", // Will be set by template
   });
 
-  const [selectedDuration, setSelectedDuration] = useState(50);
+  const [templates, setTemplates] = useState<TimeSlotTemplate[]>([]);
   const [faculty, setFaculty] = useState<Faculty[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load faculty and rooms data
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [facultyData, roomsData] = await Promise.all([
+        const [facultyData, roomsData, templatesData] = await Promise.all([
           SectionScheduleService.getFaculty(),
           RoomManagementService.getRooms(),
+          TimeSlotTemplateService.getTemplates(),
         ]);
         setFaculty(facultyData);
         setRooms(roomsData);
-        
-        // Auto-select first faculty if available and no faculty is selected
+        setTemplates(templatesData);
+
         if (facultyData.length > 0 && !formData.inchargeFacultyId) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            inchargeFacultyId: facultyData[0].id
+            inchargeFacultyId: facultyData[0].id,
           }));
         }
       } catch (error) {
@@ -101,14 +105,9 @@ export function TimeSlotFormModal({
     }
   }, [open, formData.inchargeFacultyId]);
 
-  // Reset form when modal opens/closes or initial data changes
   useEffect(() => {
     if (open) {
       if (initialData && mode === "edit") {
-        const startMinutes = timeToMinutes(initialData.startTime);
-        const endMinutes = timeToMinutes(initialData.endTime);
-        const duration = endMinutes - startMinutes;
-
         setFormData({
           startTime: initialData.startTime,
           endTime: initialData.endTime,
@@ -118,57 +117,40 @@ export function TimeSlotFormModal({
           sectionId: initialData.sectionId,
           roomId: initialData.roomId,
         });
-        setSelectedDuration(duration);
       } else {
-        // Create mode - pre-populate room from schedule
         setFormData({
-          startTime: "09:00",
-          endTime: "09:50",
           isBreak: false,
           breakDescription: "",
           inchargeFacultyId: "",
           sectionId,
-          roomId: scheduleRoomId || "", // Pre-populate room
+          roomId: scheduleRoomId || "",
+          startTime: "", // Will be set by template
+          endTime: "", // Will be set by template
         });
-        setSelectedDuration(50);
       }
       setError(null);
     }
   }, [open, initialData, mode, sectionId, scheduleId, scheduleRoomId]);
 
-  // Helper functions
-  const timeToMinutes = (timeStr: string): number => {
-    const [hours, minutes] = timeStr.split(":").map(Number);
-    return hours * 60 + minutes;
+  const handleTemplateChange = (templateName: string) => {
+    const template = templates.find((t) => t.name === templateName);
+    if (template) {
+      setFormData((prev) => ({
+        ...prev,
+        startTime: template.startTime,
+        endTime: template.endTime,
+      }));
+    }
   };
 
-  const minutesToTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, "0")}:${mins
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  // Update end time when start time or duration changes
-  useEffect(() => {
-    const startMinutes = timeToMinutes(formData.startTime);
-    const endMinutes = startMinutes + selectedDuration;
-    const endTime = minutesToTime(endMinutes);
-
-    setFormData((prev) => ({
-      ...prev,
-      endTime,
-    }));
-  }, [formData.startTime, selectedDuration]);
-
-  // Helper function to check for overlapping time slots
-  const checkTimeOverlap = (startTime: string, endTime: string): string | null => {
+  const checkTimeOverlap = (
+    startTime: string,
+    endTime: string
+  ): string | null => {
     const newStart = timeToMinutes(startTime);
     const newEnd = timeToMinutes(endTime);
 
     for (const slot of existingTimeSlots) {
-      // Skip checking against the slot we're editing
       if (mode === "edit" && initialData && slot.id === initialData.id) {
         continue;
       }
@@ -176,25 +158,23 @@ export function TimeSlotFormModal({
       const existingStart = timeToMinutes(slot.startTime);
       const existingEnd = timeToMinutes(slot.endTime);
 
-      // Check for overlap: new slot starts before existing ends AND new slot ends after existing starts
       if (newStart < existingEnd && newEnd > existingStart) {
-        const slotLabel = slot.isBreak 
-          ? `Break (${slot.breakDescription})` 
+        const slotLabel = slot.isBreak
+          ? `Break (${slot.breakDescription})`
           : `Class session`;
         return `Time overlaps with existing ${slotLabel} from ${slot.startTime} to ${slot.endTime}`;
       }
     }
 
-    return null; // No overlap found
+    return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validation
     if (!formData.startTime || !formData.endTime) {
-      setError("Start time and end time are required");
+      setError("Please select a time slot template.");
       return;
     }
 
@@ -203,13 +183,11 @@ export function TimeSlotFormModal({
       return;
     }
 
-    // For breaks, description is required
     if (formData.isBreak && !formData.breakDescription?.trim()) {
       setError("Break description is required for break sessions");
       return;
     }
 
-    // Check for time overlap
     const overlapError = checkTimeOverlap(formData.startTime, formData.endTime);
     if (overlapError) {
       setError(overlapError);
@@ -218,32 +196,7 @@ export function TimeSlotFormModal({
 
     try {
       setIsSubmitting(true);
-
-      const submitData: CreateTimeSlotRequest = {
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        isBreak: formData.isBreak,
-        breakDescription: formData.breakDescription || "",
-        inchargeFacultyId: formData.inchargeFacultyId || "", // Always send faculty ID (even for breaks)
-        sectionId: formData.sectionId, // Always send
-        roomId: formData.roomId, // Always send
-      };
-
-      console.log("🚀 Creating TimeSlot - Request Details:", {
-        scheduleId,
-        sectionId,
-        timeSlotData: submitData,
-        isBreakFlag: submitData.isBreak,
-        isBreakType: typeof submitData.isBreak,
-        breakDescription: submitData.breakDescription,
-        formDataIsBreak: formData.isBreak,
-        formDataIsBreakType: typeof formData.isBreak,
-        apiEndpoint: `/section-schedules/${scheduleId}/time-slots`,
-      });
-
-      console.log("🚀 Raw submitData object:", JSON.stringify(submitData, null, 2));
-
-      await onSubmit(submitData);
+      await onSubmit(formData);
       onOpenChange(false);
     } catch (error: any) {
       console.error("Error submitting time slot form:", error);
@@ -257,21 +210,10 @@ export function TimeSlotFormModal({
     field: keyof CreateTimeSlotRequest,
     value: any
   ) => {
-    console.log(`🔧 Form field changed: ${field} = ${value} (type: ${typeof value})`);
-    
-    setFormData((prev) => {
-      const newData = {
-        ...prev,
-        [field]: value,
-      };
-      
-      // Log the complete form state when isBreak changes
-      if (field === 'isBreak') {
-        console.log('🔧 Complete form state after isBreak change:', newData);
-      }
-      
-      return newData;
-    });
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
@@ -296,54 +238,22 @@ export function TimeSlotFormModal({
             </Alert>
           )}
 
-          {/* Duration Pills */}
           <div className="space-y-2">
-            <Label>Duration</Label>
-            <div className="flex gap-2 flex-wrap">
-              {DURATIONS.map((duration) => (
-                <button
-                  key={duration}
-                  type="button"
-                  onClick={() => setSelectedDuration(duration)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    selectedDuration === duration
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  {duration}min
-                </button>
-              ))}
-            </div>
+            <Label>Time Slot Template</Label>
+            <Select onValueChange={handleTemplateChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a template" />
+              </SelectTrigger>
+              <SelectContent>
+                {templates.map((template) => (
+                  <SelectItem key={template.name} value={template.name}>
+                    {template.name} ({template.startTime} - {template.endTime})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Time Inputs */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startTime">Start Time *</Label>
-              <Input
-                id="startTime"
-                type="time"
-                value={formData.startTime}
-                onChange={(e) => handleInputChange("startTime", e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">End Time *</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={formData.endTime}
-                onChange={(e) => handleInputChange("endTime", e.target.value)}
-                required
-                readOnly
-                className="bg-gray-50 dark:bg-gray-800"
-              />
-            </div>
-          </div>
-
-          {/* Break Toggle */}
           <div className="flex items-center space-x-3">
             <Switch
               id="isBreak"
@@ -357,7 +267,6 @@ export function TimeSlotFormModal({
             </Label>
           </div>
 
-          {/* Break Description (only for breaks) */}
           {formData.isBreak && (
             <div className="space-y-2">
               <Label htmlFor="breakDescription">Break Description *</Label>
@@ -373,7 +282,6 @@ export function TimeSlotFormModal({
             </div>
           )}
 
-          {/* Room Selection */}
           <div className="space-y-2">
             <Label>Room *</Label>
             <Select
@@ -398,7 +306,6 @@ export function TimeSlotFormModal({
             </Select>
           </div>
 
-          {/* Faculty Selection (always shown, auto-selected for breaks) */}
           <div className="space-y-2">
             <Label>
               Incharge Faculty *

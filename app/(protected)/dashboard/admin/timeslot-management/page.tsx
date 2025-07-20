@@ -1,13 +1,13 @@
 "use client";
 
+import { TimeSlotManagement } from "@/components/admin/timeslot-management";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
-import { AdminAttendancePosting } from "@/components/admin/attendance-posting";
 
-export default function AdminAttendancePage() {
+export default function AdminTimeSlotManagementPage() {
   return (
     <div className="space-y-6">
       <PageHeader />
-      <AdminAttendancePosting />
+      <TimeSlotManagement />
     </div>
   );
 }

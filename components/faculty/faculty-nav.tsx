@@ -1,22 +1,30 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
+  LucideLayoutDashboard,
   Calendar,
   Check,
   FileBarChart,
   Clock,
-  LogOut
-} from 'lucide-react';
-import { ClientAuth } from '@/lib/auth/client';
+  LogOut,
+} from "lucide-react";
+import { ClientAuth } from "@/lib/auth/client";
 
 const facultyNavigation = [
-  { name: 'Dashboard', href: '/dashboard/faculty', icon: LayoutDashboard },
-  { name: 'Timetable', href: '/dashboard/faculty/timetable', icon: Calendar },
-  { name: 'Submit Attendance', href: '/dashboard/faculty/attendance', icon: Check },
+  {
+    name: "Dashboard",
+    href: "/dashboard/faculty",
+    icon: LucideLayoutDashboard,
+  },
+  { name: "Timetable", href: "/dashboard/faculty/timetable", icon: Calendar },
+  {
+    name: "Submit Attendance",
+    href: "/dashboard/faculty/attendance",
+    icon: Check,
+  },
 ];
 
 export function FacultyNav() {
@@ -31,17 +39,20 @@ export function FacultyNav() {
       <div className="space-y-2 flex-1">
         {facultyNavigation.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/dashboard/faculty' && pathname.startsWith(item.href));
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/dashboard/faculty" &&
+              pathname.startsWith(item.href));
 
           return (
             <Link
               key={item.name}
               href={item.href}
               className={cn(
-                'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
               <Icon className="h-4 w-4 mr-3" />
