@@ -25,7 +25,9 @@ export class SectionScheduleService {
   }
 
   // Get schedule by section ID
-  static async getScheduleBySection(sectionId: string): Promise<SectionSchedule | null> {
+  static async getScheduleBySection(
+    sectionId: string
+  ): Promise<SectionSchedule | null> {
     if (USE_MOCK_DATA) {
       return this.getMockSchedule(sectionId);
     }
@@ -33,6 +35,7 @@ export class SectionScheduleService {
     try {
       const api = await this.getAuthenticatedApi();
       const response = await api.get(`/section-schedules/section/${sectionId}`);
+      console.log(response);
       return response.data;
     } catch (error: any) {
       console.error(
@@ -45,7 +48,9 @@ export class SectionScheduleService {
       }
       // For other errors, still return null but log the error
       if (error.response?.status >= 400 && error.response?.status < 500) {
-        console.warn(`Client error ${error.response.status} for section ${sectionId}, treating as no schedule`);
+        console.warn(
+          `Client error ${error.response.status} for section ${sectionId}, treating as no schedule`
+        );
         return null;
       }
       // Only throw for server errors or network issues
@@ -84,7 +89,7 @@ export class SectionScheduleService {
     console.log("🚀 SectionScheduleService.addTimeSlot - Request:", {
       scheduleId,
       timeSlotData,
-      endpoint: `/section-schedules/${scheduleId}/time-slots`
+      endpoint: `/section-schedules/${scheduleId}/time-slots`,
     });
 
     if (USE_MOCK_DATA) {
@@ -93,7 +98,10 @@ export class SectionScheduleService {
         const newTimeSlot = {
           id: Date.now(),
           ...timeSlotData,
-          duration: this.calculateDuration(timeSlotData.startTime, timeSlotData.endTime),
+          duration: this.calculateDuration(
+            timeSlotData.startTime,
+            timeSlotData.endTime
+          ),
         };
         mockSchedule.timeSlots.push(newTimeSlot);
         return mockSchedule;
@@ -103,19 +111,27 @@ export class SectionScheduleService {
 
     try {
       const api = await this.getAuthenticatedApi();
-      console.log("📤 Making API request to:", `/section-schedules/${scheduleId}/time-slots`);
+      console.log(
+        "📤 Making API request to:",
+        `/section-schedules/${scheduleId}/time-slots`
+      );
       console.log("📤 Request body:", timeSlotData);
-      
+
       const response = await api.post(
         `/section-schedules/${scheduleId}/time-slots`,
         timeSlotData
       );
-      
+
       console.log("✅ TimeSlot created successfully:", response.data);
-      console.log("✅ Created TimeSlot isBreak flag:", response.data.timeSlots?.find((ts: any) => 
-        ts.startTime === timeSlotData.startTime && ts.endTime === timeSlotData.endTime
-      )?.isBreak);
-      
+      console.log(
+        "✅ Created TimeSlot isBreak flag:",
+        response.data.timeSlots?.find(
+          (ts: any) =>
+            ts.startTime === timeSlotData.startTime &&
+            ts.endTime === timeSlotData.endTime
+        )?.isBreak
+      );
+
       return response.data;
     } catch (error: any) {
       console.error(
@@ -135,7 +151,9 @@ export class SectionScheduleService {
     if (USE_MOCK_DATA) {
       const mockSchedule = await this.getMockSchedule("mock-section");
       if (mockSchedule) {
-        const timeSlotIndex = mockSchedule.timeSlots.findIndex(ts => ts.id === timeSlotId);
+        const timeSlotIndex = mockSchedule.timeSlots.findIndex(
+          (ts) => ts.id === timeSlotId
+        );
         if (timeSlotIndex !== -1) {
           mockSchedule.timeSlots[timeSlotIndex] = {
             ...mockSchedule.timeSlots[timeSlotIndex],
@@ -171,7 +189,9 @@ export class SectionScheduleService {
     if (USE_MOCK_DATA) {
       const mockSchedule = await this.getMockSchedule("mock-section");
       if (mockSchedule) {
-        mockSchedule.timeSlots = mockSchedule.timeSlots.filter(ts => ts.id !== timeSlotId);
+        mockSchedule.timeSlots = mockSchedule.timeSlots.filter(
+          (ts) => ts.id !== timeSlotId
+        );
         return mockSchedule;
       }
       throw new Error("Schedule not found");
@@ -198,7 +218,11 @@ export class SectionScheduleService {
       return [
         { id: "faculty-1", name: "Dr. John Smith", email: "john@example.com" },
         { id: "faculty-2", name: "Prof. Jane Doe", email: "jane@example.com" },
-        { id: "faculty-3", name: "Dr. Mike Johnson", email: "mike@example.com" },
+        {
+          id: "faculty-3",
+          name: "Dr. Mike Johnson",
+          email: "mike@example.com",
+        },
       ];
     }
 
@@ -214,8 +238,8 @@ export class SectionScheduleService {
 
   // Validate schedule requirements
   static validateSchedule(timeSlots: any[]): ScheduleValidation {
-    const workSlots = timeSlots.filter(slot => !slot.isBreak);
-    const breakSlots = timeSlots.filter(slot => slot.isBreak);
+    const workSlots = timeSlots.filter((slot) => !slot.isBreak);
+    const breakSlots = timeSlots.filter((slot) => slot.isBreak);
 
     const workMinutes = workSlots.reduce((total, slot) => {
       return total + this.calculateDuration(slot.startTime, slot.endTime);
@@ -232,13 +256,17 @@ export class SectionScheduleService {
 
     if (workMinutes < requiredWorkMinutes) {
       warnings.push(
-        `Work time is ${requiredWorkMinutes - workMinutes} minutes short (${workMinutes}/${requiredWorkMinutes} minutes)`
+        `Work time is ${
+          requiredWorkMinutes - workMinutes
+        } minutes short (${workMinutes}/${requiredWorkMinutes} minutes)`
       );
     }
 
     if (breakMinutes < requiredBreakMinutes) {
       warnings.push(
-        `Break time is ${requiredBreakMinutes - breakMinutes} minutes short (${breakMinutes}/${requiredBreakMinutes} minutes)`
+        `Break time is ${
+          requiredBreakMinutes - breakMinutes
+        } minutes short (${breakMinutes}/${requiredBreakMinutes} minutes)`
       );
     }
 
@@ -254,17 +282,19 @@ export class SectionScheduleService {
 
   // Helper function to calculate duration in minutes
   private static calculateDuration(startTime: string, endTime: string): number {
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const [endHour, endMin] = endTime.split(':').map(Number);
-    
+    const [startHour, startMin] = startTime.split(":").map(Number);
+    const [endHour, endMin] = endTime.split(":").map(Number);
+
     const startMinutes = startHour * 60 + startMin;
     const endMinutes = endHour * 60 + endMin;
-    
+
     return endMinutes - startMinutes;
   }
 
   // Mock data for development
-  private static async getMockSchedule(sectionId: string): Promise<SectionSchedule> {
+  private static async getMockSchedule(
+    sectionId: string
+  ): Promise<SectionSchedule> {
     return {
       id: "mock-schedule-1",
       sectionId,

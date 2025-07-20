@@ -35,7 +35,7 @@ export class SectionManagementService {
       const params = new URLSearchParams();
 
       if (filters?.search) params.append("search", filters.search);
-      if (filters?.trainerId) params.append("trainerId", filters.trainerId);
+      if (filters?.TrainingId) params.append("TrainingId", filters.TrainingId);
 
       const response = await api.get(`/sections?${params.toString()}`);
       return response.data;
@@ -70,20 +70,19 @@ export class SectionManagementService {
     }
   }
 
-  // Get sections by trainer ID
-  static async getSectionsByTrainer(trainerId: string): Promise<Section[]> {
+  static async getSectionsByTrainer(TrainingId: string): Promise<Section[]> {
     if (USE_MOCK_DATA) {
       const sections = await this.getMockSections();
-      return sections.filter((s) => s.training.id === trainerId);
+      return sections.filter((s) => s.training.id === TrainingId);
     }
 
     try {
       const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/sections/trainer/${trainerId}`);
+      const response = await api.get(`/sections/trainer/${TrainingId}`);
       return response.data;
     } catch (error) {
       console.error(
-        `[SectionManagementService] Error fetching sections for trainer ${trainerId}:`,
+        `[SectionManagementService] Error fetching sections for trainer ${TrainingId}:`,
         error
       );
       throw error;
@@ -99,7 +98,7 @@ export class SectionManagementService {
         id: `section-${Date.now()}`,
         name: sectionData.sectionName,
         training: {
-          id: sectionData.trainerId,
+          id: sectionData.TrainingId,
           name: "Mock Training",
           sn: "MT",
           sections: 1,
@@ -112,6 +111,7 @@ export class SectionManagementService {
 
     try {
       const api = await this.getAuthenticatedApi();
+      console.log("FINAL POSTING: ", sectionData);
       const response = await api.post("/sections", sectionData);
       return response.data;
     } catch (error) {
@@ -136,9 +136,9 @@ export class SectionManagementService {
       return {
         ...existingSection,
         name: sectionData.sectionName || existingSection.name,
-        training: sectionData.trainerId
+        training: sectionData.TrainingId
           ? {
-              id: sectionData.trainerId,
+              id: sectionData.TrainingId,
               name: "Updated Training",
               sn: "UT",
               sections: 1,
@@ -150,7 +150,7 @@ export class SectionManagementService {
     try {
       const api = await this.getAuthenticatedApi();
       const requestData = {
-        trainerId: sectionData.trainerId,
+        TrainingId: sectionData.TrainingId,
         sectionName: sectionData.sectionName,
       };
       const response = await api.put(`/sections/${id}`, requestData);
@@ -242,6 +242,49 @@ export class SectionManagementService {
       throw error;
     }
   }
+  
+  // Register a single student to section by ID
+  static async registerStudent(
+    sectionId: string,
+    studentId: string
+  ): Promise<Section> {
+    if (USE_MOCK_DATA) {
+      const sections = await this.getMockSections();
+      const section = sections.find((s) => s.id === sectionId);
+      if (!section) throw new Error("Section not found");
+      
+      // Mock adding a student
+      const mockStudent = {
+        id: studentId,
+        name: "New Student",
+        email: "newstudent@example.com",
+        phone: "9876543210",
+        rollNumber: "21CS999",
+        regNum: "REG999",
+        department: "Computer Science",
+        section: section.name,
+        batch: "Y22",
+        crtEligibility: true,
+        attendancePercentage: 100,
+      };
+      
+      section.students.push(mockStudent);
+      section.strength += 1;
+      return section;
+    }
+
+    try {
+      const api = await this.getAuthenticatedApi();
+      const response = await api.post(`/sections/${sectionId}?studentId=${studentId}`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        `[SectionManagementService] Error registering student ${studentId} to section ${sectionId}:`,
+        error
+      );
+      throw error;
+    }
+  }
 
   // Bulk delete sections
   static async bulkDeleteSections(sectionIds: string[]): Promise<void> {
@@ -318,9 +361,9 @@ export class SectionManagementService {
       );
     }
 
-    if (filters?.trainerId) {
+    if (filters?.TrainingId) {
       filteredSections = filteredSections.filter(
-        (section) => section.training.id === filters.trainerId
+        (section) => section.training.id === filters.TrainingId
       );
     }
 

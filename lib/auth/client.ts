@@ -222,6 +222,7 @@ export class ClientAuth {
     email: string
   ): Promise<{ success: boolean; message: string }> {
     try {
+      console.log("Sending pwd reset to ", email);
       const response = await publicApi.post(
         `/auth/forgot-password?email=${encodeURIComponent(email)}`
       );

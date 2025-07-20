@@ -70,7 +70,6 @@ export class UserManagementService {
   // Create new user
   static async createUser(userData: CreateUserRequest): Promise<User> {
     if (USE_MOCK_DATA) {
-      // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const newUser: User = {

@@ -25,6 +25,7 @@
     "@stomp/stompjs": "^7.1.1",
     "@tailwindcss/postcss": "^4.1.10",
     "@types/sockjs-client": "^1.5.4",
+    "@uploadthing/react": "^7.3.2",
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -41,6 +42,7 @@
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.10",
+    "uploadthing": "^7.7.3",
     "zod": "^3.25.67"
   },
   "devDependencies": {

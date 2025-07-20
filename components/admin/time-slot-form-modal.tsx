@@ -65,6 +65,7 @@ export function TimeSlotFormModal({
     isBreak: false,
     breakDescription: "",
     inchargeFacultyId: "",
+    inchargeFacultyName: "",
     sectionId,
     roomId: "",
     startTime: "", // Will be set by template

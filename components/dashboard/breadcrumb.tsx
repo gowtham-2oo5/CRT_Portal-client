@@ -18,7 +18,7 @@ const routeLabels: Record<string, string> = {
   faculty: "Faculty",
   users: "User Management",
   students: "Student Management",
-  trainers: "Trainer Management",
+  trainers: "Training Management",
   attendance: "Attendance",
   reports: "Reports",
   timetable: "Timetable",

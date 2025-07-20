@@ -21,7 +21,6 @@ import {
   ChevronRight,
   ChevronLeft,
   FileBarChart,
-  
   Timer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -214,7 +213,7 @@ function NavGroup({
 }
 
 export function DashboardNav() {
-  const pathname = usePathname();
+  const pathname = useusePathname();
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeGroup, setActiveGroup] = useState<string | null>(null); // State to manage active group

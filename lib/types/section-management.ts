@@ -20,20 +20,20 @@ export interface Student {
   crtEligibility: boolean;
   feedback?: string;
   attendancePercentage: number;
-  
+
   // 🎯 ATTENDANCE SYSTEM EXTENSIONS
   // Enhanced attendance tracking
   totalSessions?: number; // Total sessions conducted
   attendedSessions?: number; // Sessions attended
   consecutiveAbsences?: number; // Current streak of absences
   lastAttendanceDate?: string; // Last date student was present
-  attendanceTrend?: 'improving' | 'declining' | 'stable'; // Attendance trend
-  
+  attendanceTrend?: "improving" | "declining" | "stable"; // Attendance trend
+
   // Attendance alerts and flags
   lowAttendanceAlert?: boolean; // If attendance is below threshold
   attendanceThreshold?: number; // Required attendance percentage
   isEligibleForExam?: boolean; // Based on attendance criteria
-  
+
   // Recent attendance history (last 5 sessions)
   recentAttendance?: {
     date: string;
@@ -41,7 +41,7 @@ export interface Student {
     timeSlotId: string;
     feedback?: string;
   }[];
-  
+
   // Attendance statistics
   attendanceStats?: {
     thisWeek: number; // This week's attendance percentage
@@ -60,18 +60,18 @@ export interface Section {
 }
 
 export interface CreateSectionRequest {
-  trainerId: string; // This maps to trainingId in the API
+  TrainingId: string; 
   sectionName: string;
 }
 
 export interface UpdateSectionRequest {
-  trainerId?: string; // This maps to trainingId in the API
+  TrainingId?: string; 
   sectionName?: string;
 }
 
 export interface SectionFilters {
   search?: string; // Search by section name or training name
-  trainerId?: string; // This is actually trainingId
+  TrainingId?: string; // This is actually trainingId
 }
 
 export interface BulkSectionOperation {

@@ -19,14 +19,14 @@ export interface TimeSlot {
   duration?: number; // in minutes
   label?: string; // for display
   isCurrent?: boolean; // if currently active
-  
+
   // 🎯 ATTENDANCE SYSTEM EXTENSIONS
   // Attendance-related fields
   hasAttendance?: boolean; // If attendance has been marked for today
   attendanceSessionId?: string; // Link to attendance session
   attendancePercentage?: number; // Today's attendance percentage
   lastAttendanceDate?: string; // Last date attendance was marked
-  
+
   // Populated attendance data
   attendanceSession?: {
     id: string;
@@ -36,7 +36,7 @@ export interface TimeSlot {
     totalStudents: number;
     attendancePercentage: number;
   };
-  
+
   // Faculty assignment details for attendance
   inchargeFaculty?: {
     id: string;
@@ -44,7 +44,7 @@ export interface TimeSlot {
     email: string;
     canMarkAttendance: boolean; // Permission check
   };
-  
+
   // Section details for attendance
   section?: {
     id: string;
@@ -52,7 +52,7 @@ export interface TimeSlot {
     strength: number;
     activeStudents: number; // Students currently enrolled
   };
-  
+
   // Room details for attendance
   room?: {
     id: string;
@@ -91,6 +91,7 @@ export interface CreateTimeSlotRequest {
   isBreak: boolean;
   breakDescription: string; // Always send
   inchargeFacultyId: string; // Always send (even for breaks)
+  inchargeFacultyName: string; // Always send (even for breaks)
   sectionId: string; // Always send
   roomId: string; // Always send
 }

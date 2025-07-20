@@ -201,7 +201,7 @@ export function UserFormModal({
           phone: "+91-",
           username: "",
           role: "FACULTY" as const,
-          department: "CSE" as const,
+          department: "CSE-1" as const,
           employeeId: "",
           isActive: true,
         },
@@ -255,7 +255,7 @@ export function UserFormModal({
           isActive: data.isActive,
         };
 
-        await UserManagementService.updateUser(user.userId, updateData);
+        await UserManagementService.updateUser(user.id, updateData);
         toast.success("User updated successfully!");
       } else {
         // Create user - server will handle password generation

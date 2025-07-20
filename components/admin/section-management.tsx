@@ -56,6 +56,7 @@ import { SectionFormModal } from "@/components/admin/section-form-modal";
 import { SectionScheduleComponent } from "@/components/admin/section-schedule";
 import { SectionAttendanceRecords } from "@/components/admin/section-attendance-records";
 import { SectionStudentsList } from "@/components/admin/section-students-list";
+import { StudentRegisterModal } from "@/components/admin/student-register-modal";
 import { toast } from "sonner";
 import type { Section, SectionFilters } from "@/lib/types/section-management";
 import type { Trainer } from "@/lib/types/trainer-management";
@@ -75,11 +76,13 @@ export function SectionManagement() {
     useState<Section | null>(null);
   const [viewingStudentsSection, setViewingStudentsSection] =
     useState<Section | null>(null);
+  const [registeringStudentSection, setRegisteringStudentSection] =
+    useState<Section | null>(null);
 
   // Filters
   const [filters, setFilters] = useState<SectionFilters>({
     search: "",
-    trainerId: undefined,
+    TrainingId: undefined,
   });
 
   // Pagination
@@ -140,9 +143,9 @@ export function SectionManagement() {
       );
     }
 
-    if (filters.trainerId) {
+    if (filters.TrainingId) {
       filtered = filtered.filter(
-        (section) => section.training?.id === filters.trainerId
+        (section) => section.training?.id === filters.TrainingId
       );
     }
 
@@ -239,6 +242,18 @@ export function SectionManagement() {
       setSelectedSections([...selectedSections, sectionId]);
     } else {
       setSelectedSections(selectedSections.filter((id) => id !== sectionId));
+    }
+  };
+
+  // Handle student registration
+  const handleRegisterStudent = async (sectionId: string, studentId: string) => {
+    try {
+      await SectionManagementService.registerStudent(sectionId, studentId);
+      toast.success("Student registered successfully");
+      loadSections();
+    } catch (error: any) {
+      console.error("Error registering student:", error);
+      toast.error(error.message || "Failed to register student");
     }
   };
 
@@ -412,11 +427,11 @@ export function SectionManagement() {
               </div>
             </div>
             <Select
-              value={filters.trainerId || "all"}
+              value={filters.TrainingId || "all"}
               onValueChange={(value) =>
                 setFilters({
                   ...filters,
-                  trainerId: value === "all" ? undefined : value,
+                  TrainingId: value === "all" ? undefined : value,
                 })
               }
             >
@@ -548,6 +563,12 @@ export function SectionManagement() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
+                              onClick={() => setRegisteringStudentSection(section)}
+                            >
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Register Student
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               onClick={() => setEditingSection(section)}
                             >
                               <Edit className="h-4 w-4 mr-2" />
@@ -640,6 +661,20 @@ export function SectionManagement() {
         trainers={trainings}
         mode={editingSection ? "edit" : "create"}
       />
+
+      {/* Student Registration Modal */}
+      {registeringStudentSection && (
+        <StudentRegisterModal
+          open={!!registeringStudentSection}
+          onOpenChange={(open) => {
+            if (!open) setRegisteringStudentSection(null);
+          }}
+          onSubmit={(studentId) => 
+            handleRegisterStudent(registeringStudentSection.id, studentId)
+          }
+          sectionName={registeringStudentSection.name}
+        />
+      )}
     </div>
   );
 }

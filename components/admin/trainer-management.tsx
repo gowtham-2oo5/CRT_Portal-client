@@ -120,11 +120,11 @@ export function TrainerManagement() {
   );
 
   // Handle trainer selection
-  const handleSelectTrainer = (trainerId: string, checked: boolean) => {
+  const handleSelectTrainer = (TrainingId: string, checked: boolean) => {
     if (checked) {
-      setSelectedTrainers([...selectedTrainers, trainerId]);
+      setSelectedTrainers([...selectedTrainers, TrainingId]);
     } else {
-      setSelectedTrainers(selectedTrainers.filter((id) => id !== trainerId));
+      setSelectedTrainers(selectedTrainers.filter((id) => id !== TrainingId));
     }
   };
 
@@ -137,9 +137,9 @@ export function TrainerManagement() {
   };
 
   // Handle trainer actions
-  const handleDeleteTrainer = async (trainerId: string) => {
+  const handleDeleteTrainer = async (TrainingId: string) => {
     try {
-      await TrainerManagementService.deleteTrainer(trainerId);
+      await TrainerManagementService.deleteTrainer(TrainingId);
       toast.success("Trainer deleted successfully");
       loadTrainers();
     } catch (error: any) {
@@ -203,10 +203,8 @@ export function TrainerManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Trainer Management</h1>
-          <p className="text-muted-foreground">
-            Manage trainers, assignments, and schedules
-          </p>
+          <h1 className="text-3xl font-bold">Trainings / Tools Management</h1>
+          <p className="text-muted-foreground">Manage Tool based Learnings</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" onClick={loadTrainers}>
