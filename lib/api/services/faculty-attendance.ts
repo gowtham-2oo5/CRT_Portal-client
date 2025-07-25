@@ -1,7 +1,7 @@
 // 🎯 CRT Portal Attendance System - Faculty Attendance Service
 // Created: 2025-07-15 | Phase 1 - Task 1.2
 
-import { publicApi, createClientSecuredApi } from "../client";
+import { apiClient } from "../client";
 import type {
   AttendanceSession,
   CurrentSession,
@@ -85,15 +85,9 @@ export class FacultyAttendanceService {
     try {
       console.log("📊 Fetching faculty dashboard for:", facultyId);
 
-      // Get auth token from session storage
-      const token = sessionStorage.getItem("auth-token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const api = createClientSecuredApi(token);
-
-      const response = await api.get(`/faculty/dashboard?id=${facultyId}`);
+      const response = await apiClient.get(
+        `/faculty/dashboard?id=${facultyId}`
+      );
 
       console.log("✅ Faculty dashboard loaded:", response.data);
       return response.data;
@@ -114,14 +108,7 @@ export class FacultyAttendanceService {
     try {
       console.log("🕐 Fetching current session for faculty:", facultyId);
 
-      // Get auth token from session storage
-      const token = sessionStorage.getItem("auth-token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const api = createClientSecuredApi(token);
-      const response = await api.get(
+      const response = await apiClient.get(
         `/faculty/current-session?id=${facultyId}`
       );
 
@@ -177,7 +164,7 @@ export class FacultyAttendanceService {
       params.append("facultyId", facultyId);
       if (week) params.append("week", week);
 
-      const response = await publicApi.get(
+      const response = await apiClient.get(
         `/faculty/timetable/weekly?${params}`
       );
       return response.data;
@@ -202,14 +189,9 @@ export class FacultyAttendanceService {
     try {
       console.log("👥 Fetching students for time slot:", timeSlotId);
 
-      const token = sessionStorage.getItem("auth-token");
-      const refreshToken = sessionStorage.getItem("refresh-token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const api = createClientSecuredApi(token, refreshToken ?? "");
-      const response = await api.get(`/faculty/session/${timeSlotId}/students`);
+      const response = await apiClient.get(
+        `/faculty/session/${timeSlotId}/students`
+      );
 
       console.log("✅ Session students loaded:", response.data);
       return response;
@@ -247,14 +229,6 @@ export class FacultyAttendanceService {
         recordCount: request.attendanceRecords.length,
       });
 
-      const token = sessionStorage.getItem("auth-token");
-      const refreshToken = sessionStorage.getItem("refresh-token");
-      if (!token) {
-        throw new Error("Authentication token not found");
-      }
-
-      const api = createClientSecuredApi(token, refreshToken ?? "");
-
       // Check if this is an admin request
       const isAdminRequest =
         sessionStorage.getItem("isAdminRequest") === "true";
@@ -271,7 +245,10 @@ export class FacultyAttendanceService {
         sessionStorage.removeItem("isAdminRequest");
       }
 
-      const response = await api.post("/faculty/attendance", requestWithFlag);
+      const response = await apiClient.post(
+        "/faculty/attendance",
+        requestWithFlag
+      );
 
       console.log("✅ Attendance submitted successfully:", response.data);
       return response.data;
@@ -309,7 +286,7 @@ export class FacultyAttendanceService {
     try {
       console.log("🔄 Updating attendance session:", sessionId, updates);
 
-      const response = await publicApi.put(
+      const response = await apiClient.put(
         `/faculty/attendance/${sessionId}`,
         updates
       );
@@ -357,7 +334,7 @@ export class FacultyAttendanceService {
         );
       }
 
-      const response = await publicApi.get(`/faculty/reports?${params}`);
+      const response = await apiClient.get(`/faculty/reports?${params}`);
 
       console.log("✅ Faculty reports loaded:", response.data);
       return response.data;
@@ -378,7 +355,7 @@ export class FacultyAttendanceService {
     try {
       console.log("👤 Fetching student detail report:", studentId);
 
-      const response = await publicApi.get(
+      const response = await apiClient.get(
         `/faculty/reports/student/${studentId}`
       );
 
@@ -422,7 +399,7 @@ export class FacultyAttendanceService {
       if (filters?.startDate) params.append("startDate", filters.startDate);
       if (filters?.endDate) params.append("endDate", filters.endDate);
 
-      const response = await publicApi.get(
+      const response = await apiClient.get(
         `/faculty/reports/section/${sectionId}?${params}`
       );
 
@@ -488,7 +465,7 @@ export class FacultyAttendanceService {
       if (filters?.startDate) params.append("startDate", filters.startDate);
       if (filters?.endDate) params.append("endDate", filters.endDate);
 
-      const response = await publicApi.get(
+      const response = await apiClient.get(
         `/faculty/analytics/attendance?${params}`
       );
 
@@ -521,7 +498,7 @@ export class FacultyAttendanceService {
       if (filters?.startDate) params.append("startDate", filters.startDate);
       if (filters?.endDate) params.append("endDate", filters.endDate);
 
-      const response = await publicApi.get(
+      const response = await apiClient.get(
         `/faculty/analytics/export/csv?${params}`,
         {
           responseType: "blob",
@@ -548,7 +525,7 @@ export class FacultyAttendanceService {
     timeSlotId: string
   ): Promise<boolean> {
     try {
-      const response = await publicApi.get(
+      const response = await apiClient.get(
         `/faculty/can-mark-attendance?facultyId=${facultyId}&timeSlotId=${timeSlotId}`
       );
       return response.data.canMark;
@@ -572,7 +549,7 @@ export class FacultyAttendanceService {
     >
   > {
     try {
-      const response = await publicApi.get(
+      const response = await apiClient.get(
         `/faculty/assigned-sections?id=${facultyId}`
       );
       return response.data;
@@ -633,10 +610,11 @@ export class FacultyAttendanceService {
 
     // Validate attendance records
     if (request.attendanceRecords) {
+      console.log("Attendance records anta bhai", request.attendanceRecords);
       request.attendanceRecords.forEach((record, index) => {
         if (!record.studentId)
           errors.push(`Student ID missing for record ${index + 1}`);
-        if (!record.rollNumber)
+        if (!record.regNum)
           errors.push(`Roll number missing for record ${index + 1}`);
         if (!record.name?.trim())
           errors.push(`Student name missing for record ${index + 1}`);

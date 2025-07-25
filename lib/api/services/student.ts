@@ -1,10 +1,4 @@
-import { createClientSecuredApi } from "../client";
-
-const token = sessionStorage.getItem("auth-token");
-if (!token) {
-  throw new Error("No authentication token found");
-}
-const apiClient = createClientSecuredApi(token);
+import { apiClient } from "../client";
 
 class StudentServiceClass {
   async sendBulkEmail(

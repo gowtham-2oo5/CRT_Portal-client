@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Bell, Clock, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { useAuth } from '@/components/auth/auth-guard';
+import { useState, useEffect } from "react";
+import { Bell, Clock, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/components/auth/auth-guard";
+import { UserMenu } from "../dashboard/user-menu";
 
 export function FacultyHeader() {
   const { user } = useAuth();
@@ -20,20 +21,20 @@ export function FacultyHeader() {
   }, []);
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
     });
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -44,7 +45,9 @@ export function FacultyHeader() {
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">CRT</span>
+              <span className="text-primary-foreground font-bold text-sm">
+                CRT
+              </span>
             </div>
             <div>
               <h1 className="text-lg font-semibold">Faculty Portal</h1>
@@ -57,9 +60,7 @@ export function FacultyHeader() {
               <Clock className="h-4 w-4" />
               <span>{formatTime(currentTime)}</span>
             </div>
-            <div className="text-xs">
-              {formatDate(currentTime)}
-            </div>
+            <div className="text-xs">{formatDate(currentTime)}</div>
           </div>
         </div>
 
@@ -75,8 +76,9 @@ export function FacultyHeader() {
           <ThemeToggle />
 
           {/* User Profile */}
-          <div className="flex items-center space-x-3">
-            <div className="hidden md:block text-right text-sm">
+          {/* <div className="flex items-center space-x-3"> */}
+          <UserMenu user={user} />
+          {/* <div className="hidden md:block text-right text-sm">
               <div className="font-medium">{user?.name}</div>
               <div className="text-muted-foreground text-xs">Faculty</div>
             </div>
@@ -85,7 +87,7 @@ export function FacultyHeader() {
                 {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'F'}
               </AvatarFallback>
             </Avatar>
-          </div>
+          </div> */}
         </div>
       </div>
 

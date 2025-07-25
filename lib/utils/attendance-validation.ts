@@ -141,7 +141,7 @@ export class AttendanceValidator {
       errors.push(`Student ID missing for record ${index}`);
     }
 
-    if (!record.rollNumber?.trim()) {
+    if (!record.regNum?.trim()) {
       errors.push(`Roll number missing for record ${index}`);
     }
 
@@ -259,7 +259,7 @@ export class AttendanceValidator {
       attendanceRecords: request.attendanceRecords.map((record) => ({
         ...record,
         name: record.name.trim(),
-        rollNumber: record.rollNumber.trim(),
+        regNum: record.regNum.trim(),
         feedback: record.feedback?.trim() || undefined,
       })),
     };
@@ -312,7 +312,7 @@ export const AttendanceHelpers = {
         ? "Absent"
         : "Unmarked";
     const feedback = record.feedback ? ` (${record.feedback})` : "";
-    return `${record.name} (${record.rollNumber}): ${status}${feedback}`;
+    return `${record.name} (${record.regNum}): ${status}${feedback}`;
   },
 
   /**
@@ -330,7 +330,7 @@ export const AttendanceHelpers = {
     return {
       sessionInfo,
       records: records.map((record) => ({
-        rollNumber: record.rollNumber,
+        regNum: record.regNum,
         name: record.name,
         status:
           record.present === true

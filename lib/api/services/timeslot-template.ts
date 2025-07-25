@@ -1,14 +1,8 @@
-import { createClientSecuredApi } from "../client";
+import { apiClient } from "../client";
 import type {
   TimeSlotTemplate,
   CreateTimeSlotTemplateRequest,
 } from "@/lib/types/timeslot-template";
-
-const token = sessionStorage.getItem("auth-token");
-if (!token) {
-  throw new Error("No authentication token found");
-}
-const apiClient = createClientSecuredApi(token);
 
 class TimeSlotTemplateServiceClass {
   private endpoint = "/time-slot-templates";

@@ -115,14 +115,14 @@ export function ConsistentFacultyDashboard() {
       }
       setError(null);
 
-      if (!user?.userId) {
+      if (!user?.id) {
         throw new Error("User ID not available");
       }
 
       // Load dashboard data first for faster perceived performance
       try {
         const dashboardResponse =
-          await FacultyAttendanceService.getFacultyDashboard(user.userId);
+          await FacultyAttendanceService.getFacultyDashboard(user.id);
         setDashboardData(dashboardResponse);
         setIsLoading(false); // Show data immediately
       } catch (dashboardError) {
@@ -135,7 +135,7 @@ export function ConsistentFacultyDashboard() {
       // Then load session data
       try {
         const sessionResponse =
-          await FacultyAttendanceService.getCurrentSession(user.userId);
+          await FacultyAttendanceService.getCurrentSession(user.id);
         setCurrentSession(sessionResponse);
       } catch (sessionError) {
         console.error(
@@ -176,7 +176,7 @@ export function ConsistentFacultyDashboard() {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [user?.userId]);
+  }, [user?.id]);
 
   // Manual refresh - Following admin pattern
   const handleManualRefresh = () => {
@@ -525,14 +525,14 @@ export function ConsistentFacultyDashboard() {
                       <div className="font-medium">{section.name}</div>
                       <div className="flex items-center space-x-2">
                         <Link
-                          href={`/dashboard/faculty/attendance/{section.id}`}
+                          href={`/dashboard/faculty/attendance/${section.id}`}
                         >
                           <Button variant="outline" size="sm">
                             <CheckCircle className="h-4 w-4 mr-1" />
                             Attendance
                           </Button>
                         </Link>
-                        <Link href={`/dashboard/faculty/reports/{section.id}`}>
+                        <Link href={`/dashboard/faculty/reports/${section.id}`}>
                           <Button variant="outline" size="sm">
                             <BarChart3 className="h-4 w-4 mr-1" />
                             Reports

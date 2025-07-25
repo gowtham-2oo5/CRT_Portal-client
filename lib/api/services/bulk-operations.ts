@@ -1,4 +1,6 @@
-import { bulkUploadApi } from "../client";
+import { apiClient } from "../client";
+
+const bulkUploadApi = apiClient;
 
 export const bulkUploadStudents = async (file: File) => {
   const formData = new FormData();

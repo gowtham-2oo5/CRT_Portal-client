@@ -1,17 +1,11 @@
 import { TimeSlot } from "@/lib/types/faculty";
-import { createClientSecuredApi } from "../client";
+import { apiClient } from "../client";
 import type {
   DailyTimeSlot,
   Absentee,
   TimeSlotFilterResponse,
   SubmitAttendanceRequest,
 } from "@/lib/types/attendance";
-
-const token = sessionStorage.getItem("auth-token");
-if (!token) {
-  throw new Error("No authentication token found");
-}
-const apiClient = createClientSecuredApi(token);
 
 class AttendanceServiceClass {
   async getDailyAttendance(

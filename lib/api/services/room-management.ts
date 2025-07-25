@@ -1,4 +1,4 @@
-import { ClientAuth } from "@/lib/auth/client";
+import { apiClient } from "@/lib/api/client";
 import type {
   Room,
   CreateRoomRequest,
@@ -11,18 +11,6 @@ import type {
 const USE_MOCK_DATA = false;
 
 export class RoomManagementService {
-  private static async getAuthenticatedApi() {
-    try {
-      return ClientAuth.createAuthenticatedApi();
-    } catch (error) {
-      console.error(
-        "[RoomManagementService] Failed to create authenticated API:",
-        error
-      );
-      throw new Error("Authentication required");
-    }
-  }
-
   // Get all rooms with optional filtering
   static async getRooms(filters?: RoomFilters): Promise<Room[]> {
     if (USE_MOCK_DATA) {
@@ -30,7 +18,6 @@ export class RoomManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
       const params = new URLSearchParams();
 
       if (filters?.search) params.append("search", filters.search);
@@ -38,7 +25,7 @@ export class RoomManagementService {
       if (filters?.block) params.append("block", filters.block);
       if (filters?.floor) params.append("floor", filters.floor);
 
-      const response = await api.get(`/rooms?${params.toString()}`);
+      const response = await apiClient.get(`/rooms?${params.toString()}`);
       return response.data;
     } catch (error) {
       console.error("[RoomManagementService] Error fetching rooms:", error);
@@ -56,8 +43,7 @@ export class RoomManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/rooms/${id}`);
+      const response = await apiClient.get(`/rooms/${id}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -82,8 +68,7 @@ export class RoomManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.post("/rooms", roomData);
+      const response = await apiClient.post("/rooms", roomData);
       return response.data;
     } catch (error) {
       console.error("[RoomManagementService] Error creating room:", error);
@@ -114,8 +99,7 @@ export class RoomManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.put(`/rooms/${id}`, roomData);
+      const response = await apiClient.put(`/rooms/${id}`, roomData);
       return response.data;
     } catch (error) {
       console.error(
@@ -134,8 +118,7 @@ export class RoomManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await api.delete(`/rooms/${id}`);
+      await apiClient.delete(`/rooms/${id}`);
     } catch (error) {
       console.error(
         `[RoomManagementService] Error deleting room ${id}:`,
@@ -165,8 +148,7 @@ export class RoomManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.post(
+      const response = await apiClient.post(
         `/rooms/parse?roomString=${encodeURIComponent(roomString)}`
       );
       return response.data;
@@ -187,8 +169,7 @@ export class RoomManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await Promise.all(roomIds.map((id) => api.delete(`/rooms/${id}`)));
+      await Promise.all(roomIds.map((id) => apiClient.delete(`/rooms/${id}`)));
     } catch (error) {
       console.error(
         "[RoomManagementService] Error bulk deleting rooms:",

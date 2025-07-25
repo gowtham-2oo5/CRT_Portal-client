@@ -57,7 +57,7 @@ export default function AttendanceMarkingPage() {
     console.log("In Marking attendance with timeSlotId: " + timeSlotId);
 
     const loadSessionData = async () => {
-      if (!timeSlotId || !user?.userId) return;
+      if (!timeSlotId || !user?.id) return;
 
       try {
         setIsLoading(true);
@@ -75,10 +75,10 @@ export default function AttendanceMarkingPage() {
         );
         setSessionData(response.data);
         console.log(
-          "WE ACTUALLY DID SET SESSION DATA WTH",
-          setSessionData(response.data)
+          "WE ACTUALLY DID SET SESSION DATA WTH"
+          // response.data.timeSlot.roo
         );
-
+        // console.log("ROOM RELATED BUG ANNA", response.data.tomeSlot.room);
         // Create time slot object from session data
         const timeSlotData: TimeSlot = {
           id: response.data.timeSlot.id,
@@ -95,7 +95,7 @@ export default function AttendanceMarkingPage() {
           },
           room: {
             id: response.data.timeSlot.roomId,
-            roomString: response.data.timeSlot.roomId, // You might want to fetch actual room name
+            roomString: response.data.timeSlot.roomName, // You might want to fetch actual room name
             capacity: response.data.totalCount,
             roomType: "LAB",
           },
@@ -104,10 +104,10 @@ export default function AttendanceMarkingPage() {
 
         // Initialize empty attendance records
         const initialRecords: Record<string, AttendanceRecord> = {};
-        response.data.students.forEach((student) => {
+        response.data.students.forEach((student: { id: string | number }) => {
           initialRecords[student.id] = {
-            studentId: student.id,
-            rollNumber: student.rollNumber,
+            studentId: student.id.toString(),
+            regNum: student.regNum,
             name: student.name,
             present: undefined as any, // Will be set when marked
           };
@@ -129,7 +129,7 @@ export default function AttendanceMarkingPage() {
     };
 
     loadSessionData();
-  }, [timeSlotId, user?.userId, router]);
+  }, [timeSlotId, user?.id, router]);
 
   // Handle attendance record change
   const handleAttendanceChange = (
@@ -340,7 +340,7 @@ export default function AttendanceMarkingPage() {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{sessionData.timeSlot.roomId}</span>
+                <span>{sessionData.timeSlot.roomName}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground" />

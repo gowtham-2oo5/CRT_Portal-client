@@ -1,6 +1,6 @@
 "use client";
 
-import { createClientSecuredApi, publicApi } from "@/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 import { handleApiError } from "@/lib/api/utils";
 import type {
   User,
@@ -8,87 +8,79 @@ import type {
   LoginResponse,
   OtpRequest,
   OtpVerificationResponse,
-  RefreshTokenResponse,
-  TokenClaims,
 } from "./types";
-import { jwtDecode } from "jwt-decode";
 
 // Client-side authentication utilities
 export class ClientAuth {
-  // Helper to set tokens consistently
-  private static setTokens(token: string, refreshToken: string) {
-    // Store in sessionStorage for client-side access
-    sessionStorage.setItem("auth-token", token);
-    sessionStorage.setItem("refresh-token", refreshToken);
-
-    // Set HTTP-only cookies for middleware (secure)
-    document.cookie = `auth-token=${token}; path=/; secure; samesite=strict`;
-    document.cookie = `refresh-token=${refreshToken}; path=/; secure; samesite=strict`;
+  // Store user info in session storage
+  private static setUserInfo(user: User) {
+    if (typeof window === "undefined") return;
+    sessionStorage.setItem("user-info", JSON.stringify(user));
   }
 
-  // Helper to clear tokens consistently
-  private static clearTokens() {
-    sessionStorage.removeItem("auth-token");
-    sessionStorage.removeItem("refresh-token");
-
-    // Clear cookies
-    document.cookie =
-      "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie =
-      "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  // Clear user info from session storage and attempt to clear cookies
+  private static clearUserInfo() {
+    if (typeof window === "undefined") return;
+    
+    // Clear session storage
+    sessionStorage.removeItem("user-info");
+    
+    // For httpOnly cookies, we can't directly clear them from JavaScript
+    // The actual cookie clearing happens via the /auth/logout endpoint
+    // But we can set expired cookies for any non-httpOnly cookies that might exist
+    document.cookie = "jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
+    document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
   }
 
-  static getTokens(): { token: string | null; refreshToken: string | null } {
+  // Get user info from session storage
+  static getUserInfo(): User | null {
     if (typeof window === "undefined") {
-      return { token: null, refreshToken: null };
+      return null;
     }
 
-    const token = sessionStorage.getItem("auth-token");
-    const refreshToken = sessionStorage.getItem("refresh-token");
+    const userInfo = sessionStorage.getItem("user-info");
+    if (!userInfo) return null;
 
-    return { token, refreshToken };
-  }
-
-  static async getCurrentUser(): Promise<User | null> {
     try {
-      const { token } = this.getTokens();
-
-      if (!token) {
-        return null;
-      }
-
-      // Decode token to get user info
-      const decoded = jwtDecode<TokenClaims>(token);
-
-      // Check if token is expired
-      const now = Date.now() / 1000;
-      if (decoded.exp < now) {
-        console.log("[ClientAuth] Token expired");
-        this.clearTokens();
-        return null;
-      }
-
-      // Convert TokenClaims to User
-      const user: User = {
-        name: decoded.name,
-        email: decoded.email,
-        userId: decoded.userId,
-        sub: decoded.sub,
-        role: decoded.role,
-        isFirstLogin: decoded.isFirstLogin || false,
-      };
-
-      return user;
+      return JSON.parse(userInfo) as User;
     } catch (error) {
-      console.error("[ClientAuth] Error getting current user:", error);
-      this.clearTokens();
+      console.error("[ClientAuth] Error parsing user info:", error);
       return null;
     }
   }
 
+  // Check if user is authenticated based on stored user info
   static async isAuthenticated(): Promise<boolean> {
-    const user = await this.getCurrentUser();
-    return user !== null;
+    try {
+      // First check if we have user info in session storage
+      const userInfo = this.getUserInfo();
+      if (userInfo) return true;
+
+      // If not, try to get current user from API
+      const user = await this.getCurrentUser();
+      return user !== null;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // Get current user from API
+  static async getCurrentUser(): Promise<User | null> {
+    try {
+      // Try to get user info from API
+      const response = await apiClient.get('/users/me');
+      const user = response.data;
+      
+      // Store user info in session storage for future use
+      if (user) {
+        this.setUserInfo(user);
+      }
+      
+      return user;
+    } catch (error) {
+      console.error("[ClientAuth] Error getting current user:", error);
+      return null;
+    }
   }
 
   // Step 1: Initial login (username/email + password)
@@ -99,7 +91,7 @@ export class ClientAuth {
     try {
       console.log("[ClientAuth] Attempting login for:", usernameOrEmail);
 
-      const response = await publicApi.post("/auth/login", {
+      const response = await apiClient.post("/auth/login", {
         usernameOrEmail,
         password,
       } as LoginRequest);
@@ -132,14 +124,14 @@ export class ClientAuth {
     try {
       console.log("[ClientAuth] Verifying OTP for:", usernameOrEmail);
 
-      const response = await publicApi.post("/auth/verify-otp", {
+      const response = await apiClient.post("/auth/verify-otp", {
         usernameOrEmail,
         otp,
       } as OtpRequest);
 
-      if (response.data.token && response.data.refreshToken) {
-        console.log("[ClientAuth] OTP verified, storing tokens");
-        this.setTokens(response.data.token, response.data.refreshToken);
+      // Store user info from response
+      if (response.data.user) {
+        this.setUserInfo(response.data.user);
       }
 
       return {
@@ -157,63 +149,19 @@ export class ClientAuth {
     }
   }
 
-  // Refresh token
-  static async refreshToken(): Promise<{
-    success: boolean;
-    data?: RefreshTokenResponse;
-    message: string;
-  }> {
-    try {
-      const { refreshToken } = this.getTokens();
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
-
-      const response = await publicApi.post(
-        "/auth/refresh-token",
-        {},
-        {
-          headers: { Authorization: `Bearer ${refreshToken}` },
-        }
-      );
-
-      if (response.data.token && response.data.refreshToken) {
-        this.setTokens(response.data.token, response.data.refreshToken);
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.data.message,
-      };
-    } catch (error) {
-      console.error("[ClientAuth] Token refresh error:", error);
-      this.clearTokens();
-      const apiError = handleApiError(error);
-      return {
-        success: false,
-        message: apiError.message,
-      };
-    }
-  }
-
   // Logout method
   static async logout(): Promise<void> {
     console.log("[ClientAuth] Logging out");
 
     try {
-      // Optional: Call logout endpoint
-      const { token } = this.getTokens();
-      // if (token) {
-      //   await publicApi.post("/auth/logout", {}, {
-      //     headers: { Authorization: `Bearer ${token}` }
-      //   });
-      // }
+      // Call logout endpoint to clear httpOnly cookies
+      await apiClient.post("/auth/logout");
     } catch (error) {
       console.log("[ClientAuth] Logout endpoint error (non-critical):", error);
     }
 
-    this.clearTokens();
+    // Clear user info from session storage and any non-httpOnly cookies
+    this.clearUserInfo();
     window.location.href = "/";
   }
 
@@ -223,7 +171,7 @@ export class ClientAuth {
   ): Promise<{ success: boolean; message: string }> {
     try {
       console.log("Sending pwd reset to ", email);
-      const response = await publicApi.post(
+      const response = await apiClient.post(
         `/auth/forgot-password?email=${encodeURIComponent(email)}`
       );
 
@@ -250,17 +198,13 @@ export class ClientAuth {
   }> {
     try {
       console.log("[ClientAuth] Resetting password for:", email);
-      const { token } = this.getTokens();
-
-      const response = await publicApi.put(
+      
+      const response = await apiClient.put(
         "/users/password",
         {
           email,
           newPassword: password,
           currentPassword: "",
-        },
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
       );
 
@@ -276,13 +220,5 @@ export class ClientAuth {
         message: apiError.message || "Failed to reset password.",
       };
     }
-  }
-
-  // Create authenticated API instance
-  static createAuthenticatedApi() {
-    const { token, refreshToken } = this.getTokens();
-    if (!token) throw new Error("No authentication token available");
-
-    return createClientSecuredApi(token, refreshToken || undefined);
   }
 }

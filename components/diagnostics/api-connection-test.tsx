@@ -18,7 +18,7 @@ import {
   Server,
   Globe
 } from "lucide-react";
-import { publicApi, createClientSecuredApi } from "@/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 
 interface TestResult {
   endpoint: string;
@@ -47,26 +47,14 @@ export function ApiConnectionTest() {
     });
   };
 
-  const testEndpoint = async (endpoint: string, description: string, useAuth = false) => {
+  const testEndpoint = async (endpoint: string, description: string) => {
     const startTime = Date.now();
     updateTestResult(endpoint, { status: 'testing', message: `Testing ${description}...` });
 
     try {
-      let response;
+      // Use apiClient for all requests - it will automatically include cookies
+      const response = await apiClient.get(endpoint);
       
-      if (useAuth) {
-        // Test with authentication
-        const token = sessionStorage.getItem('auth-token');
-        if (!token) {
-          throw new Error('No authentication token found');
-        }
-        const api = createClientSecuredApi(token);
-        response = await api.get(endpoint);
-      } else {
-        // Test without authentication
-        response = await publicApi.get(endpoint);
-      }
-
       const responseTime = Date.now() - startTime;
       
       updateTestResult(endpoint, {
@@ -110,13 +98,15 @@ export function ApiConnectionTest() {
     await testEndpoint('/auth/status', 'Auth Status');
 
     // Test 4: Admin endpoints (with auth)
-    await testEndpoint('/admin/dashboard/metrics', 'Admin Dashboard Metrics', true);
-    await testEndpoint('/admin/dashboard/recent-actions?limit=5', 'Admin Recent Actions', true);
+    await testEndpoint('/admin/dashboard/metrics', 'Admin Dashboard Metrics');
+    await testEndpoint('/admin/dashboard/recent-actions?limit=5', 'Admin Recent Actions');
 
     // Test 5: Faculty endpoints (with auth)
-    const userId = sessionStorage.getItem('user-id') || 'test-user-id';
-    await testEndpoint(`/faculty/dashboard?id=${userId}`, 'Faculty Dashboard', true);
-    await testEndpoint(`/faculty/current-session?id=${userId}`, 'Faculty Current Session', true);
+    const userId = sessionStorage.getItem('user-info') ? 
+      JSON.parse(sessionStorage.getItem('user-info') || '{}').userId : 
+      'test-user-id';
+    await testEndpoint(`/faculty/dashboard?id=${userId}`, 'Faculty Dashboard');
+    await testEndpoint(`/faculty/current-session?id=${userId}`, 'Faculty Current Session');
 
     // Test 6: WebSocket connectivity
     await testWebSocketConnection();

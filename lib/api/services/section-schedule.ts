@@ -1,4 +1,4 @@
-import { ClientAuth } from "@/lib/auth/client";
+import { apiClient } from "@/lib/api/client";
 import type {
   SectionSchedule,
   CreateSectionScheduleRequest,
@@ -12,17 +12,13 @@ import type {
 const USE_MOCK_DATA = false;
 
 export class SectionScheduleService {
-  private static async getAuthenticatedApi() {
-    try {
-      return ClientAuth.createAuthenticatedApi();
-    } catch (error) {
-      console.error(
-        "[SectionScheduleService] Failed to create authenticated API:",
-        error
-      );
-      throw new Error("Authentication required");
-    }
-  }
+  //     console.error(
+  //       "[SectionScheduleService] Failed to create authenticated API:",
+  //       error
+  //     );
+  //     throw new Error("Authentication required");
+  //   }
+  // }
 
   // Get schedule by section ID
   static async getScheduleBySection(
@@ -33,8 +29,10 @@ export class SectionScheduleService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/section-schedules/section/${sectionId}`);
+      // Using apiClient
+      const response = await apiClient.get(
+        `/section-schedules/section/${sectionId}`
+      );
       console.log(response);
       return response.data;
     } catch (error: any) {
@@ -72,8 +70,8 @@ export class SectionScheduleService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.post("/section-schedules", scheduleData);
+      // Using apiClient
+      const response = await apiClient.post("/section-schedules", scheduleData);
       return response.data;
     } catch (error: any) {
       console.error("[SectionScheduleService] Error creating schedule:", error);
@@ -110,14 +108,14 @@ export class SectionScheduleService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
+      // Using apiClient
       console.log(
         "📤 Making API request to:",
         `/section-schedules/${scheduleId}/time-slots`
       );
       console.log("📤 Request body:", timeSlotData);
 
-      const response = await api.post(
+      const response = await apiClient.post(
         `/section-schedules/${scheduleId}/time-slots`,
         timeSlotData
       );
@@ -166,8 +164,8 @@ export class SectionScheduleService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.put(
+      // Using apiClient
+      const response = await apiClient.put(
         `/section-schedules/${scheduleId}/time-slots/${timeSlotId}`,
         timeSlotData
       );
@@ -198,8 +196,8 @@ export class SectionScheduleService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.delete(
+      // Using apiClient
+      const response = await apiClient.delete(
         `/section-schedules/${scheduleId}/time-slots/${timeSlotId}`
       );
       return response.data;
@@ -227,8 +225,8 @@ export class SectionScheduleService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get("/users/getFacs");
+      // Using apiClient
+      const response = await apiClient.get("/users/getFacs");
       return response.data;
     } catch (error: any) {
       console.error("[SectionScheduleService] Error fetching faculty:", error);

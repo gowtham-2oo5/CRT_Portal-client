@@ -95,14 +95,6 @@ export function BulkOperations() {
 
     setIsLoading(true);
     setError(null);
-    
-    // Check if auth token exists
-    const token = sessionStorage.getItem("auth-token");
-    if (!token) {
-      toast.error("Authentication token not found. Please log in again.");
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const config = operationConfigs[selectedOperation];
@@ -148,64 +140,73 @@ export function BulkOperations() {
         <CardHeader>
           <CardTitle>Bulk Operations</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">1. Select Operation Type</label>
-            <Select onValueChange={handleOperationChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select an operation" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="students">Upload Students</SelectItem>
-                <SelectItem value="rooms">Create Rooms</SelectItem>
-                <SelectItem value="trainings">Upload Trainings</SelectItem>
-                <SelectItem value="sections">Upload Sections</SelectItem>
-                <SelectItem value="register">Register Students to Sections</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Operation Type
+              </label>
+              <Select onValueChange={handleOperationChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select operation type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="students">Upload Students</SelectItem>
+                  <SelectItem value="rooms">Create Rooms</SelectItem>
+                  <SelectItem value="trainings">Upload Trainings</SelectItem>
+                  <SelectItem value="sections">Upload Sections</SelectItem>
+                  <SelectItem value="register">Register Students to Sections</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {selectedOperation && (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">2. Upload CSV File</label>
-                <div className="space-y-2">
-                  {currentConfig && (
-                    <Alert variant="default" className="bg-muted/50">
-                      <InfoIcon className="h-4 w-4" />
-                      <AlertDescription>
-                        {currentConfig.description}
-                      </AlertDescription>
-                    </Alert>
-                  )}
+            {currentConfig && (
+              <>
+                <Alert>
+                  <InfoIcon className="h-4 w-4" />
+                  <AlertDescription>
+                    {currentConfig.description}
+                  </AlertDescription>
+                </Alert>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Upload CSV File
+                  </label>
                   <Input
                     type="file"
                     accept=".csv"
                     onChange={handleFileChange}
                     disabled={isLoading}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Endpoint: {currentConfig.endpoint}
+                  </p>
                 </div>
-              </div>
 
-              <div>
-                <Button 
-                  onClick={handleFileUpload} 
-                  disabled={isLoading || !file}
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Button
+                  onClick={handleFileUpload}
+                  disabled={!file || isLoading}
                   className="w-full"
                 >
-                  {isLoading ? <LoadingSpinner size="sm" /> : "Upload"}
+                  {isLoading ? (
+                    <>
+                      <LoadingSpinner className="mr-2" />
+                      Uploading...
+                    </>
+                  ) : (
+                    "Upload File"
+                  )}
                 </Button>
-              </div>
-
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </>
-          )}
+              </>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -1,14 +1,8 @@
-import { createClientSecuredApi } from "../client";
+import { apiClient } from "../client";
 
 interface AttendanceConfig {
   enforceEndTimeRestriction: boolean;
 }
-
-const token = sessionStorage.getItem("auth-token");
-if (!token) {
-  throw new Error("No authentication token found");
-}
-const apiClient = createClientSecuredApi(token);
 
 class AttendanceConfigServiceClass {
   async getConfig(): Promise<AttendanceConfig> {

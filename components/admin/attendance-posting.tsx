@@ -66,8 +66,11 @@ export function AdminAttendancePosting() {
   const [selectionMode, setSelectionMode] = useState(true);
 
   // Attendance marking state
-  const [sessionData, setSessionData] = useState<SessionStudentsResponse | null>(null);
-  const [attendanceRecords, setAttendanceRecords] = useState<Record<string, AttendanceRecord>>({});
+  const [sessionData, setSessionData] =
+    useState<SessionStudentsResponse | null>(null);
+  const [attendanceRecords, setAttendanceRecords] = useState<
+    Record<string, AttendanceRecord>
+  >({});
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,9 +102,9 @@ export function AdminAttendancePosting() {
             await AttendanceService.getTimeSlotsBySection(selectedSectionId);
           setTimeSlots(fetchedTimeSlots);
           setSelectedTimeSlot(null); // Reset selected time slot when section changes
-          
+
           // Find and set the selected section object
-          const section = sections.find(s => s.id === selectedSectionId);
+          const section = sections.find((s) => s.id === selectedSectionId);
           setSelectedSection(section || null);
         } catch (error) {
           toast.error("Failed to load time slots.");
@@ -150,9 +153,9 @@ export function AdminAttendancePosting() {
       response.data.students.forEach((student) => {
         initialRecords[student.id] = {
           studentId: student.id,
-          rollNumber: student.rollNumber,
+          regNum: student.rollNumber,
           name: student.name,
-          present: undefined as any, // Will be set when marked
+          present: undefined as any,
         };
       });
       setAttendanceRecords(initialRecords);
@@ -189,12 +192,15 @@ export function AdminAttendancePosting() {
     try {
       setIsSubmitting(true);
 
-      console.log("📝 Submitting attendance with admin override:", submissionData);
+      console.log(
+        "📝 Submitting attendance with admin override:",
+        submissionData
+      );
 
       // Add admin flag to the request
       const requestWithAdminFlag = {
         ...submissionData,
-        isAdminRequest: true
+        isAdminRequest: true,
       };
 
       const response = await FacultyAttendanceService.submitAttendance(
@@ -234,7 +240,9 @@ export function AdminAttendancePosting() {
     if (!selectedTimeSlot) return "unknown";
 
     const now = new Date();
-    const [startHour, startMin] = selectedTimeSlot.startTime.split(":").map(Number);
+    const [startHour, startMin] = selectedTimeSlot.startTime
+      .split(":")
+      .map(Number);
     const [endHour, endMin] = selectedTimeSlot.endTime.split(":").map(Number);
 
     const sessionStart = new Date();
@@ -264,7 +272,8 @@ export function AdminAttendancePosting() {
           <CardHeader>
             <CardTitle>Admin Attendance Override</CardTitle>
             <CardDescription>
-              Select a section and time slot to review and update attendance records.
+              Select a section and time slot to review and update attendance
+              records.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col md:flex-row gap-4">
@@ -321,9 +330,11 @@ export function AdminAttendancePosting() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button 
+            <Button
               onClick={handleProceed}
-              disabled={!selectedSectionId || !selectedTimeSlot || isLoadingSession}
+              disabled={
+                !selectedSectionId || !selectedTimeSlot || isLoadingSession
+              }
               className="ml-auto"
             >
               {isLoadingSession ? (
@@ -374,8 +385,9 @@ export function AdminAttendancePosting() {
                 </div>
                 <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
                   <p className="text-amber-800 font-medium">
-                    Note: You are about to override attendance records as an administrator. 
-                    This action will be logged and will update the original attendance data.
+                    Note: You are about to override attendance records as an
+                    administrator. This action will be logged and will update
+                    the original attendance data.
                   </p>
                 </div>
               </div>
@@ -540,7 +552,8 @@ export function AdminAttendancePosting() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    This session has ended. You are updating past attendance records.
+                    This session has ended. You are updating past attendance
+                    records.
                   </AlertDescription>
                 </Alert>
               )}

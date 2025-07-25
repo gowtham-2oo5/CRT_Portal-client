@@ -1,13 +1,7 @@
 "use client";
 
-import { ConsistentFacultyDashboard } from "@/components/faculty/consistent-faculty-dashboard";
-import { PageHeader } from "@/components/dashboard/breadcrumb";
+import { SimplifiedFacultyDashboard } from "@/components/faculty/simplified-faculty-dashboard";
 
 export default function FacultyDashboardPage() {
-  return (
-    <div className="space-y-6">
-      <PageHeader></PageHeader>
-      <ConsistentFacultyDashboard />
-    </div>
-  );
+  return <SimplifiedFacultyDashboard />;
 }

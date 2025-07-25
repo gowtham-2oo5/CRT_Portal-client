@@ -1,4 +1,4 @@
-import { ClientAuth } from "@/lib/auth/client";
+import { apiClient } from "@/lib/api/client";
 import type { 
   SubmitAttendanceRequest, 
   AttendanceRecord,
@@ -33,8 +33,8 @@ class BatchAttendanceServiceClass {
     isAdminRequest?: boolean;
   }): Promise<BatchSubmissionResponse> {
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.post("/attendance/submit-batch", data);
+      // Using apiClient
+      const response = await apiClient.post("/attendance/submit-batch", data);
       return response.data;
     } catch (error) {
       throw handleError(error, "BatchAttendanceService.submitBatchAttendance", false);
@@ -46,9 +46,9 @@ class BatchAttendanceServiceClass {
    */
   async validateBatchTimeSlots(timeSlotIds: string[]): Promise<TimeSlotValidationResponse> {
     try {
-      const api = await this.getAuthenticatedApi();
+      // Using apiClient
       const idsParam = timeSlotIds.join(',');
-      const response = await api.get(`/time-slots/validate-batch?ids=${idsParam}`);
+      const response = await apiClient.get(`/time-slots/validate-batch?ids=${idsParam}`);
       return response.data;
     } catch (error) {
       throw handleError(error, "BatchAttendanceService.validateBatchTimeSlots", false);
@@ -60,8 +60,8 @@ class BatchAttendanceServiceClass {
    */
   async getBatchableTimeSlots(facultyId: string, date: string): Promise<BatchableTimeSlotsResponse> {
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/time-slots/faculty/${facultyId}/batchable?date=${date}`);
+      // Using apiClient
+      const response = await apiClient.get(`/time-slots/faculty/${facultyId}/batchable?date=${date}`);
       return response.data;
     } catch (error) {
       throw handleError(error, "BatchAttendanceService.getBatchableTimeSlots", false);

@@ -45,7 +45,9 @@ export interface SessionStudentsResponse {
   totalCount: number;
   sectionName: string;
   sectionId: string;
-  timeSlot: { id: string; startTime: string; endTime: string };
+  timeSlot: {
+    roomName: ReactNode; id: string; startTime: string; endTime: string 
+};
 }
 
 export interface SubmitAttendanceRequest {
@@ -59,6 +61,10 @@ export interface SubmitAttendanceRequest {
 }
 
 export interface AttendanceRecord {
+  attendanceTime: string;
+  feedback: any;
+  name: any;
+  regNum: any;
   studentId: string;
   present: boolean;
 }

@@ -15,7 +15,7 @@ import {
   Building2,
   BookOpen,
   Clock,
-  BarChart3,
+  BarChart3,  
   Upload,
   Settings,
   ChevronRight,

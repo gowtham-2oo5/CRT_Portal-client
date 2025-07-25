@@ -28,7 +28,7 @@ interface StudentListCardProps {
   className?: string;
 }
 
-type SortField = 'name' | 'rollNumber' | 'attendance';
+type SortField = 'name' | 're' | 'attendance';
 type SortDirection = 'asc' | 'desc';
 type FilterType = 'all' | 'present' | 'absent' | 'unmarked';
 
@@ -40,7 +40,7 @@ export function StudentListCard({
   className = ""
 }: StudentListCardProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState<SortField>('rollNumber');
+  const [sortField, setSortField] = useState<SortField>('re');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [filter, setFilter] = useState<FilterType>('all');
 
@@ -61,7 +61,7 @@ export function StudentListCard({
       // Search filter
       const matchesSearch = searchTerm === '' || 
         student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.re.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.regNum.toLowerCase().includes(searchTerm.toLowerCase());
 
       if (!matchesSearch) return false;
@@ -90,9 +90,9 @@ export function StudentListCard({
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
-        case 'rollNumber':
-          aValue = a.rollNumber.toLowerCase();
-          bValue = b.rollNumber.toLowerCase();
+        case 're':
+          aValue = a.regNum.toLowerCase();
+          bValue = b.regNum.toLowerCase();
           break;
         case 'attendance':
           const aRecord = attendanceRecords[a.id];
@@ -101,8 +101,8 @@ export function StudentListCard({
           bValue = bRecord?.present === true ? 2 : bRecord?.present === false ? 1 : 0;
           break;
         default:
-          aValue = a.rollNumber.toLowerCase();
-          bValue = b.rollNumber.toLowerCase();
+          aValue = a.re.toLowerCase();
+          bValue = b.re.toLowerCase();
       }
 
       if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
@@ -183,11 +183,11 @@ export function StudentListCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleSort('rollNumber')}
+              onClick={() => handleSort('re')}
               className="flex items-center gap-1"
             >
               Roll No.
-              {sortField === 'rollNumber' && (
+              {sortField === 're' && (
                 sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
               )}
             </Button>

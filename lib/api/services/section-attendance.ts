@@ -1,7 +1,7 @@
 // 🎯 CRT Portal Attendance System - Section Attendance Service
 // Created: 2025-07-16 | Phase 1 - Task 2.1
 
-import { ClientAuth } from "@/lib/auth/client";
+import { apiClient } from "@/lib/api/client";
 
 /**
  * Interface for section attendance records as specified in get-attd.md
@@ -19,17 +19,13 @@ export interface SectionAttendanceRecord {
  * Service for managing section attendance records
  */
 export class SectionAttendanceService {
-  private static async getAuthenticatedApi() {
-    try {
-      return ClientAuth.createAuthenticatedApi();
-    } catch (error) {
-      console.error(
-        "[SectionAttendanceService] Failed to create authenticated API:",
-        error
-      );
-      throw new Error("Authentication required");
-    }
-  }
+  //     console.error(
+  //       "[SectionAttendanceService] Failed to create authenticated API:",
+  //       error
+  //     );
+  //     throw new Error("Authentication required");
+  //   }
+  // }
 
   /**
    * Get attendance records for all students in a section within a date range
@@ -50,8 +46,8 @@ export class SectionAttendanceService {
         endDate,
       });
 
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(
+      // Using apiClient
+      const response = await apiClient.get(
         `/attendance/section/${sectionId}?startDate=${startDate}&endDate=${endDate}`
       );
 
@@ -82,22 +78,31 @@ export class SectionAttendanceService {
    * @param sectionId - The section ID
    * @returns Object containing array of students in the section
    */
-  static async getSectionStudents(sectionId: string): Promise<{students: any[]}> {
+  static async getSectionStudents(
+    sectionId: string
+  ): Promise<{ students: any[] }> {
     try {
       console.log("👥 Fetching section students:", sectionId);
 
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/faculty/students/${sectionId}`);
+      // Using apiClient
+      const response = await apiClient.get(`/faculty/students/${sectionId}`);
 
       console.log("✅ Section students loaded:", response.data);
-      
+
       // Log the crtEligibility values to debug
-      if (response.data && response.data.students && Array.isArray(response.data.students)) {
+      if (
+        response.data &&
+        response.data.students &&
+        Array.isArray(response.data.students)
+      ) {
         response.data.students.forEach((student: any, index: number) => {
-          console.log(`Student ${index} (${student.name}) crtEligibility:`, student.crtEligibility);
+          console.log(
+            `Student ${index} (${student.name}) crtEligibility:`,
+            student.crtEligibility
+          );
         });
       }
-      
+
       return response.data;
     } catch (error: any) {
       console.error("❌ Error fetching section students:", error);
@@ -126,8 +131,8 @@ export class SectionAttendanceService {
         endDate,
       });
 
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(
+      // Using apiClient
+      const response = await apiClient.get(
         `/attendance/section/${sectionId}/export?startDate=${startDate}&endDate=${endDate}&format=csv`,
         {
           responseType: "blob",

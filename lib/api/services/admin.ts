@@ -1,4 +1,4 @@
-import { ClientAuth } from "@/lib/auth/client";
+import { apiClient } from "@/lib/api/client";
 import { AdminMockService } from "./admin-mock";
 import type { DashboardMetrics, RecentAction } from "@/lib/types/admin";
 
@@ -7,18 +7,6 @@ const USE_MOCK_DATA = false; // Set to false when backend is ready
 const FALLBACK_TO_MOCK_ON_ERROR = false; // Fallback to mock data if API fails
 
 export class AdminService {
-  private static async getAuthenticatedApi() {
-    try {
-      return ClientAuth.createAuthenticatedApi();
-    } catch (error) {
-      console.error(
-        "[AdminService] Failed to create authenticated API:",
-        error
-      );
-      throw new Error("Authentication required");
-    }
-  }
-
   private static isNetworkError(error: any): boolean {
     return (
       error.code === "ERR_NETWORK" ||
@@ -37,8 +25,7 @@ export class AdminService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get("/admin/dashboard/metrics");
+      const response = await apiClient.get("/admin/dashboard/metrics");
 
       console.log("[AdminService] Dashboard metrics fetched:", response.data);
       return response.data;
@@ -65,8 +52,7 @@ export class AdminService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(
+      const response = await apiClient.get(
         `/admin/dashboard/recent-actions?limit=${limit}`
       );
 
@@ -128,8 +114,7 @@ export class AdminService {
     const startTime = Date.now();
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get("/health", { timeout: 5000 });
+      const response = await apiClient.get("/health", { timeout: 5000 });
       const responseTime = Date.now() - startTime;
 
       return {

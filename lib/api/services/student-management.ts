@@ -1,4 +1,4 @@
-import { ClientAuth } from "@/lib/auth/client";
+import { apiClient } from "@/lib/api/client";
 import type {
   Student,
   CreateStudentRequest,
@@ -11,17 +11,13 @@ import type {
 const USE_MOCK_DATA = false;
 
 export class StudentManagementService {
-  private static async getAuthenticatedApi() {
-    try {
-      return ClientAuth.createAuthenticatedApi();
-    } catch (error) {
-      console.error(
-        "[StudentManagementService] Failed to create authenticated API:",
-        error
-      );
-      throw new Error("Authentication required");
-    }
-  }
+  //     console.error(
+  //       "[StudentManagementService] Failed to create authenticated API:",
+  //       error
+  //     );
+  //     throw new Error("Authentication required");
+  //   }
+  // }
 
   // Get all students with optional filtering
   static async getStudents(filters?: StudentFilters): Promise<Student[]> {
@@ -30,7 +26,7 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
+      // Using apiClient
       const params = new URLSearchParams();
 
       if (filters?.search) params.append("search", filters.search);
@@ -45,7 +41,7 @@ export class StudentManagementService {
         );
       }
 
-      const response = await api.get(`/students?${params.toString()}`);
+      const response = await apiClient.get(`/students?${params.toString()}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -66,8 +62,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/students/${id}`);
+      // Using apiClient
+      const response = await apiClient.get(`/students/${id}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -88,8 +84,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(
+      // Using apiClient
+      const response = await apiClient.get(
         `/students/email/${encodeURIComponent(email)}`
       );
       return response.data;
@@ -112,8 +108,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(
+      // Using apiClient
+      const response = await apiClient.get(
         `/students/regnum/${encodeURIComponent(regNum)}`
       );
       return response.data;
@@ -130,12 +126,12 @@ export class StudentManagementService {
   static async getStudentsBySection(sectionId: string): Promise<Student[]> {
     if (USE_MOCK_DATA) {
       const allStudents = await this.getMockStudents();
-      return allStudents.filter(student => student.section === sectionId);
+      return allStudents.filter((student) => student.section === sectionId);
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/students/by-section/${sectionId}`);
+      // Using apiClient
+      const response = await apiClient.get(`/students/by-section/${sectionId}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -167,8 +163,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.post("/students", studentData);
+      // Using apiClient
+      const response = await apiClient.post("/students", studentData);
       return response.data;
     } catch (error) {
       console.error(
@@ -199,8 +195,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.put(`/students/${id}`, studentData);
+      // Using apiClient
+      const response = await apiClient.put(`/students/${id}`, studentData);
       return response.data;
     } catch (error) {
       console.error(
@@ -220,8 +216,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await api.delete(`/students/${id}`);
+      // Using apiClient
+      await apiClient.delete(`/students/${id}`);
     } catch (error) {
       console.error(
         "[StudentManagementService] Error deleting student:",
@@ -239,8 +235,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await api.post(
+      // Using apiClient
+      await apiClient.post(
         `/students/${id}/remove-from-crt?reason=${encodeURIComponent(reason)}`
       );
     } catch (error) {
@@ -261,8 +257,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await api.post(
+      // Using apiClient
+      await apiClient.post(
         `/students/${id}/add-to-crt?reason=${encodeURIComponent(reason)}`
       );
     } catch (error) {
@@ -283,8 +279,8 @@ export class StudentManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await api.post("/students/bulk-delete", { studentIds });
+      // Using apiClient
+      await apiClient.post("/students/bulk-delete", { studentIds });
     } catch (error) {
       console.error(
         "[StudentManagementService] Error bulk deleting students:",

@@ -1,4 +1,4 @@
-import { ClientAuth } from "@/lib/auth/client";
+import { apiClient } from "@/lib/api/client";
 import type {
   Trainer,
   CreateTrainerRequest,
@@ -10,17 +10,13 @@ import type {
 const USE_MOCK_DATA = false;
 
 export class TrainerManagementService {
-  private static async getAuthenticatedApi() {
-    try {
-      return ClientAuth.createAuthenticatedApi();
-    } catch (error) {
-      console.error(
-        "[TrainerManagementService] Failed to create authenticated API:",
-        error
-      );
-      throw new Error("Authentication required");
-    }
-  }
+  //     console.error(
+  //       "[TrainerManagementService] Failed to create authenticated API:",
+  //       error
+  //     );
+  //     throw new Error("Authentication required");
+  //   }
+  // }
 
   // Get all trainers with optional filtering
   static async getTrainers(filters?: TrainerFilters): Promise<Trainer[]> {
@@ -29,12 +25,12 @@ export class TrainerManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
+      // Using apiClient
       const params = new URLSearchParams();
 
       if (filters?.search) params.append("search", filters.search);
 
-      const response = await api.get(`/trainings?${params.toString()}`);
+      const response = await apiClient.get(`/trainings?${params.toString()}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -55,8 +51,8 @@ export class TrainerManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/trainings/${id}`);
+      // Using apiClient
+      const response = await apiClient.get(`/trainings/${id}`);
       return response.data;
     } catch (error) {
       console.error(
@@ -77,8 +73,10 @@ export class TrainerManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.get(`/trainings/sn/${encodeURIComponent(sn)}`);
+      // Using apiClient
+      const response = await apiClient.get(
+        `/trainings/sn/${encodeURIComponent(sn)}`
+      );
       return response.data;
     } catch (error) {
       console.error(
@@ -106,9 +104,9 @@ export class TrainerManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
+      // Using apiClient
       console.log("Going with: ", trainerData);
-      const response = await api.post("/trainings", trainerData);
+      const response = await apiClient.post("/trainings", trainerData);
       return response.data;
     } catch (error) {
       console.error(
@@ -139,8 +137,8 @@ export class TrainerManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      const response = await api.put(`/trainings/${id}`, trainerData);
+      // Using apiClient
+      const response = await apiClient.put(`/trainings/${id}`, trainerData);
       return response.data;
     } catch (error) {
       console.error(
@@ -160,8 +158,8 @@ export class TrainerManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await api.delete(`/trainings/${id}`);
+      // Using apiClient
+      await apiClient.delete(`/trainings/${id}`);
     } catch (error) {
       console.error(
         "[TrainerManagementService] Error deleting trainer:",
@@ -180,8 +178,8 @@ export class TrainerManagementService {
     }
 
     try {
-      const api = await this.getAuthenticatedApi();
-      await api.post("/trainings/bulk-delete", { TrainingIds });
+      // Using apiClient
+      await apiClient.post("/trainings/bulk-delete", { TrainingIds });
     } catch (error) {
       console.error(
         "[TrainerManagementService] Error bulk deleting trainers:",

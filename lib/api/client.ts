@@ -1,7 +1,7 @@
 "use client";
 
-import axios, { type AxiosInstance, type AxiosResponse } from "axios";
-import { getAuthToken } from "./config";
+import axios from "axios";
+import { handleApiError } from "@/lib/api/utils";
 
 // API Configuration
 const API_BASE_URL =
@@ -9,138 +9,116 @@ const API_BASE_URL =
 const API_TIMEOUT = 10000;
 const BULK_UPLOAD_API_TIMEOUT = 300000;
 
-// Base axios instance for public routes (auth endpoints)
-export const publicApi: AxiosInstance = axios.create({
-  baseURL: `${API_BASE_URL}`,
+// Base axios instance for all API calls
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // This is crucial - it tells axios to send cookies
 });
 
-// Base axios instance for bulk uploads
-export const bulkUploadApi: AxiosInstance = axios.create({
-  baseURL: `${API_BASE_URL}`,
+// For bulk uploads with different timeout
+export const bulkUploadClient = axios.create({
+  baseURL: API_BASE_URL,
   timeout: BULK_UPLOAD_API_TIMEOUT,
   headers: {
     "Content-Type": "multipart/form-data",
   },
+  withCredentials: true, // Also send cookies with bulk uploads
 });
 
-// Add request interceptor to include auth token for bulk uploads
-bulkUploadApi.interceptors.request.use(
-  (config) => {
-    // Get token from sessionStorage for client-side requests
-    const token = sessionStorage.getItem("auth-token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+// Add response interceptor for handling 401 errors and token refresh
+let isRefreshing = false;
+let failedQueue: {
+  resolve: (value: unknown) => void;
+  reject: (reason?: any) => void;
+}[] = [];
+
+const processQueue = (error: unknown) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(undefined);
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
+  });
+  failedQueue = [];
+};
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Check if the error is a 401 and it's not a retry request
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // Don't try to refresh if this is already a refresh token request
+      if (originalRequest.url === "/auth/refresh-token") {
+        console.log("[API] Refresh token is invalid, logging out");
+        // Clear user info from session storage
+        sessionStorage.removeItem("user-info");
+        window.location.href = "/";
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        // If a refresh is already in progress, queue the original request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            // Retry the original request
+            return apiClient(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        await apiClient.post("/auth/refresh-token");
+
+        processQueue(null);
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError);
+        sessionStorage.removeItem("user-info");
+        window.location.href = "/";
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // Handle 403 Forbidden errors
+    if (error.response?.status === 403) {
+      console.log("[API] Access denied - insufficient permissions");
+      // Redirect to unauthorized page
+      window.location.href = "/unauthorized";
+      return Promise.reject(error);
+    }
+
+    return Promise.reject(error);
+  }
 );
 
-// Add response interceptor for handling 401 errors
-bulkUploadApi.interceptors.response.use(
+// Apply the same interceptor to bulk upload client
+bulkUploadClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized error - redirect to login
-      console.error("Unauthorized request in bulk upload");
-      sessionStorage.removeItem("auth-token");
-      sessionStorage.removeItem("refresh-token");
-      document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      document.cookie = "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      // For simplicity, just redirect to login on 401 for bulk uploads
+      sessionStorage.removeItem("user-info");
       window.location.href = "/";
     }
     return Promise.reject(error);
   }
 );
 
-// Client-side axios instance for secured routes
-export const createClientSecuredApi = (
-  token: string,
-  refreshToken?: string
-): AxiosInstance => {
-  const clientApi = axios.create({
-    baseURL: API_BASE_URL,
-    timeout: API_TIMEOUT,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  clientApi.interceptors.response.use(
-    (response: AxiosResponse) => response,
-    async (error) => {
-      const originalRequest = error.config;
-
-      if (
-        error.response?.status === 401 &&
-        !originalRequest._retry &&
-        refreshToken
-      ) {
-        originalRequest._retry = true;
-
-        try {
-          console.log("[API] Attempting token refresh");
-
-          const refreshResponse = await publicApi.post(
-            "/auth/refresh-token",
-            {},
-            {
-              headers: { Authorization: `Bearer ${refreshToken}` },
-            }
-          );
-
-          if (refreshResponse.data.token) {
-            console.log("[API] Token refresh successful");
-
-            const newToken = refreshResponse.data.token;
-            const newRefreshToken = refreshResponse.data.refreshToken;
-
-            // Update tokens in storage
-            sessionStorage.setItem("auth-token", newToken);
-            sessionStorage.setItem("refresh-token", newRefreshToken);
-
-            // Update cookies for middleware
-            document.cookie = `auth-token=${newToken}; path=/; secure; samesite=strict`;
-            document.cookie = `refresh-token=${newRefreshToken}; path=/; secure; samesite=strict`;
-
-            // Update the authorization header and retry the original request
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return clientApi.request(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error("[API] Token refresh failed:", refreshError);
-          // Refresh failed, clear tokens and redirect to login
-          sessionStorage.removeItem("auth-token");
-          sessionStorage.removeItem("refresh-token");
-          document.cookie =
-            "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-          document.cookie =
-            "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-          window.location.href = "/";
-          return Promise.reject(refreshError);
-        }
-      }
-
-      // If 401 and no refresh token, or refresh failed, logout
-      if (error.response?.status === 401) {
-        console.log("[API] Unauthorized, clearing tokens");
-        sessionStorage.removeItem("auth-token");
-        sessionStorage.removeItem("refresh-token");
-        document.cookie =
-          "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie =
-          "refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        window.location.href = "/";
-      }
-
-      return Promise.reject(error);
-    }
-  );
-
-  return clientApi;
-};
+// Export the public API for convenience
+export const publicApi = apiClient;

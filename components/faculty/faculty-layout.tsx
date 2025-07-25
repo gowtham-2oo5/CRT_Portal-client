@@ -14,11 +14,9 @@ export function FacultyLayout({ children }: FacultyLayoutProps) {
     <div className="min-h-screen bg-background">
       <FacultyHeader />
       <div className="flex h-[calc(100vh-73px)]">
-        <FacultyNav />
+        {/* <FacultyNav /> */}
         <ScrollArea className="flex-1">
-          <main className="p-6">
-            {children}
-          </main>
+          <main className="p-6">{children}</main>
         </ScrollArea>
       </div>
     </div>

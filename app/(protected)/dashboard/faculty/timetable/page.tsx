@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-guard";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
 import { toast } from "sonner";
+import { apiClient } from "@/lib/api/client";
 
 // Types matching your timetable API response
 interface TimeSlot {
@@ -43,7 +44,7 @@ export default function FacultyTimetablePage() {
 
   // Load timetable data - Following admin pattern
   const fetchTimetableData = async (showRefreshIndicator = false) => {
-    if (!user?.userId) return;
+    if (!user?.id) return;
 
     try {
       if (showRefreshIndicator) {
@@ -53,27 +54,14 @@ export default function FacultyTimetablePage() {
       }
       setError(null);
 
-      console.log("📅 Loading timetable for faculty:", user.userId);
+      console.log("📅 Loading timetable for faculty:", user.id);
 
-      // Using your timetable API endpoint
-      const response = await fetch(
-        `http://localhost:8080/api/faculty/timetable?id=${user.userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("auth-token")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      // Using apiClient with withCredentials
+      const response = await apiClient.get(`/faculty/timetable?id=${user.id}`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      console.log("✅ Timetable loaded:", response.data);
 
-      const data = await response.json();
-      console.log("✅ Timetable loaded:", data);
-
-      setTimetable(data);
+      setTimetable(response.data);
       setLastUpdated(new Date());
 
       if (showRefreshIndicator) {
@@ -103,7 +91,7 @@ export default function FacultyTimetablePage() {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [user?.userId]);
+  }, [user?.id]);
 
   // Manual refresh - Following admin pattern
   const handleManualRefresh = () => {
