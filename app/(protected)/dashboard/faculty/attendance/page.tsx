@@ -1,11 +1,11 @@
 "use client";
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AttendanceRecord, Student, TimeSlot } from '@/lib/types/faculty';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { AttendanceRecord, Student, TimeSlot } from "@/lib/types/faculty";
 import {
   AlertCircle,
   Check,
@@ -13,38 +13,100 @@ import {
   Clock,
   MapPin,
   Users,
-  X
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 // Mock data
 const mockCurrentSlot: TimeSlot = {
-  id: '1',
-  day: 'Monday',
-  startTime: '09:00',
-  endTime: '10:00',
-  subject: 'Data Structures',
-  section: 'CSE-A',
-  room: 'Room 101',
-  isActive: true
+  id: "1",
+  day: "Monday",
+  startTime: "09:00",
+  endTime: "10:00",
+  subject: "Data Structures",
+  section: "CSE-A",
+  room: "Room 101",
+  isActive: true,
 };
 
 const mockStudents: Student[] = [
-  { id: '1', rollNumber: '21CSE001', name: 'Aarav Sharma', email: 'aarav@kluniversity.in', section: 'CSE-A' },
-  { id: '2', rollNumber: '21CSE002', name: 'Priya Patel', email: 'priya@kluniversity.in', section: 'CSE-A' },
-  { id: '3', rollNumber: '21CSE003', name: 'Arjun Kumar', email: 'arjun@kluniversity.in', section: 'CSE-A' },
-  { id: '4', rollNumber: '21CSE004', name: 'Sneha Reddy', email: 'sneha@kluniversity.in', section: 'CSE-A' },
-  { id: '5', rollNumber: '21CSE005', name: 'Vikram Singh', email: 'vikram@kluniversity.in', section: 'CSE-A' },
-  { id: '6', rollNumber: '21CSE006', name: 'Ananya Gupta', email: 'ananya@kluniversity.in', section: 'CSE-A' },
-  { id: '7', rollNumber: '21CSE007', name: 'Rohit Verma', email: 'rohit@kluniversity.in', section: 'CSE-A' },
-  { id: '8', rollNumber: '21CSE008', name: 'Kavya Nair', email: 'kavya@kluniversity.in', section: 'CSE-A' },
-  { id: '9', rollNumber: '21CSE009', name: 'Aditya Joshi', email: 'aditya@kluniversity.in', section: 'CSE-A' },
-  { id: '10', rollNumber: '21CSE010', name: 'Riya Agarwal', email: 'riya@kluniversity.in', section: 'CSE-A' },
+  {
+    id: "1",
+    regNum: "21CSE001",
+    name: "Aarav Sharma",
+    email: "aarav@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "2",
+    regNum: "21CSE002",
+    name: "Priya Patel",
+    email: "priya@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "3",
+    regNum: "21CSE003",
+    name: "Arjun Kumar",
+    email: "arjun@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "4",
+    regNum: "21CSE004",
+    name: "Sneha Reddy",
+    email: "sneha@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "5",
+    regNum: "21CSE005",
+    name: "Vikram Singh",
+    email: "vikram@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "6",
+    regNum: "21CSE006",
+    name: "Ananya Gupta",
+    email: "ananya@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "7",
+    regNum: "21CSE007",
+    name: "Rohit Verma",
+    email: "rohit@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "8",
+    regNum: "21CSE008",
+    name: "Kavya Nair",
+    email: "kavya@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "9",
+    regNum: "21CSE009",
+    name: "Aditya Joshi",
+    email: "aditya@kluniversity.in",
+    section: "CSE-A",
+  },
+  {
+    id: "10",
+    regNum: "21CSE010",
+    name: "Riya Agarwal",
+    email: "riya@kluniversity.in",
+    section: "CSE-A",
+  },
 ];
 
 export default function FacultyAttendancePage() {
-  const [currentSlot, setCurrentSlot] = useState<TimeSlot | null>(mockCurrentSlot);
+  const [currentSlot, setCurrentSlot] = useState<TimeSlot | null>(
+    mockCurrentSlot
+  );
   const [students, setStudents] = useState<Student[]>(mockStudents);
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,13 +120,18 @@ export default function FacultyAttendancePage() {
     const currentTimeMinutes = currentHour * 60 + currentMinute;
 
     if (mockCurrentSlot) {
-      const [startHour, startMinute] = mockCurrentSlot.startTime.split(':').map(Number);
-      const [endHour, endMinute] = mockCurrentSlot.endTime.split(':').map(Number);
-      
+      const [startHour, startMinute] = mockCurrentSlot.startTime
+        .split(":")
+        .map(Number);
+      const [endHour, endMinute] = mockCurrentSlot.endTime
+        .split(":")
+        .map(Number);
+
       const startTime = startHour * 60 + startMinute;
       const endTime = endHour * 60 + endMinute;
-      
-      const isActive = currentTimeMinutes >= startTime && currentTimeMinutes <= endTime;
+
+      const isActive =
+        currentTimeMinutes >= startTime && currentTimeMinutes <= endTime;
       setCurrentSlot(isActive ? mockCurrentSlot : null);
     }
   };
@@ -76,15 +143,15 @@ export default function FacultyAttendancePage() {
   }, []);
 
   const handleAttendanceToggle = (studentId: string, isPresent: boolean) => {
-    setAttendance(prev => ({
+    setAttendance((prev) => ({
       ...prev,
-      [studentId]: isPresent
+      [studentId]: isPresent,
     }));
   };
 
   const handleMarkAll = (isPresent: boolean) => {
     const newAttendance: Record<string, boolean> = {};
-    students.forEach(student => {
+    students.forEach((student) => {
       newAttendance[student.id] = isPresent;
     });
     setAttendance(newAttendance);
@@ -94,28 +161,28 @@ export default function FacultyAttendancePage() {
     if (!currentSlot) return;
 
     setIsSubmitting(true);
-    
+
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const attendanceRecords: AttendanceRecord[] = students.map(student => ({
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const attendanceRecords: AttendanceRecord[] = students.map((student) => ({
         studentId: student.id,
-        rollNumber: student.rollNumber,
+        rollNumber: student.regNum,
         name: student.name,
         isPresent: attendance[student.id] || false,
-        markedAt: new Date()
+        markedAt: new Date(),
       }));
 
-      console.log('Submitting attendance:', {
+      console.log("Submitting attendance:", {
         slot: currentSlot,
-        records: attendanceRecords
+        records: attendanceRecords,
       });
 
       setHasSubmitted(true);
-      toast.success('Attendance submitted successfully!');
+      toast.success("Attendance submitted successfully!");
     } catch (error) {
-      toast.error('Failed to submit attendance. Please try again.');
+      toast.error("Failed to submit attendance. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -130,13 +197,16 @@ export default function FacultyAttendancePage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Submit Attendance</h1>
-          <p className="text-muted-foreground">Mark student attendance for your classes</p>
+          <p className="text-muted-foreground">
+            Mark student attendance for your classes
+          </p>
         </div>
 
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No active class session found. Attendance can only be submitted during your scheduled class hours.
+            No active class session found. Attendance can only be submitted
+            during your scheduled class hours.
           </AlertDescription>
         </Alert>
 
@@ -148,7 +218,8 @@ export default function FacultyAttendancePage() {
             <div className="text-center py-8">
               <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">
-                Your next class will appear here when it's time to take attendance.
+                Your next class will appear here when it's time to take
+                attendance.
               </p>
             </div>
           </CardContent>
@@ -162,7 +233,9 @@ export default function FacultyAttendancePage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Attendance Submitted</h1>
-          <p className="text-muted-foreground">Successfully recorded attendance for {currentSlot.subject}</p>
+          <p className="text-muted-foreground">
+            Successfully recorded attendance for {currentSlot.subject}
+          </p>
         </div>
 
         <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20">
@@ -173,9 +246,16 @@ export default function FacultyAttendancePage() {
                 Attendance Recorded Successfully
               </h3>
               <div className="space-y-2 text-sm text-green-600 dark:text-green-300">
-                <p>{currentSlot.subject} - {currentSlot.section}</p>
-                <p>{currentSlot.room} • {currentSlot.startTime} - {currentSlot.endTime}</p>
-                <p>Present: {presentCount} | Absent: {absentCount}</p>
+                <p>
+                  {currentSlot.subject} - {currentSlot.section}
+                </p>
+                <p>
+                  {currentSlot.room} • {currentSlot.startTime} -{" "}
+                  {currentSlot.endTime}
+                </p>
+                <p>
+                  Present: {presentCount} | Absent: {absentCount}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -195,7 +275,9 @@ export default function FacultyAttendancePage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Submit Attendance</h1>
-        <p className="text-muted-foreground">Mark student attendance for your current class</p>
+        <p className="text-muted-foreground">
+          Mark student attendance for your current class
+        </p>
       </div>
 
       {/* Current Class Info */}
@@ -235,42 +317,50 @@ export default function FacultyAttendancePage() {
               <Users className="h-5 w-5 text-blue-600" />
               <div>
                 <div className="text-2xl font-bold">{students.length}</div>
-                <div className="text-sm text-muted-foreground">Total Students</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Students
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Check className="h-5 w-5 text-green-600" />
               <div>
-                <div className="text-2xl font-bold text-green-600">{presentCount}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {presentCount}
+                </div>
                 <div className="text-sm text-muted-foreground">Present</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <X className="h-5 w-5 text-red-600" />
               <div>
-                <div className="text-2xl font-bold text-red-600">{absentCount}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {absentCount}
+                </div>
                 <div className="text-sm text-muted-foreground">Absent</div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <AlertCircle className="h-5 w-5 text-orange-600" />
               <div>
-                <div className="text-2xl font-bold text-orange-600">{unmarkedCount}</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {unmarkedCount}
+                </div>
                 <div className="text-sm text-muted-foreground">Unmarked</div>
               </div>
             </div>
@@ -285,16 +375,16 @@ export default function FacultyAttendancePage() {
         </CardHeader>
         <CardContent>
           <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => handleMarkAll(true)}
               className="flex items-center space-x-2"
             >
               <Check className="h-4 w-4" />
               <span>Mark All Present</span>
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => handleMarkAll(false)}
               className="flex items-center space-x-2"
             >
@@ -315,29 +405,38 @@ export default function FacultyAttendancePage() {
             {students.map((student) => {
               const isPresent = attendance[student.id];
               const isMarked = student.id in attendance;
-              
+
               return (
-                <Card 
+                <Card
                   key={student.id}
                   className={`cursor-pointer transition-all ${
                     isMarked
                       ? isPresent
-                        ? 'border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20'
-                        : 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20'
-                      : 'hover:border-primary'
+                        ? "border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20"
+                        : "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20"
+                      : "hover:border-primary"
                   }`}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${student.name}`} />
+                        <AvatarImage
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${student.name}`}
+                        />
                         <AvatarFallback>
-                          {student.name.split(' ').map(n => n[0]).join('')}
+                          {student.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="font-semibold text-sm">{student.name}</div>
-                        <div className="text-xs text-muted-foreground">{student.rollNumber}</div>
+                        <div className="font-semibold text-sm">
+                          {student.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {student.regNum}
+                        </div>
                       </div>
                       {isMarked && (
                         <div className="flex items-center">
@@ -349,7 +448,7 @@ export default function FacultyAttendancePage() {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="mt-3 flex space-x-2">
                       <Button
                         size="sm"
@@ -361,8 +460,12 @@ export default function FacultyAttendancePage() {
                       </Button>
                       <Button
                         size="sm"
-                        variant={isPresent === false ? "destructive" : "outline"}
-                        onClick={() => handleAttendanceToggle(student.id, false)}
+                        variant={
+                          isPresent === false ? "destructive" : "outline"
+                        }
+                        onClick={() =>
+                          handleAttendanceToggle(student.id, false)
+                        }
                         className="flex-1"
                       >
                         Absent
@@ -392,7 +495,8 @@ export default function FacultyAttendancePage() {
           ) : (
             <>
               <CheckCircle className="h-4 w-4 mr-2" />
-              Submit Attendance ({Object.keys(attendance).length}/{students.length})
+              Submit Attendance ({Object.keys(attendance).length}/
+              {students.length})
             </>
           )}
         </Button>

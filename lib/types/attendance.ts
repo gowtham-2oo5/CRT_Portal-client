@@ -1,3 +1,6 @@
+import { ReactNode } from "react";
+import { Student } from "./student-management";
+
 export interface FilteredTimeSlot {
   timeSlotId: number;
   startTime: string;
@@ -5,6 +8,7 @@ export interface FilteredTimeSlot {
   day: string;
   sectionId: string;
   sectionName: string;
+  roomName: string;
   facultyId: string;
   facultyName: string;
   attendancePosted: boolean;
@@ -28,16 +32,16 @@ export interface TimeSlotFilterResponse {
 }
 
 export interface DailyTimeSlot {
-    id: string;
-    startTime: string;
-    endTime: string;
-    attendanceStatus: 'SUBMITTED' | 'PENDING' | 'NOT_APPLICABLE';
+  id: string;
+  startTime: string;
+  endTime: string;
+  attendanceStatus: "SUBMITTED" | "PENDING" | "NOT_APPLICABLE";
 }
 
 export interface Absentee {
-    id: string;
-    name: string;
-    email: string;
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface SessionStudentsResponse {
@@ -46,8 +50,11 @@ export interface SessionStudentsResponse {
   sectionName: string;
   sectionId: string;
   timeSlot: {
-    roomName: ReactNode; id: string; startTime: string; endTime: string 
-};
+    roomName: ReactNode;
+    id: string;
+    startTime: string;
+    endTime: string;
+  };
 }
 
 export interface SubmitAttendanceRequest {
@@ -86,7 +93,7 @@ export interface BatchableTimeSlot {
   id: string;
   startTime: string;
   endTime: string;
-  attendanceStatus: 'PENDING' | 'POSTED' | 'MISSED';
+  attendanceStatus: "PENDING" | "POSTED" | "MISSED";
 }
 
 export interface BatchGroup {
@@ -101,7 +108,7 @@ export interface BatchableTimeSlotsResponse {
 
 export interface BatchSubmissionResult {
   timeSlotId: string;
-  status: 'success' | 'error';
+  status: "success" | "error";
   error?: string;
 }
 

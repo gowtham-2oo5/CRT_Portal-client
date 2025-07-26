@@ -84,7 +84,7 @@ export class FacultyAttendanceService {
   ): Promise<FacultyDashboardApiResponse> {
     try {
       console.log("📊 Fetching faculty dashboard for:", facultyId);
-
+      
       const response = await apiClient.get(
         `/faculty/dashboard?id=${facultyId}`
       );

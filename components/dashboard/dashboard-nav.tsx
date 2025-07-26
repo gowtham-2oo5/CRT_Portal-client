@@ -15,7 +15,7 @@ import {
   Building2,
   BookOpen,
   Clock,
-  BarChart3,  
+  BarChart3,
   Upload,
   Settings,
   ChevronRight,
@@ -30,10 +30,10 @@ import { useAuth } from "../auth/auth-guard";
 
 interface NavItem {
   name: string;
-  icon: any; // Lucide icon component
-  href?: string; // Only for type 'link'
+  icon: any;
+  href?: string;
   type: "link" | "group";
-  children?: NavItem[]; // Only for type 'group'
+  children?: NavItem[];
 }
 
 const adminNavigation: NavItem[] = [
@@ -220,10 +220,9 @@ export function DashboardNav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeGroup, setActiveGroup] = useState<string | null>(null); // State to manage active group
+  const [activeGroup, setActiveGroup] = useState<string | null>(null);
 
   useEffect(() => {
-    // Determine initial active group based on current pathname
     let initialActiveGroup: string | null = null;
     for (const item of adminNavigation) {
       if (item.type === "group") {
@@ -236,7 +235,7 @@ export function DashboardNav() {
       }
     }
     setActiveGroup(initialActiveGroup);
-  }, [pathname]); // Recalculate when pathname changes
+  }, [pathname]);
 
   if (user?.role === "FACULTY") {
     return null;
@@ -261,7 +260,7 @@ export function DashboardNav() {
             onClick={() => {
               setIsCollapsed(!isCollapsed);
               if (!isCollapsed) {
-                setActiveGroup(null); // Close all groups when collapsing
+                setActiveGroup(null);
               }
             }}
             className="p-1 rounded-md hover: border transition-colors"

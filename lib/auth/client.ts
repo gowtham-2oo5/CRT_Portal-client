@@ -21,15 +21,17 @@ export class ClientAuth {
   // Clear user info from session storage and attempt to clear cookies
   private static clearUserInfo() {
     if (typeof window === "undefined") return;
-    
+
     // Clear session storage
     sessionStorage.removeItem("user-info");
-    
+
     // For httpOnly cookies, we can't directly clear them from JavaScript
     // The actual cookie clearing happens via the /auth/logout endpoint
     // But we can set expired cookies for any non-httpOnly cookies that might exist
-    document.cookie = "jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
-    document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
+    document.cookie =
+      "jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
+    document.cookie =
+      "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
   }
 
   // Get user info from session storage
@@ -64,19 +66,17 @@ export class ClientAuth {
     }
   }
 
-  // Get current user from API
   static async getCurrentUser(): Promise<User | null> {
     try {
-      // Try to get user info from API
-      const response = await apiClient.get('/users/me');
+      const response = await apiClient.get("/users/me");
       const user = response.data;
-      
-      // Store user info in session storage for future use
+
       if (user) {
+        console.log("AT API CLIENT: USER: ", user);
         this.setUserInfo(user);
+        return user;
       }
-      
-      return user;
+      return null;
     } catch (error) {
       console.error("[ClientAuth] Error getting current user:", error);
       return null;
@@ -198,15 +198,12 @@ export class ClientAuth {
   }> {
     try {
       console.log("[ClientAuth] Resetting password for:", email);
-      
-      const response = await apiClient.put(
-        "/users/password",
-        {
-          email,
-          newPassword: password,
-          currentPassword: "",
-        }
-      );
+
+      const response = await apiClient.put("/users/password", {
+        email,
+        newPassword: password,
+        currentPassword: "",
+      });
 
       return {
         success: true,

@@ -10,7 +10,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      // Immediate redirect based on user role
+
       if (user.role === 'FACULTY') {
         router.replace('/dashboard/faculty');
       } else if (user.role === 'ADMIN') {
@@ -19,7 +19,7 @@ export default function DashboardPage() {
     }
   }, [user, isLoading, router]);
 
-  // Show minimal loading while redirecting
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center space-y-4">

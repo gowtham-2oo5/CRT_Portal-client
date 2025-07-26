@@ -3,27 +3,24 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Users, 
-  TrendingUp, 
-  TrendingDown,
-  Calendar,
-  Target,
+import type { AttendanceAnalytics } from '@/lib/types/attendance';
+import {
   AlertTriangle,
-  CheckCircle,
   BarChart3,
-  PieChart,
+  CheckCircle,
   Download,
   Eye,
-  Minus
+  Minus,
+  PieChart,
+  TrendingDown,
+  TrendingUp,
+  Users
 } from 'lucide-react';
-import type { AttendanceAnalytics } from '@/lib/types/attendance';
-import type { Student } from '@/lib/types/section-management';
+import { useMemo, useState } from 'react';
 
 interface SectionAnalyticsProps {
   analytics: AttendanceAnalytics;

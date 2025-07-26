@@ -14,7 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Mail, RefreshCw } from "lucide-react";
+import {
+  ReloadIcon,
+  EnvelopeClosedIcon,
+  UpdateIcon,
+} from "@radix-ui/react-icons";
 import { ClientAuth } from "@/lib/auth/client";
 import { DashboardLoader } from "@/components/dashboard/dashboard-loader";
 import { toast } from "sonner";
@@ -58,24 +62,15 @@ export function OtpDialog({
       const result = await ClientAuth.verifyOtp(usernameOrEmail, otp);
 
       if (result.success && result.data) {
-        console.log("[OTP] Verification successful");
-        
-        // Get the current user to check token metadata
         const currentUser = await ClientAuth.getCurrentUser();
-        console.log("[OTP] Current user after verification:", currentUser);
+        // alert("Verification success" + currentUser?.name);
+
+        console.log(
+          "[OTP] Current user after verification:",
+          currentUser?.name
+        );
         console.log("[OTP] isFirstLogin flag:", currentUser?.isFirstLogin);
-        
-        // Decode and log the token for debugging
-        if (result.data.token) {
-          try {
-            const { jwtDecode } = await import('jwt-decode');
-            const decodedToken = jwtDecode(result.data.token);
-            console.log("[OTP] Decoded token:", decodedToken);
-          } catch (decodeError) {
-            console.error("[OTP] Error decoding token:", decodeError);
-          }
-        }
-        
+
         toast.success("Login successful!");
 
         // Close dialog
@@ -140,7 +135,7 @@ export function OtpDialog({
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Mail className="h-6 w-6 text-primary" />
+              <EnvelopeClosedIcon className="h-6 w-6 text-primary" />
             </div>
             <DialogTitle className="text-xl font-semibold">
               Verify Your Email
@@ -188,7 +183,7 @@ export function OtpDialog({
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                   Verifying...
                 </>
               ) : (
@@ -203,7 +198,7 @@ export function OtpDialog({
               onClick={handleResendOtp}
               disabled={isLoading || countdown > 0}
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <UpdateIcon className="mr-2 h-4 w-4" />
               {countdown > 0 ? `Resend in ${countdown}s` : "Resend Code"}
             </Button>
 

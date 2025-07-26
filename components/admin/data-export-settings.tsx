@@ -17,11 +17,7 @@ import {
   AbsenteeExportData,
   AbsenteeRecordExportData,
 } from "@/lib/types/export-types";
-import {
-  Calendar,
-  Clock,
-  FileSpreadsheet
-} from "lucide-react";
+import { Calendar, Clock, FileSpreadsheet } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ExportAbsenteeRecordsCSV } from "./export-absentee-records-csv";
@@ -127,13 +123,12 @@ export function DataExportSettings() {
     try {
       setIsLoadingPendingFaculty(true);
 
-      // Filter time slots for the selected date
       const response = await AttendanceService.filterTimeSlots(pendingDate);
-
-      // Get faculty with pending attendance
+      console.log("ACtual pending faculty response: ", response);
+      
       const faculty = response.facultiesWithPendingAttendance;
 
-      // Count pending sessions per faculty
+
       const facultyMap = new Map<
         string,
         FacultyWithPendingAttendance & { pendingCount: number }

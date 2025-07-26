@@ -65,6 +65,7 @@ export function SectionScheduleComponent({
       const scheduleData = await SectionScheduleService.getScheduleBySection(
         section.id
       );
+      console.log(scheduleData?.timeSlots);
       setSchedule(scheduleData);
 
       if (scheduleData?.timeSlots) {
@@ -453,7 +454,7 @@ export function SectionScheduleComponent({
               const isCurrent =
                 currentTimeMinutes >= startMinutes &&
                 currentTimeMinutes < endMinutes;
-
+              console.log("POST SORTING: SLOT: ", slot);
               return (
                 <Card
                   key={slot.id}
@@ -492,7 +493,7 @@ export function SectionScheduleComponent({
                           {!(slot.isBreak === true) &&
                             slot.inchargeFacultyId && (
                               <div className="text-sm text-gray-400">
-                                Faculty: {slot.inchargeFacultyId}
+                                Faculty: {slot.inchargeFacultyName}
                               </div>
                             )}
                         </div>

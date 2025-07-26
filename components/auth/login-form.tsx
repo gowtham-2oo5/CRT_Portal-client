@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { EyeOpenIcon, EyeClosedIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { ClientAuth } from '@/lib/auth/client';
 import type { User } from '@/lib/auth/types';
 
@@ -98,9 +98,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               disabled={isLoading}
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4" />
+                <EyeClosedIcon className="h-4 w-4" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <EyeOpenIcon className="h-4 w-4" />
               )}
             </Button>
           </div>
@@ -110,7 +110,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
             Signing in...
           </>
         ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronRightIcon, HomeIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -75,7 +75,7 @@ export function DashboardBreadcrumb() {
         {breadcrumbs.map((item, index) => (
           <li key={index} className="flex items-center">
             {index > 0 && (
-              <ChevronRight className="h-4 w-4 mx-2 text-muted-foreground/50" />
+              <ChevronRightIcon className="h-4 w-4 mx-2 text-muted-foreground/50" />
             )}
 
             {item.href ? (
@@ -83,7 +83,7 @@ export function DashboardBreadcrumb() {
                 href={item.href}
                 className="hover:text-foreground transition-colors font-medium"
               >
-                {index === 0 && <Home className="h-4 w-4 mr-1 inline" />}
+                <HomeIcon className="h-4 w-4 mr-1 inline" />
                 {item.label}
               </Link>
             ) : (

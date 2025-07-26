@@ -35,6 +35,8 @@ function DashboardContent({ children }: DashboardLayoutProps) {
 
   // Render layout based on user role
   const renderLayout = () => {
+    console.log("User object in DashboardContent:", user);
+    console.log("User role:", user?.role);
     if (user?.role === 'FACULTY') {
       return <FacultyLayout>{children}</FacultyLayout>;
     }

@@ -3,12 +3,11 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -16,21 +15,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { 
-  Search, 
-  Download, 
-  Filter,
+import type { AttendanceSession } from '@/lib/types/attendance';
+import {
+  Calendar,
+  Download,
+  Eye,
+  FileText,
+  Minus,
+  Search,
   SortAsc,
   SortDesc,
-  Calendar,
-  Users,
-  TrendingUp,
   TrendingDown,
-  Minus,
-  Eye,
-  FileText
+  TrendingUp,
+  Users
 } from 'lucide-react';
-import type { AttendanceSession } from '@/lib/types/attendance';
+import { useMemo, useState } from 'react';
 
 interface AttendanceReportTableProps {
   sessions: AttendanceSession[];

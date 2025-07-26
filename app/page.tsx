@@ -22,20 +22,14 @@ export default function LoginPage() {
   const handleOtpSuccess = async (user: User) => {
     console.log("[LoginPage] OTP success, checking User:", user);
 
-    // Store user info in session storage
     sessionStorage.setItem("user-info", JSON.stringify(user));
 
-    try {
-      // Make a test request to verify cookies are working
-      console.log("Testing if authentication cookies are working...");
-      const testResponse = await apiClient.get("/users/me");
-      console.log("Authentication test successful:", testResponse.data);
+    console.log(sessionStorage.getItem("user-info"));
 
-      // Add a small delay to ensure cookies are fully set
-      setTimeout(() => {
-        console.log("Redirecting to dashboard...");
-        window.location.href = "/dashboard";
-      }, 300);
+    try {
+      console.log("Redirecting to dashboard...");
+      console.log(user);
+      window.location.href = "/dashboard";
     } catch (error) {
       console.error("Authentication test failed:", error);
       alert("Authentication error. Please try logging in again.");

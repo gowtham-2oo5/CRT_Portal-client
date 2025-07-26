@@ -14,10 +14,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Lock, Eye, EyeOff, CheckCircle, XCircle } from "lucide-react";
+import {
+  ReloadIcon,
+  LockClosedIcon,
+  EyeOpenIcon,
+  EyeClosedIcon,
+  CheckCircledIcon,
+  CrossCircledIcon,
+} from "@radix-ui/react-icons";
 import { ClientAuth } from "@/lib/auth/client";
 import { toast } from "sonner";
 import type { User } from "@/lib/auth/types";
+import { Eye, EyeOff } from "lucide-react";
 
 interface PasswordResetModalProps {
   open: boolean;
@@ -96,9 +104,9 @@ export function PasswordResetModal({
   const StrengthIndicator = ({ met, text }: { met: boolean; text: string }) => (
     <div className="flex items-center gap-2 text-sm">
       {met ? (
-        <CheckCircle className="h-4 w-4 text-green-500" />
+        <CheckCircledIcon className="h-4 w-4 text-green-500" />
       ) : (
-        <XCircle className="h-4 w-4 text-muted-foreground" />
+        <CrossCircledIcon className="h-4 w-4 text-muted-foreground" />
       )}
       <span
         className={
@@ -115,7 +123,7 @@ export function PasswordResetModal({
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <Lock className="h-6 w-6 text-primary" />
+            <LockClosedIcon className="h-6 w-6 text-primary" />
           </div>
           <DialogTitle className="text-xl font-semibold">
             Set Your Password
@@ -148,9 +156,9 @@ export function PasswordResetModal({
                 disabled={isLoading}
               >
                 {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  <EyeClosedIcon className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
+                  <EyeOpenIcon className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
             </div>
@@ -232,7 +240,7 @@ export function PasswordResetModal({
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                 Updating Password...
               </>
             ) : (

@@ -3,10 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { AttendanceService } from "@/lib/api/services/attendance";
 import { downloadCSV, generateFilename } from "@/lib/utils/csv-export";
-import { FacultyWithPendingAttendance } from "@/lib/types/attendance";
+import {
+  FacultyWithPendingAttendance,
+  FilteredTimeSlot,
+  TimeSlotFilterResponse,
+} from "@/lib/types/attendance";
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { time } from "console";
 
 interface ExportPendingFacultyCSVProps {
   date?: string;
@@ -16,64 +21,95 @@ interface ExportPendingFacultyCSVProps {
   disabled?: boolean;
 }
 
-export function ExportPendingFacultyCSV({ 
+export function ExportPendingFacultyCSV({
   date,
   pendingFaculty,
-  variant = "outline", 
+  variant = "outline",
   size = "default",
-  disabled = false
+  disabled = false,
 }: ExportPendingFacultyCSVProps) {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
     try {
       setIsExporting(true);
-      
-      // If pendingFaculty are provided directly, use them
-      // Otherwise, fetch them using the date
+
       let facultyData: FacultyWithPendingAttendance[] = [];
-      
+      let timeSlotsData: FilteredTimeSlot[] = [];
+
       if (pendingFaculty && pendingFaculty.length > 0) {
         facultyData = pendingFaculty;
       } else if (date) {
-        // Get time slots for the date
         const response = await AttendanceService.filterTimeSlots(date);
+        console.log("Actual resposne: ", response);
+        timeSlotsData = response.timeSlots;
         facultyData = response.facultiesWithPendingAttendance;
       } else {
-        // Default to today if no date provided
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         const response = await AttendanceService.filterTimeSlots(today);
+        console.log("Actual resposne: ", response);
         facultyData = response.facultiesWithPendingAttendance;
+        timeSlotsData = response.timeSlots;
       }
-      
-      if (facultyData.length === 0) {
-        toast.warning("No faculty with pending attendance found");
+
+      const finalData = [...timeSlotsData, ...facultyData];
+      console.log("{DEBUG ANNA}");
+      console.log(timeSlotsData, facultyData);
+      if (timeSlotsData.length === 0) {
+        toast.warning("No pending attendance timeslots found");
         return;
       }
 
       // Define CSV headers with proper field order
-      const headers = [
-        { key: "id" as const, label: "Faculty ID" },
-        { key: "name" as const, label: "Name" },
-        { key: "email" as const, label: "Email" },
-        { key: "phone" as const, label: "Phone" },
-        { key: "pendingCount" as const, label: "Pending Sessions" },
-        { key: "date" as const, label: "Date" }
-      ];
+      const dayOrder = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
 
-      // Format data for CSV - ensure all required fields exist
-      const csvData = facultyData.map(faculty => ({
-        ...faculty,
-        pendingCount: faculty.pendingCount || 1, // Default to 1 if not provided
-        date: date || new Date().toISOString().split('T')[0]
+      const exportableTimeSlots = timeSlotsData.map((slot) => ({
+        facultyName: slot.facultyName,
+        facEmpId: slot.facEmpId,
+        sectionName: slot.sectionName,
+        room: slot.room,
+        day: slot.day,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        attendancePosted: slot.attendancePosted ? "Yes" : "No",
       }));
 
-      // Generate filename and download
-      const exportDate = date || new Date().toISOString().split('T')[0];
-      const filename = `pending-attendance-faculty-${exportDate}`;
-      downloadCSV(csvData, filename, headers);
-      
-      toast.success(`${facultyData.length} faculty with pending attendance exported successfully`);
+      exportableTimeSlots.sort((a, b) => {
+        // Sort by facultyName
+        if (a.facultyName < b.facultyName) return -1;
+        if (a.facultyName > b.facultyName) return 1;
+
+        // Then by day
+        const dayA = dayOrder.indexOf(a.day.toUpperCase());
+        const dayB = dayOrder.indexOf(b.day.toUpperCase());
+        if (dayA < dayB) return -1;
+        if (dayA > dayB) return 1;
+
+        // Then by startTime
+        if (a.startTime < b.startTime) return -1;
+        if (a.startTime > b.startTime) return 1;
+
+        return 0;
+      });
+
+      const headers = [
+        { key: "facultyName" as const, label: "Faculty Name" },
+        { key: "facEmpId" as const, label: "Faculty Employee ID" },
+        { key: "sectionName" as const, label: "Section Name" },
+        { key: "room" as const, label: "Room" },
+        { key: "day" as const, label: "Day" },
+        { key: "startTime" as const, label: "Start Time" },
+        { key: "endTime" as const, label: "End Time" },
+        { key: "attendancePosted" as const, label: "Attendance Posted" },
+      ];
+
+      const exportDate = date || new Date().toISOString().split("T")[0];
+      const filename = `pending-attendance-timeslots-${exportDate}`;
+      downloadCSV(exportableTimeSlots, filename, headers);
+
+      toast.success(
+        `${exportableTimeSlots.length} pending attendance timeslots exported successfully`
+      );
     } catch (error: any) {
       console.error("Error exporting faculty with pending attendance:", error);
       toast.error(error.message || "Failed to export faculty data");

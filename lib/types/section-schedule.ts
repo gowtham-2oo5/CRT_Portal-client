@@ -7,6 +7,7 @@ export interface Faculty {
 }
 
 export interface TimeSlot {
+  inchargeFacultyName: ReactNode;
   id: number;
   startTime: string; // HH:MM format
   endTime: string; // HH:MM format
@@ -15,7 +16,6 @@ export interface TimeSlot {
   inchargeFacultyId?: string; // Optional for breaks
   sectionId: string;
   roomId: string;
-  // Additional fields for UI
   duration?: number; // in minutes
   label?: string; // for display
   isCurrent?: boolean; // if currently active
@@ -67,7 +67,7 @@ export interface SectionSchedule {
   sectionId: string;
   roomId: string;
   timeSlots: TimeSlot[];
-  // Populated data for display
+
   section?: {
     id: string;
     name: string;
