@@ -1,19 +1,18 @@
 // 🎯 CRT Portal Attendance System - Faculty Attendance Service
 // Created: 2025-07-15 | Phase 1 - Task 1.2
 
-import { apiClient } from "../client";
 import type {
-  AttendanceSession,
-  CurrentSession,
-  SubmitAttendanceRequest,
   AttendanceApiResponse,
-  SessionStudentsResponse,
-  AttendanceSubmissionResponse,
   AttendanceFilters,
+  AttendanceSession,
+  AttendanceSubmissionResponse,
+  SessionStudentsResponse,
   StudentAttendanceSummary,
-} from "../../types/attendance";
-import type { TimeSlot } from "../../types/section-schedule";
+  SubmitAttendanceRequest
+} from "@/lib/types/attendance";
 import type { Student } from "../../types/section-management";
+import type { TimeSlot } from "../../types/section-schedule";
+import { apiClient } from "../client";
 
 // Updated types to match actual API response
 interface FacultyDashboardApiResponse {
@@ -84,7 +83,7 @@ export class FacultyAttendanceService {
   ): Promise<FacultyDashboardApiResponse> {
     try {
       console.log("📊 Fetching faculty dashboard for:", facultyId);
-      
+
       const response = await apiClient.get(
         `/faculty/dashboard?id=${facultyId}`
       );

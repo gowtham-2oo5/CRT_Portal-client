@@ -6,12 +6,10 @@ import { downloadCSV, generateFilename } from "@/lib/utils/csv-export";
 import {
   FacultyWithPendingAttendance,
   FilteredTimeSlot,
-  TimeSlotFilterResponse,
 } from "@/lib/types/attendance";
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { time } from "console";
 
 interface ExportPendingFacultyCSVProps {
   date?: string;
@@ -34,43 +32,47 @@ export function ExportPendingFacultyCSV({
     try {
       setIsExporting(true);
 
-      let facultyData: FacultyWithPendingAttendance[] = [];
       let timeSlotsData: FilteredTimeSlot[] = [];
 
-      if (pendingFaculty && pendingFaculty.length > 0) {
-        facultyData = pendingFaculty;
-      } else if (date) {
-        const response = await AttendanceService.filterTimeSlots(date);
-        console.log("Actual resposne: ", response);
-        timeSlotsData = response.timeSlots;
-        facultyData = response.facultiesWithPendingAttendance;
+      if (date) {
+        timeSlotsData = await AttendanceService.getPendingFaculties(date);
+        console.log("Actual response: ", timeSlotsData);
       } else {
         const today = new Date().toISOString().split("T")[0];
-        const response = await AttendanceService.filterTimeSlots(today);
-        console.log("Actual resposne: ", response);
-        facultyData = response.facultiesWithPendingAttendance;
-        timeSlotsData = response.timeSlots;
+        timeSlotsData = await AttendanceService.getPendingFaculties(today);
+        console.log("Actual response: ", timeSlotsData);
       }
 
-      const finalData = [...timeSlotsData, ...facultyData];
       console.log("{DEBUG ANNA}");
-      console.log(timeSlotsData, facultyData);
+      console.log(timeSlotsData);
+
       if (timeSlotsData.length === 0) {
         toast.warning("No pending attendance timeslots found");
         return;
       }
 
       // Define CSV headers with proper field order
-      const dayOrder = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+      const dayOrder = [
+        "SUNDAY",
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+      ];
 
       const exportableTimeSlots = timeSlotsData.map((slot) => ({
-        facultyName: slot.facultyName,
-        facEmpId: slot.facEmpId,
+        facultyName: slot.inchargeFacultyName,
+        facultyEmail: slot.inchargeFacultyEmail,
+        facultyPhone: slot.inchargeFacultyPhone,
         sectionName: slot.sectionName,
-        room: slot.room,
-        day: slot.day,
+        roomName: slot.roomName,
+        day: slot.day || "N/A",
         startTime: slot.startTime,
         endTime: slot.endTime,
+        isBreak: slot.isBreak ? "Yes" : "No",
+        breakDescription: slot.breakDescription || "N/A",
         attendancePosted: slot.attendancePosted ? "Yes" : "No",
       }));
 
@@ -82,8 +84,10 @@ export function ExportPendingFacultyCSV({
         // Then by day
         const dayA = dayOrder.indexOf(a.day.toUpperCase());
         const dayB = dayOrder.indexOf(b.day.toUpperCase());
-        if (dayA < dayB) return -1;
-        if (dayA > dayB) return 1;
+        if (dayA !== -1 && dayB !== -1) {
+          if (dayA < dayB) return -1;
+          if (dayA > dayB) return 1;
+        }
 
         // Then by startTime
         if (a.startTime < b.startTime) return -1;
@@ -94,12 +98,15 @@ export function ExportPendingFacultyCSV({
 
       const headers = [
         { key: "facultyName" as const, label: "Faculty Name" },
-        { key: "facEmpId" as const, label: "Faculty Employee ID" },
+        { key: "facultyEmail" as const, label: "Faculty Email" },
+        { key: "facultyPhone" as const, label: "Faculty Phone" },
         { key: "sectionName" as const, label: "Section Name" },
-        { key: "room" as const, label: "Room" },
+        { key: "roomName" as const, label: "Room" },
         { key: "day" as const, label: "Day" },
         { key: "startTime" as const, label: "Start Time" },
         { key: "endTime" as const, label: "End Time" },
+        { key: "isBreak" as const, label: "Is Break" },
+        { key: "breakDescription" as const, label: "Break Description" },
         { key: "attendancePosted" as const, label: "Attendance Posted" },
       ];
 

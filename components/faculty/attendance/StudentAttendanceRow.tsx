@@ -107,43 +107,17 @@ export function StudentAttendanceRow({
           </AvatarFallback>
         </Avatar>
 
-        {/* Student Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-semibold text-sm truncate">{student.name || student.regNum}</h4>
-
-            {hasLowAttendance && (
-              <Badge variant="destructive" className="text-xs">
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                Low Attendance
-              </Badge>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="font-mono">{student.regNum}</span>
-            <span className="font-mono">{student.regNum}</span>
-            <span>{student.department}</span>
-            {student.attendancePercentage !== undefined && (
-              <span
-                className={`font-semibold ${
-                  student.attendancePercentage >= 90
-                    ? "text-green-600"
-                    : student.attendancePercentage >= 75
-                    ? "text-blue-600"
-                    : student.attendancePercentage >= 60
-                    ? "text-yellow-600"
-                    : "text-red-600"
-                }`}
-              >
-                {student.attendancePercentage.toFixed(1)}% overall
-              </span>
-            )}
+            <h4 className="font-semibold text-sm truncate">{student.regNum}</h4>
+            <h2 className="font-semibold text-sm truncate hidden md:block">
+              {student.name}
+            </h2>
           </div>
         </div>
 
         {/* Attendance Status */}
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           {attendanceStatus === "present" && (
             <Badge variant="default" className="bg-green-600 text-white">
               <CheckCircle className="h-3 w-3 mr-1" />
@@ -164,7 +138,7 @@ export function StudentAttendanceRow({
               Unmarked
             </Badge>
           )}
-        </div>
+        </div> */}
 
         {/* Attendance Action Buttons */}
         <div className="flex gap-2">
@@ -180,7 +154,7 @@ export function StudentAttendanceRow({
             }
           >
             <CheckCircle className="h-4 w-4 mr-1" />
-            Present
+            <span className="hidden md:block">Present</span>
           </Button>
 
           <Button
@@ -195,7 +169,7 @@ export function StudentAttendanceRow({
             }
           >
             <XCircle className="h-4 w-4 mr-1" />
-            Absent
+            <span className="hidden md:block"> Absent</span>
           </Button>
         </div>
 

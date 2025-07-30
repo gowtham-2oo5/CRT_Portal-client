@@ -26,7 +26,7 @@ export class StudentManagementService {
     }
 
     try {
-      // Using apiClient
+
       const params = new URLSearchParams();
 
       if (filters?.search) params.append("search", filters.search);

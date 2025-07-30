@@ -1,5 +1,5 @@
 // Section Schedule & TimeSlot Management Types
-
+import { ReactNode } from "react";
 export interface Faculty {
   id: string;
   name: string;

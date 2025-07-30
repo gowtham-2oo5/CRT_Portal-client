@@ -1,11 +1,12 @@
-import { TimeSlot } from "@/lib/types/faculty";
 import { apiClient } from "../client";
 import type {
   DailyTimeSlot,
   Absentee,
   TimeSlotFilterResponse,
   SubmitAttendanceRequest,
+  FilteredTimeSlot,
 } from "@/lib/types/attendance";
+import { TimeSlot } from "@/lib/types/section-schedule";
 
 class AttendanceServiceClass {
   async getDailyAttendance(
@@ -39,14 +40,36 @@ class AttendanceServiceClass {
     date: string,
     startTime?: string,
     endTime?: string
-  ): Promise<TimeSlotFilterResponse> {
+  ): Promise<TimeSlotFilterResponse[]> {
     try {
       const params = new URLSearchParams({ date });
       if (startTime) params.append("startTime", startTime);
       if (endTime) params.append("endTime", endTime);
-      const response = await apiClient.get<TimeSlotFilterResponse>(
+      const response = await apiClient.get<TimeSlotFilterResponse[]>(
         `/attendance/time-slots/filter?${params.toString()}`
       );
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to filter time slots", error);
+      throw error;
+    }
+  }
+
+  async getPendingFaculties(
+    date: string,
+    startTime?: string,
+    endTime?: string
+  ): Promise<FilteredTimeSlot[]> {
+    try {
+      const params = new URLSearchParams({ date });
+      if (startTime) params.append("startTime", startTime);
+      if (endTime) params.append("endTime", endTime);
+      const response = await apiClient.get<FilteredTimeSlot[]>(
+        `/attendance/time-slots/pending?${params.toString()}`
+      );
+
+      console.log("Getting pending timeSlots putra: ", response.data);
       return response.data;
     } catch (error) {
       console.error("Failed to filter time slots", error);

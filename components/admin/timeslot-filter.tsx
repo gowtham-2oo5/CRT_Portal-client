@@ -24,7 +24,7 @@ import { TimeSlotTemplateService } from "@/lib/api/services/timeslot-template";
 import type {
   FilteredTimeSlot,
   FacultyWithPendingAttendance,
-  Absentee
+  Absentee,
 } from "@/lib/types/attendance";
 import type { TimeSlotTemplate } from "@/lib/types/timeslot-template";
 import { AllAbsenteesModal } from "./all-absentees-modal";
@@ -117,13 +117,13 @@ export function TimeSlotFilter() {
     try {
       const allEmails: string[] = [];
       const allAbsenteeData: any[] = [];
-      
+
       for (const slot of timeSlots) {
         if (slot.attendancePosted) {
           const absentees = await AttendanceService.getAbsentees(
             slot.timeSlotId.toString()
           );
-          
+
           absentees.forEach((absentee) => {
             if (!allEmails.includes(absentee.email)) {
               allEmails.push(absentee.email);
@@ -135,13 +135,13 @@ export function TimeSlotFilter() {
                 date: date,
                 startTime: slot.startTime,
                 endTime: slot.endTime,
-                facultyName: slot.facultyName
+                facultyName: slot.facultyName,
               });
             }
           });
         }
       }
-      
+
       setAllAbsenteeEmails(allEmails);
       setAllAbsentees(allAbsenteeData);
       setShowAllAbsenteesModal(true);

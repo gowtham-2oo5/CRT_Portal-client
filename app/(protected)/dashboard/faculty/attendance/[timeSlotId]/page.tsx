@@ -87,6 +87,7 @@ export default function AttendanceMarkingPage() {
           sectionId: response.data.sectionId,
           roomId: response.data.timeSlot.roomId,
           isBreak: response.data.timeSlot.isBreak,
+          inchargeFacultyName: response.data.timeSlot.inchargeFacultyName,
           section: {
             id: response.data.sectionId,
             name: response.data.sectionName,

@@ -10,25 +10,27 @@ import {
   bulkUploadTrainings,
   bulkUploadSections,
   registerStudentsToSections,
+  uploadFacs,
 } from "@/lib/api/services/bulk-operations";
 import { useState } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 
-type OperationType = 
-  | "students" 
-  | "rooms" 
-  | "trainings" 
-  | "sections" 
-  | "register";
+type OperationType =
+  | "students"
+  | "rooms"
+  | "trainings"
+  | "sections"
+  | "register"
+  | "faculties";
 
 interface OperationConfig {
   title: string;
@@ -39,7 +41,8 @@ interface OperationConfig {
 }
 
 export function BulkOperations() {
-  const [selectedOperation, setSelectedOperation] = useState<OperationType | null>(null);
+  const [selectedOperation, setSelectedOperation] =
+    useState<OperationType | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,36 +53,43 @@ export function BulkOperations() {
       description: "Upload a CSV file containing student information",
       handler: bulkUploadStudents,
       successMessage: "Students uploaded successfully",
-      endpoint: "/bulk/students/upload"
+      endpoint: "/bulk/students/upload",
     },
     rooms: {
       title: "Bulk Create Rooms",
       description: "Upload a CSV file containing room information",
       handler: bulkCreateRoomsSimple,
       successMessage: "Rooms created successfully",
-      endpoint: "/bulk/simple-room/upload"
+      endpoint: "/bulk/simple-room/upload",
     },
     trainings: {
       title: "Bulk Upload Trainings",
       description: "Upload a CSV file containing training information",
       handler: bulkUploadTrainings,
       successMessage: "Trainings uploaded successfully",
-      endpoint: "/bulk/Trainings/upload" // Note the capital T
+      endpoint: "/bulk/Trainings/upload", // Note the capital T
     },
     sections: {
       title: "Bulk Upload Sections",
       description: "Upload a CSV file containing section information",
       handler: bulkUploadSections,
       successMessage: "Sections uploaded successfully",
-      endpoint: "/bulk/section/upload"
+      endpoint: "/bulk/section/upload",
     },
     register: {
       title: "Register Students to Sections",
       description: "Upload a CSV file to register students to sections",
       handler: registerStudentsToSections,
       successMessage: "Students registered successfully",
-      endpoint: "/bulk/register-students"
-    }
+      endpoint: "/bulk/register-students",
+    },
+    faculties: {
+      title: "Bulk upload faculties",
+      description: "Upload a CSV File to bulk upload faculties",
+      handler: uploadFacs,
+      successMessage: "Faculties created successfully",
+      endpoint: "/bulk/faculties",
+    },
   };
 
   const handleFileUpload = async () => {
@@ -103,16 +113,15 @@ export function BulkOperations() {
       console.log("Response:", response);
     } catch (error: any) {
       console.error("Error in bulk operation:", error);
-      
-      // Extract error message
+
       let errorMessage = "An unknown error occurred";
-      
+
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -132,7 +141,9 @@ export function BulkOperations() {
     setError(null);
   };
 
-  const currentConfig = selectedOperation ? operationConfigs[selectedOperation] : null;
+  const currentConfig = selectedOperation
+    ? operationConfigs[selectedOperation]
+    : null;
 
   return (
     <div className="space-y-6">
@@ -155,7 +166,10 @@ export function BulkOperations() {
                   <SelectItem value="rooms">Create Rooms</SelectItem>
                   <SelectItem value="trainings">Upload Trainings</SelectItem>
                   <SelectItem value="sections">Upload Sections</SelectItem>
-                  <SelectItem value="register">Register Students to Sections</SelectItem>
+                  <SelectItem value="register">
+                    Register Students to Sections
+                  </SelectItem>
+                  <SelectItem value="faculties">Upload Faculties</SelectItem>
                 </SelectContent>
               </Select>
             </div>

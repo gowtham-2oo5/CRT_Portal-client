@@ -2,17 +2,23 @@ import { ReactNode } from "react";
 import { Student } from "./student-management";
 
 export interface FilteredTimeSlot {
-  timeSlotId: number;
+  id: number;
   startTime: string;
   endTime: string;
-  day: string;
+  isBreak: boolean;
+  breakDescription?: string;
+  inchargeFacultyId: string;
+  inchargeFacultyName: string;
+  inchargeFacultyEmail: string;
+  inchargeFacultyPhone: string;
   sectionId: string;
   sectionName: string;
+  roomId: string;
   roomName: string;
-  facultyId: string;
-  facultyName: string;
-  attendancePosted: boolean;
-  pastEndTime: boolean;
+  // Additional fields that might be added by the filter endpoint
+  attendancePosted?: boolean;
+  pastEndTime?: boolean;
+  day?: string;
 }
 
 export interface FacultyWithPendingAttendance {
@@ -27,7 +33,7 @@ export interface TimeSlotFilterResponse {
   totalTimeSlots: number;
   postedAttendanceCount: number;
   pendingAttendanceCount: number;
-  timeSlots: FilteredTimeSlot[];
+  timeSlots: FilteredTimeSlot[]; // These are now TimeSlotDTO objects
   facultiesWithPendingAttendance: FacultyWithPendingAttendance[];
 }
 

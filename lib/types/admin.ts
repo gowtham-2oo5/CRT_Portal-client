@@ -17,7 +17,7 @@ export interface RecentAction {
   facultyName: string;
   sectionName: string;
   timeSlotInfo: string;
-  attendancePercentage: number;
+  absentCount: number;
 }
 
 export interface AdminDashboardData {
