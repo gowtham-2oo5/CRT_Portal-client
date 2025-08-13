@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bell, Clock, User } from "lucide-react";
+import { Bell, Clock, User, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -66,6 +66,12 @@ export function FacultyHeader() {
 
         {/* Right side - User info and controls */}
         <div className="flex items-center space-x-4">
+          {/* View Timetable CTA */}
+          <Button variant="outline" size="sm" className="hidden md:flex">
+            <Calendar className="h-4 w-4 mr-2" />
+            View Timetable
+          </Button>
+
           {/* Notifications */}
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="h-4 w-4" />

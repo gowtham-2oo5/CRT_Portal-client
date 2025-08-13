@@ -1,8 +1,8 @@
 "use client";
 
+import { useAuth } from "@/components/auth/auth-guard";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
 import { BatchAttendanceSelector } from "@/components/faculty/attendance/BatchAttendanceSelector";
-import { useAuth } from "@/lib/auth/client";
 import { useState } from "react";
 
 export default function BatchAttendancePage() {

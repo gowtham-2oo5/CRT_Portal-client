@@ -1,38 +1,46 @@
 // 🎯 CRT Portal Attendance System - General Attendance Marking Page
 // Created: 2025-07-15 | Phase 3 - Task 3.2
 
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Clock, 
-  MapPin, 
-  Users, 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Clock,
+  MapPin,
+  Users,
   CheckCircle,
   AlertCircle,
   Play,
   Calendar,
   ArrowRight,
-  Loader2
-} from 'lucide-react';
-import Link from 'next/link';
-import { useAuth } from '@/components/auth/auth-guard';
-import { FacultyAttendanceService } from '@/lib/api/services/faculty-attendance';
-import { CurrentSessionCard, NextSessionCard } from '@/components/faculty/session-management';
-import type { CurrentSession, FacultyDashboardData } from '@/lib/types/attendance';
-import type { TimeSlot } from '@/lib/types/section-schedule';
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/components/auth/auth-guard";
+import { FacultyAttendanceService } from "@/lib/api/services/faculty-attendance";
+import {
+  CurrentSessionCard,
+  NextSessionCard,
+} from "@/components/faculty/session-management";
+import type {
+  CurrentSession,
+  FacultyDashboardData,
+} from "@/lib/types/attendance";
+import type { TimeSlot } from "@/lib/types/section-schedule";
 
 export default function AttendanceMarkPage() {
   const router = useRouter();
   const { user } = useAuth();
 
   // State management
-  const [currentSession, setCurrentSession] = useState<CurrentSession | null>(null);
+  const [currentSession, setCurrentSession] = useState<CurrentSession | null>(
+    null
+  );
   const [todaySchedule, setTodaySchedule] = useState<TimeSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,33 +48,33 @@ export default function AttendanceMarkPage() {
   // Load session data
   useEffect(() => {
     const loadSessionData = async () => {
-      if (!user?.userId) return;
+      if (!user?.id) return;
 
       try {
         setIsLoading(true);
         setError(null);
 
-        console.log('🔄 Loading current session and today\'s schedule');
+        console.log("🔄 Loading current session and today's schedule");
 
         const [sessionResponse, scheduleResponse] = await Promise.all([
-          FacultyAttendanceService.getCurrentSession(user.userId),
-          FacultyAttendanceService.getTodaySchedule(user.userId),
+          FacultyAttendanceService.getCurrentSession(user.id),
+          FacultyAttendanceService.getTodaySchedule(user.id),
         ]);
 
         setCurrentSession(sessionResponse.currentSlot);
         setTodaySchedule(scheduleResponse.data);
 
-        console.log('✅ Session data loaded successfully');
+        console.log("✅ Session data loaded successfully");
       } catch (error: any) {
-        console.error('❌ Error loading session data:', error);
-        setError(error.message || 'Failed to load session data');
+        console.error("❌ Error loading session data:", error);
+        setError(error.message || "Failed to load session data");
       } finally {
         setIsLoading(false);
       }
     };
 
     loadSessionData();
-  }, [user?.userId]);
+  }, [user?.id]);
 
   // Handle session selection
   const handleMarkAttendance = (timeSlotId: string) => {
@@ -74,20 +82,22 @@ export default function AttendanceMarkPage() {
   };
 
   // Get session status for display
-  const getSessionDisplayStatus = (slot: TimeSlot): 'active' | 'completed' | 'upcoming' => {
+  const getSessionDisplayStatus = (
+    slot: TimeSlot
+  ): "active" | "completed" | "upcoming" => {
     const now = new Date();
-    const [startHour, startMin] = slot.startTime.split(':').map(Number);
-    const [endHour, endMin] = slot.endTime.split(':').map(Number);
-    
+    const [startHour, startMin] = slot.startTime.split(":").map(Number);
+    const [endHour, endMin] = slot.endTime.split(":").map(Number);
+
     const sessionStart = new Date();
     sessionStart.setHours(startHour, startMin, 0, 0);
-    
+
     const sessionEnd = new Date();
     sessionEnd.setHours(endHour, endMin, 0, 0);
-    
-    if (now < sessionStart) return 'upcoming';
-    if (now > sessionEnd) return 'completed';
-    return 'active';
+
+    if (now < sessionStart) return "upcoming";
+    if (now > sessionEnd) return "completed";
+    return "active";
   };
 
   if (isLoading) {
@@ -116,7 +126,7 @@ export default function AttendanceMarkPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Mark Attendance</h1>
-        
+
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -151,7 +161,7 @@ export default function AttendanceMarkPage() {
             <Play className="h-5 w-5 text-green-600" />
             Active Session
           </h2>
-          
+
           <CurrentSessionCard
             currentSession={currentSession}
             onMarkAttendance={handleMarkAttendance}
@@ -166,10 +176,8 @@ export default function AttendanceMarkPage() {
             <Clock className="h-5 w-5 text-blue-600" />
             Next Session
           </h2>
-          
-          <NextSessionCard
-            currentSession={currentSession}
-          />
+
+          <NextSessionCard currentSession={currentSession} />
         </div>
       )}
 
@@ -191,9 +199,7 @@ export default function AttendanceMarkPage() {
                 You don't have any sessions scheduled for today.
               </p>
               <Link href="/dashboard/faculty" className="mt-4">
-                <Button variant="outline">
-                  Back to Dashboard
-                </Button>
+                <Button variant="outline">Back to Dashboard</Button>
               </Link>
             </CardContent>
           </Card>
@@ -201,14 +207,17 @@ export default function AttendanceMarkPage() {
           <div className="grid gap-4">
             {todaySchedule.map((slot) => {
               const status = getSessionDisplayStatus(slot);
-              const isActive = currentSession?.currentSlot?.id === slot.id.toString();
+              const isActive =
+                currentSession?.currentSlot?.id === slot.id.toString();
               const hasAttendance = slot.hasAttendance;
 
               return (
-                <Card 
-                  key={slot.id} 
+                <Card
+                  key={slot.id}
                   className={`transition-all hover:shadow-md ${
-                    isActive ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20' : ''
+                    isActive
+                      ? "ring-2 ring-green-500 bg-green-50 dark:bg-green-900/20"
+                      : ""
                   }`}
                 >
                   <CardContent className="p-6">
@@ -228,28 +237,31 @@ export default function AttendanceMarkPage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-lg">
-                              {slot.section?.name || 'Section'}
+                              {slot.section?.name || "Section"}
                             </h3>
-                            
+
                             {isActive && (
                               <Badge className="bg-green-600 animate-pulse">
                                 <Play className="h-3 w-3 mr-1" />
                                 Live
                               </Badge>
                             )}
-                            
+
                             {hasAttendance && !isActive && (
-                              <Badge variant="outline" className="border-green-500 text-green-700">
+                              <Badge
+                                variant="outline"
+                                className="border-green-500 text-green-700"
+                              >
                                 <CheckCircle className="h-3 w-3 mr-1" />
                                 Completed
                               </Badge>
                             )}
                           </div>
-                          
+
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              {slot.room?.roomString || 'Room'}
+                              {slot.room?.roomString || "Room"}
                             </div>
                             <div className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
@@ -264,19 +276,33 @@ export default function AttendanceMarkPage() {
                         {slot.attendanceSession && (
                           <div className="text-right text-sm mr-4">
                             <div className="font-semibold text-green-600">
-                              {slot.attendanceSession.attendancePercentage.toFixed(1)}%
+                              {slot.attendanceSession.attendancePercentage.toFixed(
+                                1
+                              )}
+                              %
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {slot.attendanceSession.presentCount}/{slot.attendanceSession.totalStudents}
+                              {slot.attendanceSession.presentCount}/
+                              {slot.attendanceSession.totalStudents}
                             </div>
                           </div>
                         )}
 
                         {!slot.isBreak && (
                           <Button
-                            onClick={() => handleMarkAttendance(slot.id.toString())}
-                            variant={isActive ? "default" : hasAttendance ? "outline" : "secondary"}
-                            className={isActive ? "bg-green-600 hover:bg-green-700" : ""}
+                            onClick={() =>
+                              handleMarkAttendance(slot.id.toString())
+                            }
+                            variant={
+                              isActive
+                                ? "default"
+                                : hasAttendance
+                                ? "outline"
+                                : "secondary"
+                            }
+                            className={
+                              isActive ? "bg-green-600 hover:bg-green-700" : ""
+                            }
                           >
                             {hasAttendance ? (
                               <>
@@ -285,7 +311,7 @@ export default function AttendanceMarkPage() {
                               </>
                             ) : (
                               <>
-                                {isActive ? 'Mark Now' : 'Mark Attendance'}
+                                {isActive ? "Mark Now" : "Mark Attendance"}
                                 <ArrowRight className="h-4 w-4 ml-2" />
                               </>
                             )}
@@ -293,7 +319,10 @@ export default function AttendanceMarkPage() {
                         )}
 
                         {slot.isBreak && (
-                          <Badge variant="outline" className="border-orange-500 text-orange-700">
+                          <Badge
+                            variant="outline"
+                            className="border-orange-500 text-orange-700"
+                          >
                             ☕ Break Time
                           </Badge>
                         )}
@@ -319,7 +348,7 @@ export default function AttendanceMarkPage() {
               Back to Dashboard
             </Button>
           </Link>
-          
+
           <Link href="/dashboard/faculty/reports">
             <Button variant="outline" className="w-full justify-start">
               <CheckCircle className="h-4 w-4 mr-2" />

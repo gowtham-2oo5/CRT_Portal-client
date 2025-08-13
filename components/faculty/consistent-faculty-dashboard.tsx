@@ -132,12 +132,12 @@ export function ConsistentFacultyDashboard() {
         );
       }
 
-      // Then load session data
-      try {
-        const sessionResponse =
+             // Then load session data
+       try {
+                 const sessionResponse =
           await FacultyAttendanceService.getCurrentSession(user.id);
-        setCurrentSession(sessionResponse);
-      } catch (sessionError) {
+         setCurrentSession(sessionResponse);
+       } catch (sessionError) {
         console.error(
           "[FacultyDashboard] Error fetching session:",
           sessionError

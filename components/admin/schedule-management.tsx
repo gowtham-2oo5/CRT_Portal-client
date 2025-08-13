@@ -41,11 +41,12 @@ import {
   AlertCircle,
   CheckCircle,
   Settings,
+  ArrowLeft,
 } from "lucide-react";
 import { SectionManagementService } from "@/lib/api/services/section-management";
 import { RoomManagementService } from "@/lib/api/services/room-management";
 import { SectionScheduleService } from "@/lib/api/services/section-schedule";
-import { SectionScheduleComponent } from "./section-schedule";
+import { WeekScheduleView } from "./week-schedule-view";
 import { ScheduleInitModal } from "./schedule-init-modal";
 import { toast } from "sonner";
 import type { Section } from "@/lib/types/section-management";
@@ -54,19 +55,22 @@ import type { SectionSchedule } from "@/lib/types/section-schedule";
 
 interface SectionWithSchedule extends Section {
   hasSchedule: boolean;
-  schedule?: SectionSchedule;
+  schedule?: SectionSchedule | null;
   assignedRoom?: Room;
 }
 
 export function ScheduleManagement() {
   const [sections, setSections] = useState<SectionWithSchedule[]>([]);
-  const [filteredSections, setFilteredSections] = useState<SectionWithSchedule[]>([]);
+  const [filteredSections, setFilteredSections] = useState<
+    SectionWithSchedule[]
+  >([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showInitDialog, setShowInitDialog] = useState(false);
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
-  const [managingScheduleSection, setManagingScheduleSection] = useState<Section | null>(null);
+  const [managingScheduleSection, setManagingScheduleSection] =
+    useState<SectionWithSchedule | null>(null);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -79,7 +83,7 @@ export function ScheduleManagement() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const [sectionsData, roomsData] = await Promise.all([
         SectionManagementService.getSections(),
         RoomManagementService.getRooms(),
@@ -91,9 +95,25 @@ export function ScheduleManagement() {
       const sectionsWithSchedules = await Promise.all(
         sectionsData.map(async (section) => {
           try {
-            const schedule = await SectionScheduleService.getScheduleBySection(section.id);
-            const assignedRoom = schedule ? roomsData.find(r => r.id === schedule.roomId) : undefined;
-            
+            const schedule = await SectionScheduleService.getScheduleBySection(
+              section.id
+            );
+            // Use the full room data from roomsData if available, otherwise use schedule.room
+            const assignedRoom = schedule?.roomId
+              ? roomsData.find((r) => r.id === schedule.roomId) ||
+                (schedule.room
+                  ? {
+                      id: schedule.room.id,
+                      block: "", // These fields might not be available in schedule.room
+                      floor: "",
+                      roomNumber: "",
+                      roomType: "LECTURE_ROOM" as const,
+                      capacity: schedule.room.capacity,
+                      roomString: schedule.room.roomString,
+                    }
+                  : undefined)
+              : undefined;
+
             return {
               ...section,
               hasSchedule: !!schedule,
@@ -102,7 +122,10 @@ export function ScheduleManagement() {
             };
           } catch (error: any) {
             // Log the error but don't fail the entire load
-            console.warn(`Failed to load schedule for section ${section.id}:`, error);
+            console.warn(
+              `Failed to load schedule for section ${section.id}:`,
+              error
+            );
             return {
               ...section,
               hasSchedule: false,
@@ -140,8 +163,10 @@ export function ScheduleManagement() {
     }
 
     if (filters.hasSchedule !== "all") {
-      filtered = filtered.filter((section) => 
-        filters.hasSchedule === "scheduled" ? section.hasSchedule : !section.hasSchedule
+      filtered = filtered.filter((section) =>
+        filters.hasSchedule === "scheduled"
+          ? section.hasSchedule
+          : !section.hasSchedule
       );
     }
 
@@ -149,22 +174,25 @@ export function ScheduleManagement() {
   }, [filters, sections]);
 
   // Handle schedule initialization
-  const handleInitializeSchedule = async (sectionId: string, roomId: string) => {
+  const handleInitializeSchedule = async (
+    sectionId: string,
+    roomId: string
+  ) => {
     try {
       const newSchedule = await SectionScheduleService.createSectionSchedule({
         sectionId,
         roomId,
       });
-      
+      console.log("Schedule OK " + newSchedule);
       toast.success("Schedule initialized successfully! Now add time slots.");
       setShowInitDialog(false);
       setSelectedSection(null);
-      
+
       // Refresh the list
       await loadSections();
-      
+
       // Automatically open the schedule management for the newly created schedule
-      const section = sections.find(s => s.id === sectionId);
+      const section = sections.find((s) => s.id === sectionId);
       if (section) {
         setManagingScheduleSection(section);
       }
@@ -186,22 +214,51 @@ export function ScheduleManagement() {
   // Show schedule management view if a section is selected for management
   if (managingScheduleSection) {
     return (
-      <SectionScheduleComponent
-        section={managingScheduleSection}
-        onBack={() => setManagingScheduleSection(null)}
-      />
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={() => setManagingScheduleSection(null)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Sections
+          </Button>
+          <div className="text-right">
+            <h1 className="text-2xl font-bold">Schedule Management</h1>
+            <p className="text-muted-foreground">
+              {managingScheduleSection.name} •{" "}
+              {managingScheduleSection.assignedRoom?.roomString || "No Room"}
+            </p>
+          </div>
+        </div>
+
+        {/* Week Schedule View */}
+        <WeekScheduleView
+          sectionId={managingScheduleSection.id}
+          roomId={managingScheduleSection.assignedRoom?.id || ""}
+          sectionName={managingScheduleSection.name}
+          roomName={
+            managingScheduleSection.assignedRoom?.roomString || "No Room"
+          }
+          onScheduleUpdate={loadSections}
+        />
+      </div>
     );
   }
 
-  const scheduledCount = sections.filter(s => s.hasSchedule).length;
-  const unscheduledCount = sections.filter(s => !s.hasSchedule).length;
+  const scheduledCount = sections.filter((s) => s.hasSchedule).length;
+  const unscheduledCount = sections.filter((s) => !s.hasSchedule).length;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Schedule Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Schedule Management
+          </h1>
           <p className="text-muted-foreground">
             Initialize and manage section schedules with room assignments
           </p>
@@ -213,7 +270,9 @@ export function ScheduleManagement() {
             onClick={loadSections}
             disabled={isLoading}
           >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
         </div>
@@ -223,7 +282,9 @@ export function ScheduleManagement() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sections</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Sections
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -236,7 +297,9 @@ export function ScheduleManagement() {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{scheduledCount}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {scheduledCount}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -245,12 +308,16 @@ export function ScheduleManagement() {
             <AlertCircle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{unscheduledCount}</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {unscheduledCount}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Rooms</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Available Rooms
+            </CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -345,7 +412,9 @@ export function ScheduleManagement() {
                           </Badge>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">Not assigned</span>
+                        <span className="text-muted-foreground">
+                          Not assigned
+                        </span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -355,7 +424,10 @@ export function ScheduleManagement() {
                           Scheduled
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" className="bg-orange-100 text-orange-700">
+                        <Badge
+                          variant="secondary"
+                          className="bg-orange-100 text-orange-700"
+                        >
                           <AlertCircle className="h-3 w-3 mr-1" />
                           Unscheduled
                         </Badge>
@@ -383,7 +455,9 @@ export function ScheduleManagement() {
                           {section.hasSchedule ? (
                             <>
                               <DropdownMenuItem
-                                onClick={() => setManagingScheduleSection(section)}
+                                onClick={() =>
+                                  setManagingScheduleSection(section)
+                                }
                               >
                                 <Settings className="h-4 w-4 mr-2" />
                                 Manage Schedule

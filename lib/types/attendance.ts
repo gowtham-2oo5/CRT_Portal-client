@@ -1,6 +1,123 @@
 import { ReactNode } from "react";
 import { Student } from "./student-management";
 
+// Missing types that other components are trying to import
+export interface CurrentSession {
+  id: string;
+  timeSlotId: string;
+  sectionId: string;
+  date: string;
+  topicTaught?: string;
+  sessionNotes?: string;
+  status: "ACTIVE" | "COMPLETED" | "PENDING";
+  startTime: string;
+  endTime: string;
+  sectionName: string;
+  roomName: string;
+  facultyId: string;
+  facultyName: string;
+  // Additional properties used by components
+  hasActiveSession?: boolean;
+  nextSlot?: {
+    id: string;
+    startTime: string;
+    endTime: string;
+    sectionName: string;
+    roomName: string;
+  };
+  currentSlot?: {
+    id: string;
+    startTime: string;
+    endTime: string;
+    sectionName: string;
+    roomName: string;
+  };
+  // Legacy compatibility
+  room?: string;
+  active?: boolean;
+  timeRemaining?: number;
+}
+
+export interface FacultyDashboardData {
+  currentSession?: CurrentSession;
+  todaysSessions: DailyTimeSlot[];
+  pendingAttendance: FilteredTimeSlot[];
+  recentSessions: AttendanceSession[];
+  stats: {
+    totalSessions: number;
+    completedSessions: number;
+    pendingSessions: number;
+    averageAttendance: number;
+  };
+}
+
+export interface AttendanceSession {
+  id: string;
+  timeSlotId: string;
+  sectionId: string;
+  date: string;
+  topicTaught: string;
+  sessionNotes?: string;
+  presentCount: number;
+  totalStudents: number;
+  attendancePercentage: number;
+  status: "COMPLETED" | "PENDING";
+  submittedAt?: string;
+  submittedBy?: string;
+}
+
+export interface AttendanceFilters {
+  sectionId?: string;
+  facultyId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  status?: "COMPLETED" | "PENDING" | "ALL";
+  minAttendance?: number;
+  maxAttendance?: number;
+}
+
+export interface StudentAttendanceSummary {
+  studentId: string;
+  studentName: string;
+  regNum: string;
+  totalSessions: number;
+  attendedSessions: number;
+  attendancePercentage: number;
+  recentAttendance: {
+    date: string;
+    present: boolean;
+    timeSlotId: string;
+  }[];
+}
+
+export interface AttendanceAnalytics {
+  overallStats: {
+    totalSessions: number;
+    averageAttendance: number;
+    totalStudents: number;
+    activeSections: number;
+  };
+  sectionWiseStats: {
+    sectionId: string;
+    sectionName: string;
+    totalSessions: number;
+    averageAttendance: number;
+    studentCount: number;
+  }[];
+  facultyWiseStats: {
+    facultyId: string;
+    facultyName: string;
+    totalSessions: number;
+    averageAttendance: number;
+    sectionsHandled: number;
+  }[];
+  attendanceTrends: {
+    date: string;
+    attendancePercentage: number;
+    sessionCount: number;
+  }[];
+}
+
 export interface FilteredTimeSlot {
   id: number;
   startTime: string;
@@ -74,12 +191,13 @@ export interface SubmitAttendanceRequest {
 }
 
 export interface AttendanceRecord {
-  attendanceTime: string;
-  feedback: any;
-  name: any;
-  regNum: any;
   studentId: string;
   present: boolean;
+  attendanceTime?: string; // Made optional for backward compatibility
+  feedback?: any; // Made optional for backward compatibility
+  // Legacy fields for backward compatibility
+  name?: any;
+  regNum?: any;
 }
 // Batch attendance types
 export interface TimeSlotValidationResponse {

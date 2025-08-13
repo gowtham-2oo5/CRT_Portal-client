@@ -75,6 +75,7 @@
 
 export interface User {
   id: string;
+  userId?: string; // Added for backward compatibility - maps to id
   name: string;
   email: string;
   phone?: string;

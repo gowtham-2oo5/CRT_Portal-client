@@ -172,6 +172,7 @@ import { useEffect, useState, createContext, useContext } from "react";
 import type { User } from "@/lib/auth/types";
 import { DevAuthBypass } from "./dev-auth-bypass";
 
+
 interface AuthGuardProps {
   children: ReactNode;
   requiredRoles?: Array<"ADMIN" | "FACULTY">;

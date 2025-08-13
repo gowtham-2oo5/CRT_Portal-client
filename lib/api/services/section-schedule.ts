@@ -6,20 +6,14 @@ import type {
   UpdateTimeSlotRequest,
   Faculty,
   ScheduleValidation,
+  ValidationResponse,
+  TimeSlot,
 } from "@/lib/types/section-schedule";
 
 // Toggle for mock data during development
 const USE_MOCK_DATA = false;
 
 export class SectionScheduleService {
-  //     console.error(
-  //       "[SectionScheduleService] Failed to create authenticated API:",
-  //       error
-  //     );
-  //     throw new Error("Authentication required");
-  //   }
-  // }
-
   // Get schedule by section ID
   static async getScheduleBySection(
     sectionId: string
@@ -29,12 +23,56 @@ export class SectionScheduleService {
     }
 
     try {
-      // Using apiClient
-      const response = await apiClient.get(
-        `/section-schedules/section/${sectionId}`
+      // Using new time-slots API structure
+      const response = await apiClient.get(`/time-slots/section/${sectionId}`);
+      console.log("Schedule response:", response);
+
+      // Transform response to match our SectionSchedule interface
+      const timeSlots = response.data || [];
+
+      if (timeSlots.length === 0) {
+        return null;
+      }
+
+      // Create schedule object from time slots
+      const schedule: SectionSchedule = {
+        id: `schedule-${sectionId}`,
+        sectionId,
+        roomId: timeSlots[0]?.roomId || "",
+        timeSlots: timeSlots.map((slot: any) => ({
+          ...slot,
+          // Provide defaults for optional fields
+          slotType: slot.slotType || "REGULAR",
+          dayOfWeek: slot.dayOfWeek || "MONDAY",
+          inchargeFacultyId: slot.inchargeFacultyId || "",
+          // Ensure backward compatibility
+          isBreak: slot.slotType === "BREAK" || slot.isBreak,
+          breakDescription:
+            slot.slotType === "BREAK" ? slot.title : slot.breakDescription,
+          duration: this.calculateDuration(slot.startTime, slot.endTime),
+        })),
+        section: timeSlots[0]?.section
+          ? {
+              id: timeSlots[0].section.id,
+              name: timeSlots[0].sectionName || timeSlots[0].section.name,
+              strength: timeSlots[0].section.strength || 0,
+            }
+          : undefined,
+        room: timeSlots[0]?.room
+          ? {
+              id: timeSlots[0].room.id,
+              roomString: timeSlots[0].roomName || timeSlots[0].room.roomString,
+              capacity: timeSlots[0].room.capacity || 0,
+            }
+          : undefined,
+      };
+
+      console.log(
+        "GOT ROOM FOR WHATEVER THE ROOM IS: ",
+        schedule.room?.roomString
       );
-      console.log(response);
-      return response.data;
+
+      return schedule;
     } catch (error: any) {
       console.error(
         `[SectionScheduleService] Error fetching schedule for section ${sectionId}:`,
@@ -56,22 +94,74 @@ export class SectionScheduleService {
     }
   }
 
-  // Create new section schedule
+  // Get time slots by day
+  static async getTimeSlotsByDay(
+    dayOfWeek: string,
+    sectionId?: string,
+    facultyId?: string
+  ): Promise<TimeSlot[]> {
+    try {
+      let endpoint = `/time-slots/day/${dayOfWeek}`;
+
+      if (facultyId) {
+        endpoint = `/time-slots/faculty/${facultyId}/day/${dayOfWeek}`;
+      } else if (sectionId) {
+        endpoint = `/time-slots/section/${sectionId}/day/${dayOfWeek}`;
+      }
+
+      const response = await apiClient.get(endpoint);
+      return response.data.map((slot: any) => ({
+        ...slot,
+        // Ensure backward compatibility
+        isBreak: slot.slotType === "BREAK",
+        breakDescription: slot.slotType === "BREAK" ? slot.title : undefined,
+        duration: this.calculateDuration(slot.startTime, slot.endTime),
+      }));
+    } catch (error: any) {
+      console.error(
+        `[SectionScheduleService] Error fetching time slots for day ${dayOfWeek}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  // Get time slots by type
+  static async getTimeSlotsByType(
+    slotType: string,
+    sectionId?: string
+  ): Promise<TimeSlot[]> {
+    try {
+      let endpoint = `/time-slots/type/${slotType}`;
+
+      if (sectionId) {
+        endpoint = `/time-slots/section/${sectionId}/type/${slotType}`;
+      }
+
+      const response = await apiClient.get(endpoint);
+      return response.data.map((slot: any) => ({
+        ...slot,
+        // Ensure backward compatibility
+        isBreak: slot.slotType === "BREAK",
+        breakDescription: slot.slotType === "BREAK" ? slot.title : undefined,
+        duration: this.calculateDuration(slot.startTime, slot.endTime),
+      }));
+    } catch (error: any) {
+      console.error(
+        `[SectionScheduleService] Error fetching time slots for type ${slotType}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  // Create new section schedule (legacy method for compatibility)
   static async createSectionSchedule(
     scheduleData: CreateSectionScheduleRequest
   ): Promise<SectionSchedule> {
-    if (USE_MOCK_DATA) {
-      return {
-        id: `schedule-${Date.now()}`,
-        sectionId: scheduleData.sectionId,
-        roomId: scheduleData.roomId,
-        timeSlots: [],
-      };
-    }
-
     try {
-      // Using apiClient
       const response = await apiClient.post("/section-schedules", scheduleData);
+      console.log("Bro, Okay", response);
       return response.data;
     } catch (error: any) {
       console.error("[SectionScheduleService] Error creating schedule:", error);
@@ -87,7 +177,7 @@ export class SectionScheduleService {
     console.log("🚀 SectionScheduleService.addTimeSlot - Request:", {
       scheduleId,
       timeSlotData,
-      endpoint: `/section-schedules/${scheduleId}/time-slots`,
+      endpoint: `/time-slots`,
     });
 
     if (USE_MOCK_DATA) {
@@ -108,32 +198,38 @@ export class SectionScheduleService {
     }
 
     try {
-      // Using apiClient
-      console.log(
-        "📤 Making API request to:",
-        `/section-schedules/${scheduleId}/time-slots`
-      );
-      console.log("📤 Request body:", timeSlotData);
+      // Prepare request data according to new API
+      const requestData = {
+        inchargeFacultyId: timeSlotData.inchargeFacultyId,
+        sectionId: timeSlotData.sectionId,
+        roomId: timeSlotData.roomId,
+        startTime: timeSlotData.startTime,
+        endTime: timeSlotData.endTime,
+        slotType: timeSlotData.slotType || "REGULAR",
+        title: timeSlotData.title,
+        description: timeSlotData.description,
+        dayOfWeek: timeSlotData.dayOfWeek,
+      };
 
-      const response = await apiClient.post(
-        `/section-schedules/${scheduleId}/time-slots`,
-        timeSlotData
-      );
+      console.log("📤 Making API request to:", `/time-slots`);
+      console.log("📤 Request body:", requestData);
+
+      const response = await apiClient.post(`/time-slots`, requestData);
 
       console.log("✅ TimeSlot created successfully:", response.data);
-      console.log(
-        "✅ Created TimeSlot isBreak flag:",
-        response.data.timeSlots?.find(
-          (ts: any) =>
-            ts.startTime === timeSlotData.startTime &&
-            ts.endTime === timeSlotData.endTime
-        )?.isBreak
-      );
 
-      return response.data;
+      // Return updated schedule
+      return (
+        (await this.getScheduleBySection(timeSlotData.sectionId)) || {
+          id: scheduleId,
+          sectionId: timeSlotData.sectionId,
+          roomId: timeSlotData.roomId,
+          timeSlots: [response.data],
+        }
+      );
     } catch (error: any) {
       console.error(
-        `❌ Error adding time slot to schedule ${scheduleId}:`,
+        `❌ Error adding time slot:`,
         error.response?.data || error.message
       );
       throw error;
@@ -164,12 +260,23 @@ export class SectionScheduleService {
     }
 
     try {
-      // Using apiClient
+      // Using new time-slots API
       const response = await apiClient.put(
-        `/section-schedules/${scheduleId}/time-slots/${timeSlotId}`,
+        `/time-slots/${timeSlotId}`,
         timeSlotData
       );
-      return response.data;
+
+      // Return updated schedule
+      const sectionId =
+        timeSlotData.sectionId || scheduleId.replace("schedule-", "");
+      return (
+        (await this.getScheduleBySection(sectionId)) || {
+          id: scheduleId,
+          sectionId,
+          roomId: timeSlotData.roomId || "",
+          timeSlots: [response.data],
+        }
+      );
     } catch (error: any) {
       console.error(
         `[SectionScheduleService] Error updating time slot ${timeSlotId}:`,
@@ -196,11 +303,19 @@ export class SectionScheduleService {
     }
 
     try {
-      // Using apiClient
-      const response = await apiClient.delete(
-        `/section-schedules/${scheduleId}/time-slots/${timeSlotId}`
+      // Using new time-slots API
+      await apiClient.delete(`/time-slots/${timeSlotId}`);
+
+      // Return updated schedule
+      const sectionId = scheduleId.replace("schedule-", "");
+      return (
+        (await this.getScheduleBySection(sectionId)) || {
+          id: scheduleId,
+          sectionId,
+          roomId: "",
+          timeSlots: [],
+        }
       );
-      return response.data;
     } catch (error: any) {
       console.error(
         `[SectionScheduleService] Error deleting time slot ${timeSlotId}:`,
@@ -210,22 +325,77 @@ export class SectionScheduleService {
     }
   }
 
+  // Check availability (updated with dayOfWeek)
+  static async checkAvailability(
+    roomId: string,
+    dayOfWeek: string,
+    startTime: string,
+    endTime: string
+  ): Promise<boolean> {
+    try {
+      const response = await apiClient.get(
+        `/time-slots/check-availability?roomId=${roomId}&dayOfWeek=${dayOfWeek}&startTime=${startTime}&endTime=${endTime}`
+      );
+      return response.data.available || false;
+    } catch (error: any) {
+      console.error(
+        "[SectionScheduleService] Error checking availability:",
+        error
+      );
+      return false;
+    }
+  }
+
+  // Validate time slot
+  static async validateTimeSlot(
+    timeSlotData: CreateTimeSlotRequest
+  ): Promise<ValidationResponse> {
+    try {
+      const response = await apiClient.post(
+        `/time-slots/validate`,
+        timeSlotData
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "[SectionScheduleService] Error validating time slot:",
+        error
+      );
+      return {
+        valid: false,
+        message: "Validation failed",
+        reason: error.response?.data?.message || error.message,
+      };
+    }
+  }
+
+  // Get conflicts
+  static async getConflicts(
+    roomId: string,
+    dayOfWeek: string,
+    startTime: string,
+    endTime: string
+  ): Promise<TimeSlot[]> {
+    try {
+      const response = await apiClient.get(
+        `/time-slots/conflicts?roomId=${roomId}&dayOfWeek=${dayOfWeek}&startTime=${startTime}&endTime=${endTime}`
+      );
+      return response.data.map((slot: any) => ({
+        ...slot,
+        // Ensure backward compatibility
+        isBreak: slot.slotType === "BREAK",
+        breakDescription: slot.slotType === "BREAK" ? slot.title : undefined,
+        duration: this.calculateDuration(slot.startTime, slot.endTime),
+      }));
+    } catch (error: any) {
+      console.error("[SectionScheduleService] Error getting conflicts:", error);
+      return [];
+    }
+  }
+
   // Get faculty list
   static async getFaculty(): Promise<Faculty[]> {
-    if (USE_MOCK_DATA) {
-      return [
-        { id: "faculty-1", name: "Dr. John Smith", email: "john@example.com" },
-        { id: "faculty-2", name: "Prof. Jane Doe", email: "jane@example.com" },
-        {
-          id: "faculty-3",
-          name: "Dr. Mike Johnson",
-          email: "mike@example.com",
-        },
-      ];
-    }
-
     try {
-      // Using apiClient
       const response = await apiClient.get("/users/getFacs");
       return response.data;
     } catch (error: any) {
@@ -236,8 +406,8 @@ export class SectionScheduleService {
 
   // Validate schedule requirements
   static validateSchedule(timeSlots: any[]): ScheduleValidation {
-    const workSlots = timeSlots.filter((slot) => !slot.isBreak);
-    const breakSlots = timeSlots.filter((slot) => slot.isBreak);
+    const workSlots = timeSlots.filter((slot) => slot.slotType !== "BREAK");
+    const breakSlots = timeSlots.filter((slot) => slot.slotType === "BREAK");
 
     const workMinutes = workSlots.reduce((total, slot) => {
       return total + this.calculateDuration(slot.startTime, slot.endTime);
@@ -302,21 +472,27 @@ export class SectionScheduleService {
           id: 1,
           startTime: "09:00",
           endTime: "09:50",
-          isBreak: false,
+          slotType: "REGULAR",
           inchargeFacultyId: "faculty-1",
           sectionId,
           roomId: "room-1",
+          dayOfWeek: "MONDAY",
           duration: 50,
+          isBreak: false,
         },
         {
           id: 2,
           startTime: "09:50",
           endTime: "10:00",
-          isBreak: true,
-          breakDescription: "Short Break",
+          slotType: "BREAK",
+          title: "Short Break",
+          inchargeFacultyId: "faculty-1",
           sectionId,
           roomId: "room-1",
+          dayOfWeek: "MONDAY",
           duration: 10,
+          isBreak: true,
+          breakDescription: "Short Break",
         },
       ],
       section: {
@@ -330,5 +506,34 @@ export class SectionScheduleService {
         capacity: 60,
       },
     };
+  }
+
+  static async getSectionSchedule(
+    sectionId: string
+  ): Promise<SectionSchedule | null> {
+    try {
+      console.log(`🔄 Fetching complete schedule for section: ${sectionId}`);
+
+      const schedule = await this.getScheduleBySection(sectionId);
+
+      if (!schedule) {
+        console.log(`⚠️ No schedule found for section: ${sectionId}`);
+        return null;
+      }
+
+      console.log(`✅ Schedule found for section ${sectionId}:`, {
+        timeSlots: schedule.timeSlots?.length || 0,
+        roomId: schedule.room?.roomString,
+        sectionId: schedule.sectionId,
+      });
+
+      return schedule;
+    } catch (error: any) {
+      console.error(
+        `❌ Error fetching schedule for section ${sectionId}:`,
+        error
+      );
+      throw error;
+    }
   }
 }

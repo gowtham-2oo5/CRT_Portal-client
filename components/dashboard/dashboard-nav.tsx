@@ -21,6 +21,7 @@ import {
   ChevronRight,
   ChevronLeft,
   FileBarChart,
+  FileSpreadsheet,
   Timer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -89,6 +90,12 @@ const adminNavigation: NavItem[] = [
         name: "Schedule Management",
         href: "/dashboard/admin/schedule-management",
         icon: Clock,
+        type: "link",
+      },
+      {
+        name: "Data Export",
+        href: "/dashboard/admin/data-export",
+        icon: FileSpreadsheet,
         type: "link",
       },
       {
