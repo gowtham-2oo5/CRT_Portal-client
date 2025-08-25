@@ -48,7 +48,7 @@ import {
   Hash,
 } from "lucide-react";
 import { RoomManagementService } from "@/lib/api/services/room-management";
-import { RoomFormModal } from "./room-form-modal";
+import { RoomFormModal } from "@/components/shared/modals/room-form-modal";
 import { toast } from "sonner";
 import type { Room, RoomFilters } from "@/lib/types/room-management";
 

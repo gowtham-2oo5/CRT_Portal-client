@@ -10,7 +10,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { BatchAttendanceService } from "@/lib/api/services/batch-attendance";
 import { AttendanceService } from "@/lib/api/services/attendance";
 import { 
   BatchGroup, 
@@ -49,7 +48,7 @@ export function BatchAttendanceSelector({
       try {
         setIsLoading(true);
         setError(null);
-        const response = await BatchAttendanceService.getBatchableTimeSlots(facultyId, date);
+        const response = await AttendanceService.getBatchableTimeSlots(facultyId, date);
         setBatchGroups(response.batchGroups);
       } catch (error: any) {
         console.error("Error loading batchable time slots:", error);
@@ -86,7 +85,7 @@ export function BatchAttendanceSelector({
       
       // Validate the new selection
       if (newSelection.length > 1) {
-        const validation = await BatchAttendanceService.validateBatchTimeSlots(newSelection);
+        const validation = await AttendanceService.validateBatchTimeSlots(newSelection);
         
         if (!validation.valid) {
           toast.error(validation.reason || "Invalid time slot selection");
@@ -176,7 +175,7 @@ export function BatchAttendanceSelector({
       }));
       
       // Submit batch attendance
-      const response = await BatchAttendanceService.submitBatchAttendance({
+      const response = await AttendanceService.submitBatchAttendance({
         date,
         sectionId: currentSectionId,
         topicTaught,

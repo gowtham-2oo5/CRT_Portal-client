@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BulkEmailModal } from "./bulk-email-modal";
-import { ExportAbsenteesCSV } from "./export-absentees-csv";
+import { ExportAbsenteesCSV } from "@/components/admin/export-absentees-csv";
 import { Absentee } from "@/lib/types/attendance";
 
 interface AllAbsenteesModalProps {

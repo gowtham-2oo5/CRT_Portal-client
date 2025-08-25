@@ -19,15 +19,14 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/auth-guard';
-import { FacultyAttendanceService } from '@/lib/api/services/faculty-attendance';
-import { AttendanceReportService } from '@/lib/api/services/attendance-reports';
+import { AttendanceService } from '@/lib/api/services/attendance';
 import { 
   AttendanceReportTable, 
   StudentDetailReport, 
   SectionAnalytics,
   DateRangeFilter 
-} from '@/components/faculty/reports';
-import { ExportButtons } from '@/components/faculty/analytics';
+} from '@/components/attendance/reports';
+import { ExportButtons } from '@/components/attendance/analytics';
 import type { 
   AttendanceSession, 
   AttendanceFilters,
@@ -60,8 +59,8 @@ export default function FacultyReportsPage() {
 
         // Load reports and analytics in parallel
         const [reportsResponse, analyticsResponse] = await Promise.all([
-          FacultyAttendanceService.getFacultyReports(user.userId, filters),
-          FacultyAttendanceService.getFacultyAnalytics(user.userId, filters),
+          AttendanceService.getFacultyReports(user.userId, filters),
+          AttendanceService.getFacultyAnalytics(user.userId, filters),
         ]);
 
         setSessions(reportsResponse.data);
@@ -92,7 +91,7 @@ export default function FacultyReportsPage() {
     try {
       console.log('👤 Loading student detail report:', studentId);
       
-      const response = await FacultyAttendanceService.getStudentDetailReport(studentId);
+      const response = await AttendanceService.getStudentDetailReport(studentId);
       setSelectedStudent(response.data);
       setActiveTab('students');
       
@@ -122,10 +121,10 @@ export default function FacultyReportsPage() {
       let blob: Blob;
       
       if (format === 'csv') {
-        blob = await FacultyAttendanceService.exportFacultyData(user.userId, filters);
+        blob = await AttendanceService.exportFacultyData(user.userId, filters);
       } else {
         // For Excel and PDF, use the report service
-        blob = await AttendanceReportService.exportAsCSV(filters, true);
+        blob = await AttendanceService.exportAsCSV(filters, true);
       }
 
       // Create download link

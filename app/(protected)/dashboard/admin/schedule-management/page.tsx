@@ -1,6 +1,6 @@
 "use client";
 
-import { ScheduleManagement } from "@/components/admin/schedule-management";
+import { ScheduleManagement } from "@/components/schedule/management/schedule-management";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminScheduleManagementPage() {

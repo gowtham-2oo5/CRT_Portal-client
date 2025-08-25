@@ -46,7 +46,7 @@ import {
 import { SectionManagementService } from "@/lib/api/services/section-management";
 import { RoomManagementService } from "@/lib/api/services/room-management";
 import { SectionScheduleService } from "@/lib/api/services/section-schedule";
-import { WeekScheduleView } from "./week-schedule-view";
+import { WeekScheduleView } from "@/components/schedule/calendar/week-schedule-view";
 import { ScheduleInitModal } from "./schedule-init-modal";
 import { toast } from "sonner";
 import type { Section } from "@/lib/types/section-management";

@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionManagement } from "@/components/admin/section-management";
+import { SectionManagement } from "@/components/shared/forms/section-management";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminSectionsPage() {

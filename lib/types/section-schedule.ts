@@ -18,19 +18,26 @@ export interface TimeSlot {
   slotType?: "REGULAR" | "BREAK" | "EXAM" | "SPECIAL"; // Made optional for backward compatibility
   title?: string; // Optional - for exams/breaks/special events
   description?: string; // Optional
-  dayOfWeek?: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"; // Made optional for backward compatibility
-  
+  dayOfWeek?:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY"; // Made optional for backward compatibility
+
   // Display fields from API response
   inchargeFacultyName?: string;
   inchargeFacultyEmail?: string;
   inchargeFacultyPhone?: string;
   sectionName?: string;
   roomName?: string;
-  
+
   // Legacy fields for backward compatibility (deprecated - will be removed)
   isBreak?: boolean; // Auto-set based on slotType
   breakDescription?: string; // Maps to title for BREAK type
-  
+
   // Client-side computed fields
   duration?: number; // in minutes
   label?: string; // for display
@@ -129,6 +136,7 @@ export interface SectionSchedule {
   id: string;
   sectionId: string;
   roomId: string;
+  roomName: string;
   timeSlots: TimeSlot[];
 
   section?: {
@@ -158,8 +166,15 @@ export interface CreateTimeSlotRequest {
   slotType?: "REGULAR" | "BREAK" | "EXAM" | "SPECIAL"; // Optional - Default: REGULAR
   title?: string; // Optional - for exams/breaks
   description?: string; // Optional
-  dayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"; // Required for new API
-  
+  dayOfWeek:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY"; // Required for new API
+
   // Legacy fields (deprecated - for backward compatibility)
   isBreak?: boolean; // Auto-set based on slotType
   breakDescription?: string; // Maps to title for BREAK type
@@ -174,8 +189,15 @@ export interface UpdateTimeSlotRequest {
   slotType?: "REGULAR" | "BREAK" | "EXAM" | "SPECIAL";
   title?: string;
   description?: string;
-  dayOfWeek?: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
-  
+  dayOfWeek?:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY";
+
   // Legacy fields (deprecated)
   isBreak?: boolean;
   breakDescription?: string;
@@ -219,7 +241,9 @@ export function ensureTimeSlotCompatibility(slot: Partial<TimeSlot>): TimeSlot {
     description: slot.description || "",
     // Legacy fields
     isBreak: slot.isBreak || slot.slotType === "BREAK",
-    breakDescription: slot.breakDescription || (slot.slotType === "BREAK" ? slot.title : undefined),
+    breakDescription:
+      slot.breakDescription ||
+      (slot.slotType === "BREAK" ? slot.title : undefined),
     // Copy other fields
     ...slot,
   } as TimeSlot;
@@ -228,20 +252,15 @@ export function ensureTimeSlotCompatibility(slot: Partial<TimeSlot>): TimeSlot {
 // Day of week constants
 export const DAYS_OF_WEEK = [
   "MONDAY",
-  "TUESDAY", 
+  "TUESDAY",
   "WEDNESDAY",
   "THURSDAY",
   "FRIDAY",
   "SATURDAY",
-  "SUNDAY"
+  "SUNDAY",
 ] as const;
 
-export const SLOT_TYPES = [
-  "REGULAR",
-  "BREAK",
-  "EXAM",
-  "SPECIAL"
-] as const;
+export const SLOT_TYPES = ["REGULAR", "BREAK", "EXAM", "SPECIAL"] as const;
 
 // Helper type for day display
 export const DAY_DISPLAY_NAMES: Record<string, string> = {
@@ -251,7 +270,7 @@ export const DAY_DISPLAY_NAMES: Record<string, string> = {
   THURSDAY: "Thursday",
   FRIDAY: "Friday",
   SATURDAY: "Saturday",
-  SUNDAY: "Sunday"
+  SUNDAY: "Sunday",
 };
 
 // Helper type for slot type display
@@ -259,5 +278,5 @@ export const SLOT_TYPE_DISPLAY_NAMES: Record<string, string> = {
   REGULAR: "Regular Class",
   BREAK: "Break",
   EXAM: "Examination",
-  SPECIAL: "Special Event"
+  SPECIAL: "Special Event",
 };

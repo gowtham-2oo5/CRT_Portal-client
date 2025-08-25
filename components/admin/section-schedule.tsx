@@ -26,8 +26,8 @@ import {
   Eye,
 } from "lucide-react";
 import { SectionScheduleService } from "@/lib/api/services/section-schedule";
-import { TimeSlotFormModal } from "./time-slot-form-modal";
-import { ScheduleViewModal } from "./schedule-view-modal";
+import { TimeSlotFormModal } from "@/components/schedule/management/time-slot-form-modal";
+import { ScheduleViewModal } from "@/components/schedule/management/schedule-view-modal";
 import { toast } from "sonner";
 import type {
   SectionSchedule,

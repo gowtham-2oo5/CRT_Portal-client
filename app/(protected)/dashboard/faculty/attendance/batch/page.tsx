@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/auth/auth-guard";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
-import { BatchAttendanceSelector } from "@/components/faculty/attendance/BatchAttendanceSelector";
+import { BatchAttendanceSelector } from "@/components/attendance/forms/BatchAttendanceSelector";
 import { useState } from "react";
 
 export default function BatchAttendancePage() {

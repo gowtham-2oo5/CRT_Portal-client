@@ -1,6 +1,6 @@
 "use client";
 
-import { TrainerManagement } from "@/components/admin/trainer-management";
+import { TrainerManagement } from "@/components/shared/forms/trainer-management";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminTrainersPage() {

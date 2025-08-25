@@ -264,7 +264,7 @@ export function generateMockCurrentSession(): MockCurrentSession {
 /**
  * Mock API response wrapper
  */
-export class MockFacultyAttendanceService {
+export class MockAttendanceService {
   static async getFacultyDashboard(facultyId: string): Promise<MockFacultyDashboardData> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));

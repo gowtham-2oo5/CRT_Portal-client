@@ -1,25 +1,38 @@
+// 🎯 Faculty Dashboard - UI Consistent with Admin Dashboard
+// Matches the exact design system and patterns from admin pages
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Clock,
   MapPin,
-  Calendar,
+  Users,
   CheckCircle,
+  Calendar,
+  BookOpen,
+  TrendingUp,
   AlertCircle,
+  Play,
+  Timer,
+  Target,
+  BarChart3,
   RefreshCw,
-  Activity,
+  Wifi,
+  WifiOff,
   GraduationCap,
   Building2,
-  TrendingUp,
+  Activity,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-guard";
-import { FacultyAttendanceService } from "@/lib/api/services/faculty-attendance";
+import { AttendanceService } from "@/lib/api/services/attendance";
 import { toast } from "sonner";
 
 // Types matching your API response
@@ -80,7 +93,7 @@ interface CurrentSession {
   } | null;
 }
 
-export function SimplifiedFacultyDashboard() {
+export function FacultyDashboard() {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] =
     useState<FacultyDashboardData | null>(null);
@@ -92,7 +105,7 @@ export function SimplifiedFacultyDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  // Fetch dashboard data
+  // Fetch dashboard data - Following admin dashboard pattern
   const fetchDashboardData = async (showRefreshIndicator = false) => {
     try {
       if (showRefreshIndicator) {
@@ -109,7 +122,7 @@ export function SimplifiedFacultyDashboard() {
       // Load dashboard data first for faster perceived performance
       try {
         const dashboardResponse =
-          await FacultyAttendanceService.getFacultyDashboard(user.id);
+          await AttendanceService.getFacultyDashboard(user.id);
         setDashboardData(dashboardResponse);
         setIsLoading(false); // Show data immediately
       } catch (dashboardError) {
@@ -119,12 +132,12 @@ export function SimplifiedFacultyDashboard() {
         );
       }
 
-      // Then load session data
-      try {
-        const sessionResponse =
-          await FacultyAttendanceService.getCurrentSession(user.id);
-        setCurrentSession(sessionResponse);
-      } catch (sessionError) {
+             // Then load session data
+       try {
+                 const sessionResponse =
+          await AttendanceService.getCurrentSession(user.id);
+         setCurrentSession(sessionResponse);
+       } catch (sessionError) {
         console.error(
           "[FacultyDashboard] Error fetching session:",
           sessionError
@@ -153,7 +166,7 @@ export function SimplifiedFacultyDashboard() {
     }
   };
 
-  // Auto-refresh setup
+  // Auto-refresh setup - Following admin pattern
   useEffect(() => {
     fetchDashboardData();
 
@@ -165,12 +178,12 @@ export function SimplifiedFacultyDashboard() {
     return () => clearInterval(interval);
   }, [user?.id]);
 
-  // Manual refresh
+  // Manual refresh - Following admin pattern
   const handleManualRefresh = () => {
     fetchDashboardData(true);
   };
 
-  // Format timestamp for display
+  // Format timestamp for display - Following admin pattern
   const formatTimestamp = (date: Date) => {
     return date.toLocaleTimeString();
   };
@@ -181,12 +194,12 @@ export function SimplifiedFacultyDashboard() {
     return "text-muted-foreground bg-muted";
   };
 
-  // Loading skeleton
+  // Loading skeleton - Following admin pattern exactly
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="space-y-6">
         {/* Header Skeleton */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center justify-between">
           <div>
             <div className="h-8 bg-muted rounded w-64 mb-2 animate-pulse"></div>
             <div className="h-4 bg-muted rounded w-96 animate-pulse"></div>
@@ -198,26 +211,56 @@ export function SimplifiedFacultyDashboard() {
         </div>
 
         {/* Metrics Cards Skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 bg-muted rounded animate-pulse"></div>
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="h-4 bg-muted rounded w-24 animate-pulse"></div>
+                <div className="h-4 w-4 bg-muted rounded animate-pulse"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-muted rounded w-12 mb-1 animate-pulse"></div>
+                <div className="h-3 bg-muted rounded w-20 animate-pulse"></div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
         {/* Schedule Skeleton */}
-        <div className="h-64 bg-muted rounded animate-pulse"></div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <div className="h-5 w-5 bg-muted rounded animate-pulse"></div>
+              <div className="h-6 bg-muted rounded w-32 animate-pulse"></div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-start space-x-4 p-4 border rounded-lg"
+                >
+                  <div className="h-10 w-10 bg-muted rounded animate-pulse"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                    <div className="h-3 bg-muted rounded w-1/2 animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!dashboardData) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>No dashboard data available</AlertDescription>
-        </Alert>
-      </div>
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>No dashboard data available</AlertDescription>
+      </Alert>
     );
   }
 
@@ -232,9 +275,9 @@ export function SimplifiedFacultyDashboard() {
   const totalSessions = dashboardData.todaySchedule?.length || 0;
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="space-y-6">
+      {/* Header - Following admin pattern exactly */}
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Faculty Dashboard</h1>
           <p className="text-muted-foreground">
@@ -261,7 +304,7 @@ export function SimplifiedFacultyDashboard() {
         </div>
       </div>
 
-      {/* Error Alert */}
+      {/* Error Alert - Following admin pattern */}
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -284,7 +327,7 @@ export function SimplifiedFacultyDashboard() {
         <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20">
           <Activity className="h-4 w-4 text-green-600" />
           <AlertDescription>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center justify-between">
               <div>
                 <strong>Active Session:</strong>{" "}
                 {currentSession.currentSlot.sectionName} in{" "}
@@ -307,74 +350,78 @@ export function SimplifiedFacultyDashboard() {
         </Alert>
       )}
 
-      {/* Metrics Cards - Simplified */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Metrics Cards - Following admin pattern exactly */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Today's Sessions
-                </p>
-                <p className="text-2xl font-bold">
-                  {completedSessions}/{totalSessions}
-                </p>
-              </div>
-              <Calendar className="h-5 w-5 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Today's Sessions
+            </CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {completedSessions}/{totalSessions}
             </div>
+            <p className="text-xs text-muted-foreground">
+              {dashboardData.todayAttendanceCount} attendance taken
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Weekly Sessions
-                </p>
-                <p className="text-2xl font-bold">
-                  {dashboardData.weeklyAttendanceCount}
-                </p>
-              </div>
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Weekly Sessions
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {dashboardData.weeklyAttendanceCount}
             </div>
+            <p className="text-xs text-muted-foreground">
+              Sessions completed this week
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Assigned Sections
-                </p>
-                <p className="text-2xl font-bold">
-                  {dashboardData.assignedSections?.length || 0}
-                </p>
-              </div>
-              <Building2 className="h-5 w-5 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Assigned Sections
+            </CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {dashboardData.assignedSections?.length || 0}
             </div>
+            <p className="text-xs text-muted-foreground">
+              Active training sections
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Total Students
-                </p>
-                <p className="text-2xl font-bold">{totalStudents}</p>
-              </div>
-              <GraduationCap className="h-5 w-5 text-muted-foreground" />
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Students
+            </CardTitle>
+            <GraduationCap className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalStudents}</div>
+            <p className="text-xs text-muted-foreground">
+              Students under guidance
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Today's Schedule - Simplified */}
+      {/* Today's Schedule - Following admin recent actions pattern */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Clock className="h-5 w-5" />
             <span>Today's Schedule</span>
@@ -398,33 +445,43 @@ export function SimplifiedFacultyDashboard() {
                   return timeA[0] * 60 + timeA[1] - (timeB[0] * 60 + timeB[1]);
                 })
                 .map((slot) => (
-                  <div key={slot.id} className="p-4 border rounded-lg">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div>
+                  <div
+                    key={slot.id}
+                    className="flex items-start space-x-4 p-4 border rounded-lg"
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Clock className="h-5 w-5 text-primary" />
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
                         <div className="font-medium">{slot.sectionName}</div>
-                        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mt-1">
-                          <div className="flex items-center">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {slot.startTime} - {slot.endTime}
-                          </div>
-                          <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {slot.room}
-                          </div>
+                        <div className="flex items-center space-x-2">
+                          {slot.active && (
+                            <Badge className={getSessionStatusColor(slot)}>
+                              Active
+                            </Badge>
+                          )}
+                          <Link
+                            href={`/dashboard/faculty/attendance/${slot.id}`}
+                          >
+                            <Button variant="outline" size="sm">
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Attendance
+                            </Button>
+                          </Link>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        {slot.active && (
-                          <Badge className={getSessionStatusColor(slot)}>
-                            Active
-                          </Badge>
-                        )}
-                        <Link href={`/dashboard/faculty/attendance/${slot.id}`}>
-                          <Button variant="outline" size="sm">
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Attendance
-                          </Button>
-                        </Link>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex items-center">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {slot.startTime} - {slot.endTime}
+                        </div>
+                        <div className="flex items-center">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {slot.room}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -434,11 +491,11 @@ export function SimplifiedFacultyDashboard() {
         </CardContent>
       </Card>
 
-      {/* Assigned Sections - Simplified */}
+      {/* Assigned Sections - Following admin pattern */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Building2 className="h-5 w-5" />
+            <BookOpen className="h-5 w-5" />
             <span>Assigned Sections</span>
             <Badge variant="secondary">
               {dashboardData.assignedSections.length}
@@ -448,33 +505,50 @@ export function SimplifiedFacultyDashboard() {
         <CardContent>
           {dashboardData.assignedSections.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No sections assigned</p>
             </div>
           ) : (
             <div className="space-y-4">
               {dashboardData.assignedSections.map((section) => (
-                <div key={section.id} className="p-4 border rounded-lg">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
+                <div
+                  key={section.id}
+                  className="flex items-start space-x-4 p-4 border rounded-lg"
+                >
+                  <div className="flex-shrink-0">
+                    <Avatar>
+                      <AvatarFallback>{section.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center justify-between">
                       <div className="font-medium">{section.name}</div>
-                      <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mt-1">
-                        <div className="flex items-center">
-                          <GraduationCap className="h-3 w-3 mr-1" />
-                          {section.totalStudents} students
-                        </div>
-                        <div>{section.trainingName}</div>
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/dashboard/faculty/attendance/${section.id}`}
+                        >
+                          <Button variant="outline" size="sm">
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Attendance
+                          </Button>
+                        </Link>
+                        <Link href={`/dashboard/faculty/reports/${section.id}`}>
+                          <Button variant="outline" size="sm">
+                            <BarChart3 className="h-4 w-4 mr-1" />
+                            Reports
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-                    <div>
-                      <Link
-                        href={`/dashboard/faculty/attendance/${section.id}`}
-                      >
-                        <Button variant="outline" size="sm">
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Attendance
-                        </Button>
-                      </Link>
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center">
+                        <GraduationCap className="h-3 w-3 mr-1" />
+                        {section.totalStudents} students
+                      </div>
+                      <div className="flex items-center">
+                        <BookOpen className="h-3 w-3 mr-1" />
+                        {section.trainingName}
+                      </div>
                     </div>
                   </div>
                 </div>

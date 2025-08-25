@@ -1,7 +1,7 @@
 "use client";
 
-import { SimplifiedFacultyDashboard } from "@/components/faculty/simplified-faculty-dashboard";
+import { FacultyDashboard } from "@/components/dashboard/faculty/faculty-dashboard";
 
 export default function FacultyDashboardPage() {
-  return <SimplifiedFacultyDashboard />;
+  return <FacultyDashboard />;
 }

@@ -22,11 +22,11 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/auth-guard";
-import { FacultyAttendanceService } from "@/lib/api/services/faculty-attendance";
+import { AttendanceService } from "@/lib/api/services/attendance";
 import {
   StudentListCard,
   AttendanceSubmissionForm,
-} from "@/components/faculty/attendance";
+} from "@/components/attendance/forms";
 import { SessionTimer } from "@/components/faculty/session-management";
 import type {
   SessionStudentsResponse,
@@ -65,7 +65,7 @@ export default function AttendanceMarkingPage() {
 
         console.log("🔄 Loading session data for timeSlot:", timeSlotId);
 
-        const response = await FacultyAttendanceService.getSessionStudents(
+        const response = await AttendanceService.getSessionStudents(
           timeSlotId
         );
 
@@ -155,7 +155,7 @@ export default function AttendanceMarkingPage() {
 
       console.log("📝 Submitting attendance:", submissionData);
 
-      const response = await FacultyAttendanceService.submitAttendance(
+      const response = await AttendanceService.submitAttendance(
         submissionData
       );
 

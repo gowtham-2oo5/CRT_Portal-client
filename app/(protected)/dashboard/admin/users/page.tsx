@@ -1,6 +1,6 @@
 "use client";
 
-import { UserManagement } from "@/components/admin/user-management";
+import { UserManagement } from "@/components/shared/forms/user-management";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminUsersPage() {

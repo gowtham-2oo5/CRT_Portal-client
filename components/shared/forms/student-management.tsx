@@ -55,8 +55,8 @@ import {
 } from "lucide-react";
 import { StudentManagementService } from "@/lib/api/services/student-management";
 import { SectionManagementService } from "@/lib/api/services/section-management";
-import { StudentFormModal } from "./student-form-modal";
-import { CRTEligibilityModal } from "./crt-eligibility-modal";
+import { StudentFormModal } from "@/components/shared/modals/student-form-modal";
+import { CRTEligibilityModal } from "@/components/shared/modals/crt-eligibility-modal";
 import { DEPARTMENTS, BATCHES } from "@/lib/types/student-management";
 import { toast } from "sonner";
 import type { Student, StudentFilters } from "@/lib/types/student-management";

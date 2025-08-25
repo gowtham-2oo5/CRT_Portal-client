@@ -1,6 +1,6 @@
 "use client";
 
-import { SmartScheduleGrid } from "@/components/admin/smart-schedule-grid";
+import { SmartScheduleGrid } from "@/components/schedule/calendar/smart-schedule-grid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";

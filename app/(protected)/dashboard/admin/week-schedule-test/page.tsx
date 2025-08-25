@@ -1,6 +1,6 @@
 "use client";
 
-import { WeekScheduleView } from "@/components/admin/week-schedule-view";
+import { WeekScheduleView } from "@/components/schedule/calendar/week-schedule-view";
 
 export default function WeekScheduleTestPage() {
   return (

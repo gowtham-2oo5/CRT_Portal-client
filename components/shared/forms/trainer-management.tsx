@@ -1,20 +1,11 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -30,177 +21,151 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserManagementService } from "@/lib/api/services/user-management";
-import type { User, UserFilters } from "@/lib/types/user-management";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  AlertCircle,
-  CheckCircle,
-  Edit,
-  Eye,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Plus,
+  Search,
   Filter,
   MoreHorizontal,
-  Plus,
-  RefreshCw,
-  Search,
+  Edit,
   Trash2,
-  UserPlus,
+  UserCheck,
+  Download,
+  Upload,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle,
   Users,
+  Award,
+  BookOpen,
+  TrendingUp,
+  Mail,
+  Phone,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { TrainerManagementService } from "@/lib/api/services/trainer-management";
+import { TrainerFormModal } from "@/components/shared/modals/trainer-form-modal";
 import { toast } from "sonner";
-import { UserFormModal } from "./user-form-modal";
-import { ExportFacultyCSV } from "./export-faculty-csv";
+import type { Trainer, TrainerFilters } from "@/lib/types/trainer-management";
 
-export function UserManagement() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+export function TrainerManagement() {
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [filteredTrainers, setFilteredTrainers] = useState<Trainer[]>([]);
+  const [selectedTrainers, setSelectedTrainers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingTrainer, setEditingTrainer] = useState<Trainer | null>(null);
 
   // Filters
-  const [filters, setFilters] = useState<UserFilters>({
+  const [filters, setFilters] = useState<TrainerFilters>({
     search: "",
-    role: "ALL",
-    department: "ALL",
-    status: "ALL",
   });
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  // Load users
-  const loadUsers = async () => {
+  // Load trainers
+  const loadTrainers = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const userData = await UserManagementService.getUsers(filters);
-      setUsers(userData);
-      setFilteredUsers(userData);
+      const trainerData = await TrainerManagementService.getTrainers(filters);
+      setTrainers(trainerData);
+      setFilteredTrainers(trainerData);
     } catch (error: any) {
-      console.error("Error loading users:", error);
-      setError(error.message || "Failed to load users");
+      console.error("Error loading trainers:", error);
+      setError(error.message || "Failed to load trainers");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadUsers();
+    loadTrainers();
   }, []);
 
   // Apply filters
   useEffect(() => {
-    let filtered = users;
+    let filtered = trainers;
 
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       filtered = filtered.filter(
-        (user) =>
-          user.name.toLowerCase().includes(searchTerm) ||
-          user.email.toLowerCase().includes(searchTerm) ||
-          user.username.toLowerCase().includes(searchTerm) ||
-          (user.employeeId &&
-            user.employeeId.toLowerCase().includes(searchTerm))
+        (trainer) =>
+          trainer.name.toLowerCase().includes(searchTerm) ||
+          trainer.sn.toLowerCase().includes(searchTerm)
       );
     }
 
-    if (filters.role && filters.role !== "ALL") {
-      filtered = filtered.filter((user) => user.role === filters.role);
-    }
-
-    if (filters.department && filters.department !== "ALL") {
-      filtered = filtered.filter(
-        (user) => user.department === filters.department
-      );
-    }
-
-    if (filters.status && filters.status !== "ALL") {
-      const isActive = filters.status === "ACTIVE";
-      filtered = filtered.filter((user) => user.isActive === isActive);
-    }
-
-    setFilteredUsers(filtered);
+    setFilteredTrainers(filtered);
     setCurrentPage(1); // Reset to first page when filtering
-  }, [filters, users]);
+  }, [filters, trainers]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredTrainers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedUsers = filteredUsers.slice(
+  const paginatedTrainers = filteredTrainers.slice(
     startIndex,
     startIndex + itemsPerPage
   );
 
-  // Handle user selection
-  const handleSelectUser = (userId: string, checked: boolean) => {
+  // Handle trainer selection
+  const handleSelectTrainer = (TrainingId: string, checked: boolean) => {
     if (checked) {
-      setSelectedUsers([...selectedUsers, userId]);
+      setSelectedTrainers([...selectedTrainers, TrainingId]);
     } else {
-      setSelectedUsers(selectedUsers.filter((id) => id !== userId));
+      setSelectedTrainers(selectedTrainers.filter((id) => id !== TrainingId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(paginatedUsers.map((user) => user.id));
+      setSelectedTrainers(paginatedTrainers.map((trainer) => trainer.id));
     } else {
-      setSelectedUsers([]);
+      setSelectedTrainers([]);
     }
   };
 
-  // Handle user actions
-  const handleDeleteUser = async (userId: string) => {
+  // Handle trainer actions
+  const handleDeleteTrainer = async (TrainingId: string) => {
     try {
-      await UserManagementService.deleteUser(userId);
-      toast.success("User deleted successfully");
-      loadUsers();
+      await TrainerManagementService.deleteTrainer(TrainingId);
+      toast.success("Trainer deleted successfully");
+      loadTrainers();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete user");
+      toast.error(error.message || "Failed to delete trainer");
     }
   };
 
   const handleBulkDelete = async () => {
-    if (selectedUsers.length === 0) return;
+    if (selectedTrainers.length === 0) return;
 
     try {
-      await UserManagementService.bulkDeleteUsers(selectedUsers);
-      toast.success(`${selectedUsers.length} users deleted successfully`);
-      setSelectedUsers([]);
-      loadUsers();
+      await TrainerManagementService.bulkDeleteTrainers(selectedTrainers);
+      toast.success(`${selectedTrainers.length} trainers deleted successfully`);
+      setSelectedTrainers([]);
+      loadTrainers();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete users");
+      toast.error(error.message || "Failed to delete trainers");
     }
   };
 
-  // Get role badge color
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "ADMIN":
-        return "bg-red-100 text-red-800 dark:bg-red-950/20 dark:text-red-400";
-      case "FACULTY":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-950/20 dark:text-blue-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-950/20 dark:text-gray-400";
-    }
-  };
-
-  // Get status badge
-  const getStatusBadge = (isActive: boolean) => {
-    return isActive ? (
-      <Badge className="bg-green-100 text-green-800 dark:bg-green-950/20 dark:text-green-400">
-        <CheckCircle className="h-3 w-3 mr-1" />
-        Active
-      </Badge>
-    ) : (
-      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-950/20 dark:text-gray-400">
-        <AlertCircle className="h-3 w-3 mr-1" />
-        Inactive
-      </Badge>
-    );
+  // Get sections color based on count
+  const getSectionsColor = (count: number) => {
+    if (count >= 5) return "text-purple-600";
+    if (count >= 3) return "text-blue-600";
+    if (count >= 1) return "text-green-600";
+    return "text-gray-600";
   };
 
   if (isLoading) {
@@ -238,21 +203,17 @@ export function UserManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">
-            Manage system users, roles, and permissions
-          </p>
+          <h1 className="text-3xl font-bold">Trainings / Tools Management</h1>
+          <p className="text-muted-foreground">Manage Tool based Learnings</p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={loadUsers}>
+          <Button variant="outline" onClick={loadTrainers}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          {/* Add Export Faculty CSV button when faculty filter is active */}
-          {filters.role === "FACULTY" && <ExportFacultyCSV />}
           <Button onClick={() => setShowCreateDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add User
+            Add Trainer
           </Button>
         </div>
       </div>
@@ -266,7 +227,7 @@ export function UserManagement() {
             <Button
               variant="outline"
               size="sm"
-              onClick={loadUsers}
+              onClick={loadTrainers}
               className="ml-2"
             >
               Retry
@@ -280,10 +241,12 @@ export function UserManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-blue-600" />
+              <UserCheck className="h-5 w-5 text-blue-600" />
               <div>
-                <div className="text-2xl font-bold">{users.length}</div>
-                <div className="text-sm text-muted-foreground">Total Users</div>
+                <div className="text-2xl font-bold">{trainers.length}</div>
+                <div className="text-sm text-muted-foreground">
+                  Total Trainings
+                </div>
               </div>
             </div>
           </CardContent>
@@ -292,13 +255,13 @@ export function UserManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <UserPlus className="h-5 w-5 text-green-600" />
+              <CheckCircle className="h-5 w-5 text-green-600" />
               <div>
-                <div className="text-2xl font-bold">
-                  {users.filter((u) => u.isActive).length}
+                <div className="text-2xl font-bold text-green-600">
+                  {trainers.reduce((acc, t) => acc + (t.sections || 0), 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Active Users
+                  Total Sections
                 </div>
               </div>
             </div>
@@ -308,12 +271,17 @@ export function UserManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Eye className="h-5 w-5 text-red-600" />
+              <BookOpen className="h-5 w-5 text-purple-600" />
               <div>
-                <div className="text-2xl font-bold">
-                  {users.filter((u) => u.role === "ADMIN").length}
+                <div className="text-2xl font-bold text-purple-600">
+                  {Math.round(
+                    trainers.reduce((acc, t) => acc + (t.sections || 0), 0) /
+                      trainers.length
+                  ) || 0}
                 </div>
-                <div className="text-sm text-muted-foreground">Admins</div>
+                <div className="text-sm text-muted-foreground">
+                  Avg Sections
+                </div>
               </div>
             </div>
           </CardContent>
@@ -322,12 +290,14 @@ export function UserManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-purple-600" />
+              <Award className="h-5 w-5 text-orange-600" />
               <div>
-                <div className="text-2xl font-bold">
-                  {users.filter((u) => u.role === "FACULTY").length}
+                <div className="text-2xl font-bold text-orange-600">
+                  {trainers.filter((t) => (t.sections || 0) > 0).length}
                 </div>
-                <div className="text-sm text-muted-foreground">Faculty</div>
+                <div className="text-sm text-muted-foreground">
+                  Active Trainers
+                </div>
               </div>
             </div>
           </CardContent>
@@ -348,7 +318,7 @@ export function UserManagement() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search users by name, email, username, or employee ID..."
+                  placeholder="Search by name, or Short Name..."
                   value={filters.search}
                   onChange={(e) =>
                     setFilters({ ...filters, search: e.target.value })
@@ -357,77 +327,26 @@ export function UserManagement() {
                 />
               </div>
             </div>
-
-            <Select
-              value={filters.role}
-              onValueChange={(value: any) =>
-                setFilters({ ...filters, role: value })
-              }
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Roles</SelectItem>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="FACULTY">Faculty</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.department}
-              onValueChange={(value: any) =>
-                setFilters({ ...filters, department: value })
-              }
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Depts</SelectItem>
-                <SelectItem value="CSE">CSE</SelectItem>
-                <SelectItem value="ECE">ECE</SelectItem>
-                <SelectItem value="ME">ME</SelectItem>
-                <SelectItem value="CE">CE</SelectItem>
-                <SelectItem value="EEE">EEE</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.status}
-              onValueChange={(value: any) =>
-                setFilters({ ...filters, status: value })
-              }
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Status</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardContent>
       </Card>
 
       {/* Bulk Actions */}
-      {selectedUsers.length > 0 && (
+      {selectedTrainers.length > 0 && (
         <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="font-medium">
-                  {selectedUsers.length} user
-                  {selectedUsers.length > 1 ? "s" : ""} selected
+                  {selectedTrainers.length} trainer
+                  {selectedTrainers.length > 1 ? "s" : ""} selected
                 </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedUsers([])}
+                  onClick={() => setSelectedTrainers([])}
                 >
                   Clear Selection
                 </Button>
@@ -445,10 +364,10 @@ export function UserManagement() {
         </Card>
       )}
 
-      {/* Users Table */}
+      {/* Trainers Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Users ({filteredUsers.length})</CardTitle>
+          <CardTitle>Trainings ({filteredTrainers.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -458,28 +377,26 @@ export function UserManagement() {
                   <TableHead className="w-12">
                     <Checkbox
                       checked={
-                        selectedUsers.length === paginatedUsers.length &&
-                        paginatedUsers.length > 0
+                        selectedTrainers.length === paginatedTrainers.length &&
+                        paginatedTrainers.length > 0
                       }
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Login</TableHead>
+                  <TableHead>Training</TableHead>
+                  <TableHead>Short Name</TableHead>
+                  <TableHead>Sections</TableHead>
                   <TableHead className="w-12">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedUsers.map((user) => (
-                  <TableRow key={user.id}>
+                {paginatedTrainers.map((trainer) => (
+                  <TableRow key={trainer.id}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedUsers.includes(user.id)}
+                        checked={selectedTrainers.includes(trainer.id)}
                         onCheckedChange={(checked) =>
-                          handleSelectUser(user.id, checked as boolean)
+                          handleSelectTrainer(trainer.id, checked as boolean)
                         }
                       />
                     </TableCell>
@@ -487,7 +404,7 @@ export function UserManagement() {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
-                            {user.name
+                            {trainer.name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")
@@ -495,35 +412,22 @@ export function UserManagement() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {user.email}
-                          </div>
-                          {user.employeeId && (
-                            <div className="text-xs text-muted-foreground">
-                              ID: {user.employeeId}
-                            </div>
-                          )}
+                          <div className="font-medium">{trainer.name}</div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getRoleBadgeColor(user.role)}>
-                        {user.role}
+                      <Badge variant="outline" className="font-mono">
+                        {trainer.sn}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium">{user.department}</span>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(user.isActive || false)}
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm">
-                        {user.lastLogin
-                          ? new Date(user.lastLogin).toLocaleDateString()
-                          : "Never"}
-                      </span>
+                      <div className="flex items-center space-x-1">
+                        <BookOpen className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                          {trainer.sections || 0}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -535,18 +439,18 @@ export function UserManagement() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem
-                            onClick={() => setEditingUser(user)}
+                            onClick={() => setEditingTrainer(trainer)}
                           >
                             <Edit className="h-4 w-4 mr-2" />
-                            Edit User
+                            Edit Trainer
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteTrainer(trainer.id)}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete User
+                            Delete Trainer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -562,8 +466,8 @@ export function UserManagement() {
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
                 Showing {startIndex + 1} to{" "}
-                {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of{" "}
-                {filteredUsers.length} users
+                {Math.min(startIndex + itemsPerPage, filteredTrainers.length)}{" "}
+                of {filteredTrainers.length} trainers
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -591,19 +495,19 @@ export function UserManagement() {
         </CardContent>
       </Card>
 
-      {/* Create User Modal */}
-      <UserFormModal
+      {/* Create Trainer Modal */}
+      <TrainerFormModal
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
-        onSuccess={loadUsers}
+        onSuccess={loadTrainers}
       />
 
-      {/* Edit User Modal */}
-      <UserFormModal
-        open={!!editingUser}
-        onOpenChange={(open) => !open && setEditingUser(null)}
-        user={editingUser}
-        onSuccess={loadUsers}
+      {/* Edit Trainer Modal */}
+      <TrainerFormModal
+        open={!!editingTrainer}
+        onOpenChange={(open) => !open && setEditingTrainer(null)}
+        trainer={editingTrainer}
+        onSuccess={loadTrainers}
       />
     </div>
   );

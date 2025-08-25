@@ -1,4 +1,4 @@
-import { SmartScheduleGrid } from "@/components/admin/smart-schedule-grid";
+import { SmartScheduleGrid } from "@/components/schedule/calendar/smart-schedule-grid";
 
 interface WeekScheduleViewProps {
   sectionId: string;

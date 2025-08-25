@@ -24,11 +24,13 @@ export class SectionScheduleService {
 
     try {
       // Using new time-slots API structure
-      const response = await apiClient.get(`/time-slots/section/${sectionId}`);
-      console.log("Schedule response:", response);
+      const response = await apiClient.get(
+        `/section-schedules/section/${sectionId}`
+      );
+      console.log("Schedule response:", response.data);
 
       // Transform response to match our SectionSchedule interface
-      const timeSlots = response.data || [];
+      const timeSlots = response.data.timeSlots || [];
 
       if (timeSlots.length === 0) {
         return null;
@@ -38,7 +40,8 @@ export class SectionScheduleService {
       const schedule: SectionSchedule = {
         id: `schedule-${sectionId}`,
         sectionId,
-        roomId: timeSlots[0]?.roomId || "",
+        roomId: response.data.roomId || "",
+        roomName: response.data.roomName || "",
         timeSlots: timeSlots.map((slot: any) => ({
           ...slot,
           // Provide defaults for optional fields
@@ -51,18 +54,19 @@ export class SectionScheduleService {
             slot.slotType === "BREAK" ? slot.title : slot.breakDescription,
           duration: this.calculateDuration(slot.startTime, slot.endTime),
         })),
-        section: timeSlots[0]?.section
+        section: response.data.section
           ? {
-              id: timeSlots[0].section.id,
-              name: timeSlots[0].sectionName || timeSlots[0].section.name,
-              strength: timeSlots[0].section.strength || 0,
+              id: response.data.section.id,
+              name: response.data.section.name || "",
+              strength: response.data.section.strength || 0,
             }
           : undefined,
-        room: timeSlots[0]?.room
+        room: response.data.room
           ? {
-              id: timeSlots[0].room.id,
-              roomString: timeSlots[0].roomName || timeSlots[0].room.roomString,
-              capacity: timeSlots[0].room.capacity || 0,
+              id: response.data.room.id,
+              roomString:
+                response.data.roomName || response.data.room.roomString,
+              capacity: response.data.room.capacity || 0,
             }
           : undefined,
       };
@@ -224,6 +228,7 @@ export class SectionScheduleService {
           id: scheduleId,
           sectionId: timeSlotData.sectionId,
           roomId: timeSlotData.roomId,
+          roomName: "", // Provide a default or fetch if available
           timeSlots: [response.data],
         }
       );
@@ -274,6 +279,7 @@ export class SectionScheduleService {
           id: scheduleId,
           sectionId,
           roomId: timeSlotData.roomId || "",
+          roomName: timeSlotData.roomName || "",
           timeSlots: [response.data],
         }
       );

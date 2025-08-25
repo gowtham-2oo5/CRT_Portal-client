@@ -19,7 +19,7 @@ import type {
   CreateTimeSlotTemplateRequest,
   TimeSlotTemplate,
 } from "@/lib/types/timeslot-template";
-import { TimeSlotTemplateFormModal } from "./time-slot-template-form-modal";
+import { TimeSlotTemplateFormModal } from "@/components/schedule/management/time-slot-template-form-modal";
 
 export function TimeSlotManagement() {
   const [templates, setTemplates] = useState<TimeSlotTemplate[]>([]);

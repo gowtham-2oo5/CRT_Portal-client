@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/dashboard/breadcrumb";
-import { RoomManagement } from "@/components/admin/room-management";
+import { RoomManagement } from "@/components/shared/forms/room-management";
 
 export default function AdminRoomsPage() {
   return (

@@ -30,14 +30,18 @@ function DashboardContent({ children }: DashboardLayoutProps) {
 
   const handlePasswordResetSuccess = () => {
     setShowPasswordModal(false);
-    toast.success(`Welcome to your ${user?.role === 'FACULTY' ? 'faculty ' : ''}dashboard! Your account is now secure.`);
+    toast.success(
+      `Welcome to your ${
+        user?.role === "FACULTY" ? "faculty " : ""
+      }dashboard! Your account is now secure.`
+    );
   };
 
   // Render layout based on user role
   const renderLayout = () => {
-    console.log("User object in DashboardContent:", user);
+    // console.log("User object in DashboardContent:", user);
     console.log("User role:", user?.role);
-    if (user?.role === 'FACULTY') {
+    if (user?.role === "FACULTY") {
       return <FacultyLayout>{children}</FacultyLayout>;
     }
 
@@ -48,9 +52,7 @@ function DashboardContent({ children }: DashboardLayoutProps) {
         <div className="flex h-[calc(100vh-73px)]">
           <DashboardNav />
           <ScrollArea className="flex-1">
-            <main className="p-6">
-              {children}
-            </main>
+            <main className="p-6">{children}</main>
           </ScrollArea>
         </div>
       </div>
@@ -60,7 +62,7 @@ function DashboardContent({ children }: DashboardLayoutProps) {
   return (
     <>
       {renderLayout()}
-      
+
       {/* First Login Password Reset Modal - Applied to ALL roles */}
       {user && (
         <PasswordResetModal

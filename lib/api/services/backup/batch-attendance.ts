@@ -8,7 +8,7 @@ import type {
 } from "@/lib/types/attendance";
 import { handleError } from "@/lib/utils/error-handler";
 
-class BatchAttendanceServiceClass {
+class AttendanceServiceClass {
   /**
    * Get authenticated API client
    */
@@ -16,7 +16,7 @@ class BatchAttendanceServiceClass {
     try {
       return await ClientAuth.createAuthenticatedApi();
     } catch (error) {
-      throw handleError(error, "BatchAttendanceService.getAuthenticatedApi", false);
+      throw handleError(error, "AttendanceService.getAuthenticatedApi", false);
     }
   }
 
@@ -37,7 +37,7 @@ class BatchAttendanceServiceClass {
       const response = await apiClient.post("/attendance/submit-batch", data);
       return response.data;
     } catch (error) {
-      throw handleError(error, "BatchAttendanceService.submitBatchAttendance", false);
+      throw handleError(error, "AttendanceService.submitBatchAttendance", false);
     }
   }
 
@@ -51,7 +51,7 @@ class BatchAttendanceServiceClass {
       const response = await apiClient.get(`/time-slots/validate-batch?ids=${idsParam}`);
       return response.data;
     } catch (error) {
-      throw handleError(error, "BatchAttendanceService.validateBatchTimeSlots", false);
+      throw handleError(error, "AttendanceService.validateBatchTimeSlots", false);
     }
   }
 
@@ -64,9 +64,9 @@ class BatchAttendanceServiceClass {
       const response = await apiClient.get(`/time-slots/faculty/${facultyId}/batchable?date=${date}`);
       return response.data;
     } catch (error) {
-      throw handleError(error, "BatchAttendanceService.getBatchableTimeSlots", false);
+      throw handleError(error, "AttendanceService.getBatchableTimeSlots", false);
     }
   }
 }
 
-export const BatchAttendanceService = new BatchAttendanceServiceClass();
+export const AttendanceService = new AttendanceServiceClass();

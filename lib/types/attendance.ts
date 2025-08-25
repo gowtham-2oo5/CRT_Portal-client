@@ -71,6 +71,8 @@ export interface AttendanceFilters {
   facultyId?: string;
   dateFrom?: string;
   dateTo?: string;
+  startDate: string;
+  endDate: string;
   status?: "COMPLETED" | "PENDING" | "ALL";
   minAttendance?: number;
   maxAttendance?: number;

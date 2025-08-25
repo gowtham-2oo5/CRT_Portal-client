@@ -156,21 +156,27 @@ export function DataExport() {
 
         try {
           // Fetch actual schedule data for this section
-          console.log(
-            `🔄 Fetching schedule for section: ${section.name} (${sectionId})`
-          );
+          // console.log(
+          //   `🔄 Fetching schedule for section: ${section.name} (${sectionId})`
+          // );
 
           const schedule = await SectionScheduleService.getScheduleBySection(
             sectionId
           );
 
-          console.log(`✅ Schedule loaded for ${section.name}:`, schedule);
+          // console.log(`✅ Schedule loaded for ${section.name}:`, schedule);
+          // console.log(`Loaded schedule: `, schedule?.room?.roomString);
 
           // Get room information
+
           let roomName = "No Room Assigned";
+          console.debug("ROOM NAME THINGY");
           if (schedule?.room?.roomString) {
-            roomName = schedule.room.roomString;
+            console.log("Going for it lmao");
+            console.log("AbOut to set room num: ", schedule.room.roomString);
+            roomName = schedule.room?.roomString;
           } else if (schedule?.roomId) {
+            console.log("Going for ROOM ID SADLY");
             // If we have roomId but no room object, we could fetch room details
             roomName = `Room ID: ${schedule.roomId}`;
           }
@@ -290,13 +296,18 @@ export function DataExport() {
         section.id
       );
 
+      console.log(`🔍 Raw schedule response for ${section.name}:`, schedule);
+      console.log(`🔍 TimeSlots array:`, schedule?.timeSlots);
+      console.log(`🔍 TimeSlots length:`, schedule?.timeSlots?.length);
+
       console.log(`✅ Schedule loaded for ${section.name}:`, schedule);
+      console.log(`Loaded schedule: `, schedule?.room?.roomString);
 
       let roomName = "No Room Assigned";
       if (schedule?.room?.roomString) {
-        roomName = schedule.room.roomString;
+        roomName = schedule?.room?.roomString;
       } else if (schedule?.roomId) {
-        roomName = `Room ID: ${schedule.roomId}`;
+        roomName = `Room ID: ${schedule?.room?.id}`;
       }
 
       const sectionData: SectionScheduleData = {

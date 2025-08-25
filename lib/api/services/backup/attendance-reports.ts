@@ -18,7 +18,7 @@ import type { Student } from "../../types/section-management";
  * Attendance Report Service
  * Handles comprehensive reporting functionality for attendance data
  */
-export class AttendanceReportService {
+export class AttendanceService {
   // ============================================================================
   // COMPREHENSIVE REPORTS
   // ============================================================================

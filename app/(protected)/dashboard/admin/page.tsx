@@ -1,6 +1,6 @@
 "use client";
 
-import { AdminDashboard } from "@/components/admin/admin-dashboard";
+import { AdminDashboard } from "@/components/dashboard/admin/admin-dashboard";
 import { PageHeader } from "@/components/dashboard/breadcrumb";
 
 export default function AdminDashboardPage() {

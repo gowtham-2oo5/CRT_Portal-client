@@ -23,11 +23,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { SectionManagementService } from "@/lib/api/services/section-management";
 import { AttendanceService } from "@/lib/api/services/attendance";
-import { FacultyAttendanceService } from "@/lib/api/services/faculty-attendance";
-import {
-  StudentListCard,
-  AttendanceSubmissionForm,
-} from "@/components/faculty/attendance";
+import { StudentListCard } from "@/components/attendance/forms/StudentListCard";
+import { AttendanceSubmissionForm } from "@/components/attendance/forms/AttendanceSubmissionForm";
 import { SessionTimer } from "@/components/faculty/session-management";
 import type { Section } from "@/lib/types/section-management";
 import type { TimeSlot } from "@/lib/types/section-schedule";
@@ -141,7 +138,7 @@ export function AdminAttendancePosting() {
 
       console.log("🔄 Loading session data for timeSlot:", selectedTimeSlot.id);
 
-      const response = await FacultyAttendanceService.getSessionStudents(
+      const response = await AttendanceService.getSessionStudents(
         selectedTimeSlot.id.toString()
       );
 
@@ -203,7 +200,7 @@ export function AdminAttendancePosting() {
         isAdminRequest: true,
       };
 
-      const response = await FacultyAttendanceService.submitAttendance(
+      const response = await AttendanceService.submitAttendance(
         requestWithAdminFlag
       );
 

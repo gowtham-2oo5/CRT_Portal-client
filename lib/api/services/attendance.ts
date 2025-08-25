@@ -1,106 +1,134 @@
 import { apiClient } from "../client";
 import type {
-  DailyTimeSlot,
-  Absentee,
-  TimeSlotFilterResponse,
+  AttendanceSession,
+  AttendanceAnalytics,
+  StudentAttendanceSummary,
+  AttendanceFilters,
+  AttendanceRecord,
   SubmitAttendanceRequest,
-  FilteredTimeSlot,
-} from "@/lib/types/attendance";
-import { TimeSlot } from "@/lib/types/section-schedule";
+  SessionStudentsResponse,
+} from "../../types/attendance";
 
-class AttendanceServiceClass {
-  async getDailyAttendance(
-    sectionId: string,
-    date: string
-  ): Promise<DailyTimeSlot[]> {
+/**
+ * Consolidated Attendance Service
+ * Handles all attendance operations for both faculty and admin
+ */
+export class AttendanceService {
+  // Faculty Dashboard
+  static async getFacultyDashboard(facultyId: string) {
     try {
-      const response = await apiClient.get<DailyTimeSlot[]>(
-        `/attendance/daily/${sectionId}?date=${date}`
+      const response = await apiClient.get(
+        `/faculty/dashboard?id=${facultyId}`
       );
       return response.data;
-    } catch (error) {
-      console.error("Failed to fetch daily attendance", error);
-      throw error;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to load dashboard"
+      );
     }
   }
 
-  async getAbsentees(timeSlotId: string): Promise<Absentee[]> {
+  // Current Session
+  static async getCurrentSession(facultyId: string) {
     try {
-      const response = await apiClient.get<Absentee[]>(
-        `/attendance/absentees/${timeSlotId}`
+      const response = await apiClient.get(
+        `/faculty/current-session?id=${facultyId}`
       );
       return response.data;
-    } catch (error) {
-      console.error("Failed to fetch absentees", error);
-      throw error;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to get current session"
+      );
     }
   }
 
-  async filterTimeSlots(
-    date: string,
-    startTime?: string,
-    endTime?: string
-  ): Promise<TimeSlotFilterResponse[]> {
+  // Session Students
+  static async getSessionStudents(timeSlotId: string, date?: string) {
     try {
-      const params = new URLSearchParams({ date });
-      if (startTime) params.append("startTime", startTime);
-      if (endTime) params.append("endTime", endTime);
-      const response = await apiClient.get<TimeSlotFilterResponse[]>(
-        `/attendance/time-slots/filter?${params.toString()}`
+      const params = date ? `?date=${date}` : "";
+      const response = await apiClient.get(
+        `/faculty/session/${timeSlotId}/students${params}`
       );
-
-      return response.data;
-    } catch (error) {
-      console.error("Failed to filter time slots", error);
-      throw error;
+      return response;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to load students"
+      );
     }
   }
 
-  async getPendingFaculties(
-    date: string,
-    startTime?: string,
-    endTime?: string
-  ): Promise<FilteredTimeSlot[]> {
+  // Submit Attendance
+  static async submitAttendance(request: SubmitAttendanceRequest) {
     try {
-      const params = new URLSearchParams({ date });
-      if (startTime) params.append("startTime", startTime);
-      if (endTime) params.append("endTime", endTime);
-      const response = await apiClient.get<FilteredTimeSlot[]>(
-        `/attendance/time-slots/pending?${params.toString()}`
-      );
-
-      console.log("Getting pending timeSlots putra: ", response.data);
+      const response = await apiClient.post("/faculty/attendance", request);
       return response.data;
-    } catch (error) {
-      console.error("Failed to filter time slots", error);
-      throw error;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to submit attendance"
+      );
     }
   }
 
-  async getTimeSlotsBySection(sectionId: string): Promise<TimeSlot[]> {
+  // Time Slots by Section
+  static async getTimeSlotsBySection(sectionId: string) {
     try {
-      const response = await apiClient.get<TimeSlot[]>(
-        `/time-slots/section/${sectionId}`
-      );
+      const response = await apiClient.get(`/time-slots/section/${sectionId}`);
       return response.data;
-    } catch (error) {
-      console.error(
-        `Failed to fetch time slots for section ${sectionId}`,
-        error
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to load time slots"
       );
-      throw error;
     }
   }
 
-  async submitAttendance(data: SubmitAttendanceRequest): Promise<any> {
+  // Pending Faculties (Admin)
+  static async getPendingFaculties(date: string) {
     try {
-      const response = await apiClient.post("/attendance/submit", data);
+      const response = await apiClient.get(
+        `/admin/attendance/pending?date=${date}`
+      );
       return response.data;
-    } catch (error) {
-      console.error("Failed to submit attendance", error);
-      throw error;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to load pending faculties"
+      );
+    }
+  }
+
+  // Analytics
+  static async getAttendanceAnalytics(filters?: AttendanceFilters) {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.sectionId) params.append("sectionId", filters.sectionId);
+      if (filters?.facultyId) params.append("facultyId", filters.facultyId);
+      if (filters?.startDate) params.append("startDate", filters.startDate);
+      if (filters?.endDate) params.append("endDate", filters.endDate);
+
+      const response = await apiClient.get(`/analytics/attendance?${params}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to load analytics"
+      );
+    }
+  }
+
+  // Export CSV
+  static async exportAsCSV(filters: AttendanceFilters): Promise<Blob> {
+    try {
+      const response = await apiClient.post(
+        "/reports/export/csv",
+        { filters },
+        { responseType: "blob" }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Failed to export CSV");
     }
   }
 }
 
-export const AttendanceService = new AttendanceServiceClass();
+// Legacy exports for backward compatibility
+export const FacultyAttendanceService = AttendanceService;
+export const BatchAttendanceService = AttendanceService;
+export const AttendanceReportService = AttendanceService;

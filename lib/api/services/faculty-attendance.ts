@@ -70,7 +70,7 @@ interface CurrentSessionApiResponse {
  * Faculty Attendance Service
  * Handles faculty-specific attendance operations with role-based access control
  */
-export class FacultyAttendanceService {
+export class AttendanceService {
   // ============================================================================
   // FACULTY DASHBOARD & SESSION MANAGEMENT
   // ============================================================================

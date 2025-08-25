@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-guard";
-import { FacultyAttendanceService } from "@/lib/api/services/faculty-attendance";
+import { AttendanceService } from "@/lib/api/services/attendance";
 import {
   CurrentSessionCard,
   NextSessionCard,
@@ -57,8 +57,8 @@ export default function AttendanceMarkPage() {
         console.log("🔄 Loading current session and today's schedule");
 
         const [sessionResponse, scheduleResponse] = await Promise.all([
-          FacultyAttendanceService.getCurrentSession(user.id),
-          FacultyAttendanceService.getTodaySchedule(user.id),
+          AttendanceService.getCurrentSession(user.id),
+          AttendanceService.getTodaySchedule(user.id),
         ]);
 
         setCurrentSession(sessionResponse.currentSlot);

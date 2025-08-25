@@ -27,9 +27,9 @@ import type {
   Absentee,
 } from "@/lib/types/attendance";
 import type { TimeSlotTemplate } from "@/lib/types/timeslot-template";
-import { AllAbsenteesModal } from "./all-absentees-modal";
+import { AllAbsenteesModal } from "@/components/shared/modals/all-absentees-modal";
 
-import { BulkEmailModal } from "./bulk-email-modal";
+import { BulkEmailModal } from "@/components/shared/modals/bulk-email-modal";
 
 const formatTime = (time24: string): string => {
   const [hours, minutes] = time24.split(":").map(Number);
