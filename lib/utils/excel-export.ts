@@ -3,7 +3,7 @@
  * Advanced Excel export with formatting, multiple sheets, and charts
  */
 
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 
 export interface ExcelColumn {
   key: string;

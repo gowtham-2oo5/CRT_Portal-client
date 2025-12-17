@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import * as ExcelJS from "exceljs";
 // Note: Using regular xlsx first to ensure functionality, then add styling
 import { saveAs } from "file-saver";
 import type { TimeSlot } from "@/lib/types/section-schedule";

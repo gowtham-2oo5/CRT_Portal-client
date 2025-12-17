@@ -3,7 +3,7 @@
  * Reliable Excel export without complex formatting
  */
 
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'xlsx';
 
 export interface SimpleExcelColumn {
   key: string;
