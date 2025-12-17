@@ -232,10 +232,21 @@ export function AuthGuard({ children, requiredRoles }: AuthGuardProps) {
 
         // First check if we have user info in session storage
         let currentUser = ClientAuth.getUserInfo();
+        console.log("[AuthGuard] User from session storage:", currentUser);
+        
+        if (currentUser) {
+          console.log("[AuthGuard] Found user in session storage - isFirstLogin:", currentUser.isFirstLogin);
+        }
 
         // If not, try to get current user from API
         if (!currentUser) {
+          console.log("[AuthGuard] No user in session storage, fetching from API...");
           currentUser = await ClientAuth.getCurrentUser();
+          console.log("[AuthGuard] User from API:", currentUser);
+          
+          if (currentUser) {
+            console.log("[AuthGuard] API user - isFirstLogin:", currentUser.isFirstLogin);
+          }
         }
 
         if (!isMounted) return;

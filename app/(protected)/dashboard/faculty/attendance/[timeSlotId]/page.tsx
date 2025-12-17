@@ -65,9 +65,7 @@ export default function AttendanceMarkingPage() {
 
         console.log("🔄 Loading session data for timeSlot:", timeSlotId);
 
-        const response = await AttendanceService.getSessionStudents(
-          timeSlotId
-        );
+        const response = await AttendanceService.getSessionStudents(timeSlotId);
 
         console.log(
           "✅ Session data loaded: in [timeSlotId]/page",
@@ -108,7 +106,7 @@ export default function AttendanceMarkingPage() {
         response.data.students.forEach((student: { id: string | number }) => {
           initialRecords[student.id] = {
             studentId: student.id.toString(),
-            regNum: student.regNum,
+            regNum: student.redNum,
             name: student.name,
             present: undefined as any, // Will be set when marked
           };
@@ -155,9 +153,7 @@ export default function AttendanceMarkingPage() {
 
       console.log("📝 Submitting attendance:", submissionData);
 
-      const response = await AttendanceService.submitAttendance(
-        submissionData
-      );
+      const response = await AttendanceService.submitAttendance(submissionData);
 
       console.log("✅ Attendance submitted successfully:", response.data);
 

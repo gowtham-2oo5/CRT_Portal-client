@@ -7,6 +7,10 @@ import type {
   AttendanceRecord,
   SubmitAttendanceRequest,
   SessionStudentsResponse,
+  TimeSlotFilterResponse,
+  FilteredTimeSlot,
+  TimeSlotStatusDTO,
+  Absentee,
 } from "../../types/attendance";
 
 /**
@@ -109,6 +113,65 @@ export class AttendanceService {
     } catch (error: any) {
       throw new Error(
         error.response?.data?.message || "Failed to load analytics"
+      );
+    }
+  }
+
+  // Filter Time Slots (Admin)
+  static async filterTimeSlots(
+    date: string,
+    startTime?: string,
+    endTime?: string
+  ): Promise<TimeSlotFilterResponse> {
+    try {
+      const params = new URLSearchParams();
+      params.append("date", date);
+      if (startTime) params.append("startTime", startTime);
+      if (endTime) params.append("endTime", endTime);
+
+      const response = await apiClient.get(
+        `/attendance/time-slots/filter?${params}`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to filter time slots"
+      );
+    }
+  }
+
+  // Get Pending Time Slots (Admin)
+  static async getPendingTimeSlots(
+    date: string,
+    startTime?: string,
+    endTime?: string
+  ): Promise<FilteredTimeSlot[]> {
+    try {
+      const params = new URLSearchParams();
+      params.append("date", date);
+      if (startTime) params.append("startTime", startTime);
+      if (endTime) params.append("endTime", endTime);
+
+      const response = await apiClient.get(`/time-slots/pending?${params}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to get pending time slots"
+      );
+    }
+  }
+
+  // Get Absentees for a Time Slot
+  static async getAbsentees(timeSlotId: string): Promise<Absentee[]> {
+    try {
+      // Try the most likely endpoint path based on REST conventions
+      const response = await apiClient.get(
+        `/attendance/absentees/${timeSlotId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Failed to get absentees"
       );
     }
   }

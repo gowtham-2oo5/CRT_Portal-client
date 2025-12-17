@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
   bulkUploadStudents,
-  bulkCreateRoomsSimple,
+  bulkCreateSimpleRooms,
   bulkUploadTrainings,
   bulkUploadSections,
-  registerStudentsToSections,
-  uploadFacs,
+  bulkRegisterStudentsToSections,
+  bulkUploadFaculties,
+  bulkUploadTimetable,
 } from "@/lib/api/services/bulk-operations";
 import { useState } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
@@ -30,7 +31,8 @@ type OperationType =
   | "trainings"
   | "sections"
   | "register"
-  | "faculties";
+  | "faculties"
+  | "timetable";
 
 interface OperationConfig {
   title: string;
@@ -58,7 +60,7 @@ export function BulkOperations() {
     rooms: {
       title: "Bulk Create Rooms",
       description: "Upload a CSV file containing room information",
-      handler: bulkCreateRoomsSimple,
+      handler: bulkCreateSimpleRooms,
       successMessage: "Rooms created successfully",
       endpoint: "/bulk/simple-room/upload",
     },
@@ -79,16 +81,23 @@ export function BulkOperations() {
     register: {
       title: "Register Students to Sections",
       description: "Upload a CSV file to register students to sections",
-      handler: registerStudentsToSections,
+      handler: bulkRegisterStudentsToSections,
       successMessage: "Students registered successfully",
       endpoint: "/bulk/register-students",
     },
     faculties: {
       title: "Bulk upload faculties",
       description: "Upload a CSV File to bulk upload faculties",
-      handler: uploadFacs,
+      handler: bulkUploadFaculties,
       successMessage: "Faculties created successfully",
       endpoint: "/bulk/faculties",
+    },
+    timetable: {
+      title: "Upload TimeTable",
+      description: "Upload time table csv file",
+      handler: bulkUploadTimetable,
+      successMessage: "Time Table uploaded successfully",
+      endpoint: "/bulk/timetable/upload",
     },
   };
 

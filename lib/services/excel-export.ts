@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+// Note: Using regular xlsx first to ensure functionality, then add styling
 import { saveAs } from "file-saver";
 import type { TimeSlot } from "@/lib/types/section-schedule";
 import type { TimeSlotTemplate } from "@/lib/types/timeslot-template";
@@ -38,6 +39,52 @@ const DAY_DISPLAY_NAMES = {
   FRIDAY: "Friday",
   SATURDAY: "Saturday",
   SUNDAY: "Sunday",
+};
+
+// Color scheme for different slot types
+const SLOT_COLORS = {
+  REGULAR: { bg: "E3F2FD", text: "1565C0" }, // Light blue
+  BREAK: { bg: "FFF3E0", text: "EF6C00" }, // Light orange
+  EXAM: { bg: "FFEBEE", text: "C62828" }, // Light red
+  SPECIAL: { bg: "F3E5F5", text: "7B1FA2" }, // Light purple
+  EMPTY: { bg: "F5F5F5", text: "757575" }, // Light gray
+};
+
+// Header styles
+const HEADER_STYLE = {
+  font: { bold: true, size: 14, color: { rgb: "FFFFFF" } },
+  fill: { fgColor: { rgb: "1976D2" } },
+  alignment: { horizontal: "center", vertical: "center" },
+  border: {
+    top: { style: "thin", color: { rgb: "000000" } },
+    bottom: { style: "thin", color: { rgb: "000000" } },
+    left: { style: "thin", color: { rgb: "000000" } },
+    right: { style: "thin", color: { rgb: "000000" } },
+  },
+};
+
+const TITLE_STYLE = {
+  font: { bold: true, size: 16, color: { rgb: "1976D2" } },
+  alignment: { horizontal: "center" },
+};
+
+const DAY_STYLE = {
+  font: { bold: true, size: 12 },
+  fill: { fgColor: { rgb: "ECEFF1" } },
+  alignment: { horizontal: "center", vertical: "center" },
+  border: {
+    top: { style: "thin", color: { rgb: "000000" } },
+    bottom: { style: "thin", color: { rgb: "000000" } },
+    left: { style: "thin", color: { rgb: "000000" } },
+    right: { style: "thin", color: { rgb: "000000" } },
+  },
+};
+
+const CELL_BORDER = {
+  top: { style: "thin", color: { rgb: "CCCCCC" } },
+  bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+  left: { style: "thin", color: { rgb: "CCCCCC" } },
+  right: { style: "thin", color: { rgb: "CCCCCC" } },
 };
 
 export class ScheduleExcelExporter {
@@ -88,7 +135,7 @@ export class ScheduleExcelExporter {
       const workbook = XLSX.utils.book_new();
 
       // Add overview sheet
-      this.addOverviewSheet(workbook, sectionsData);
+      this.addOverviewSheetEnhanced(workbook, sectionsData);
 
       // Add individual schedule sheets for each section
       sectionsData.forEach((sectionData, index) => {
@@ -130,7 +177,7 @@ export class ScheduleExcelExporter {
     options: ExportOptions,
     sheetName?: string
   ): void {
-    const wsName = sheetName || `${sectionData.sectionName}_Schedule`;
+    const wsName = sheetName || sectionData.sectionName;
 
     // Get all unique time slots from templates and actual slots
     const allTimeSlots = new Set<string>();
@@ -151,25 +198,24 @@ export class ScheduleExcelExporter {
       return timeA.localeCompare(timeB);
     });
 
-    // Create the grid data
+    // Create the grid data using simple array approach
     const gridData: any[][] = [];
 
-    // Header row with section info
+    // Title and section info
+    gridData.push([`${sectionData.sectionName} - Weekly Schedule`]);
+    gridData.push([]);
     gridData.push([
-      `Section: ${sectionData.sectionName}`,
-      `Room: ${sectionData.roomName}`,
+      `Room: ${sectionData.roomName || "Not Assigned"}`,
       `Training: ${sectionData.trainingName || "N/A"}`,
-      `Students: ${sectionData.sectionStrength || "N/A"}`,
-      ...Array(Math.max(0, sortedTimeSlots.length - 3)).fill(""),
+      `Students: ${sectionData.sectionStrength || "N/A"}`
     ]);
+    gridData.push([]);
 
-    gridData.push([]); // Empty row
-
-    // Time slots header row (TimeSlots as columns)
+    // Time slots header row
     const timeSlotsHeader = ["Day", ...sortedTimeSlots];
     gridData.push(timeSlotsHeader);
 
-    // Day rows (Days as rows)
+    // Day rows
     DAYS_OF_WEEK.forEach((day) => {
       const row = [DAY_DISPLAY_NAMES[day as keyof typeof DAY_DISPLAY_NAMES]];
 
@@ -182,83 +228,34 @@ export class ScheduleExcelExporter {
         );
 
         if (slot) {
-          // Format the slot information
-          let cellValue = "";
-
-          if (slot.slotType === "BREAK") {
-            cellValue = `BREAK: ${slot.title || "Break"}`;
-          } else if (slot.slotType === "EXAM") {
-            cellValue = `EXAM: ${slot.title || "Exam"}`;
-          } else if (slot.slotType === "SPECIAL") {
-            cellValue = `SPECIAL: ${slot.title || "Special"}`;
-          } else {
-            cellValue = `CLASS: ${sectionData.sectionName}`;
-          }
-
-          // Add faculty info if available
-          if (slot.inchargeFacultyName) {
-            cellValue += `\nFaculty: ${slot.inchargeFacultyName}`;
-          }
-
-          // Add description if available
-          if (slot.description) {
-            cellValue += `\nNote: ${slot.description}`;
-          }
-
+          const cellValue = this.formatSlotContent(slot, sectionData.sectionName);
           row.push(cellValue);
-        } else if (options.includeEmptySlots) {
-          row.push(""); // Empty slot
         } else {
-          row.push(""); // Empty slot
+          row.push(options.includeEmptySlots ? "" : "");
         }
       });
 
       gridData.push(row);
     });
 
-    // Add summary at the bottom
-    gridData.push([]); // Empty row
-    gridData.push(["SUMMARY", ...Array(sortedTimeSlots.length).fill("")]);
-    gridData.push([
-      "Total Time Slots:",
-      sectionData.timeSlots.length,
-      ...Array(sortedTimeSlots.length - 1).fill(""),
-    ]);
-    gridData.push([
-      "Regular Classes:",
-      sectionData.timeSlots.filter((s) => s.slotType === "REGULAR").length,
-      ...Array(sortedTimeSlots.length - 1).fill(""),
-    ]);
-    gridData.push([
-      "Breaks:",
-      sectionData.timeSlots.filter((s) => s.slotType === "BREAK").length,
-      ...Array(sortedTimeSlots.length - 1).fill(""),
-    ]);
-    gridData.push([
-      "Exams:",
-      sectionData.timeSlots.filter((s) => s.slotType === "EXAM").length,
-      ...Array(sortedTimeSlots.length - 1).fill(""),
-    ]);
-    gridData.push([
-      "Special Events:",
-      sectionData.timeSlots.filter((s) => s.slotType === "SPECIAL").length,
-      ...Array(sortedTimeSlots.length - 1).fill(""),
-    ]);
+    // Summary section
+    gridData.push([]);
+    gridData.push(["SCHEDULE SUMMARY"]);
+    gridData.push(["Total Time Slots:", sectionData.timeSlots.length]);
+    gridData.push(["Regular Classes:", sectionData.timeSlots.filter(s => s.slotType === "REGULAR").length]);
+    gridData.push(["Break Periods:", sectionData.timeSlots.filter(s => s.slotType === "BREAK").length]);
+    gridData.push(["Examinations:", sectionData.timeSlots.filter(s => s.slotType === "EXAM").length]);
+    gridData.push(["Special Events:", sectionData.timeSlots.filter(s => s.slotType === "SPECIAL").length]);
 
-    // Create worksheet
+    // Create worksheet from array data
     const ws = XLSX.utils.aoa_to_sheet(gridData);
 
     // Set column widths
     const colWidths = [
-      { wch: 12 }, // Day column
-      ...sortedTimeSlots.map(() => ({ wch: 18 })), // Time slot columns
+      { wch: 15 }, // Day column
+      ...sortedTimeSlots.map(() => ({ wch: 20 })), // Time slot columns
     ];
     ws["!cols"] = colWidths;
-
-    // Apply styling if color coding is enabled
-    if (options.colorCode) {
-      this.applyScheduleGridStyling(ws, gridData, sectionData.timeSlots);
-    }
 
     XLSX.utils.book_append_sheet(workbook, ws, wsName);
   }
@@ -358,38 +355,189 @@ export class ScheduleExcelExporter {
   ): void {
     const metadataData: any[][] = [];
 
-    metadataData.push(["EXPORT METADATA"]);
-    metadataData.push(["Generated on:", new Date().toLocaleString()]);
-    metadataData.push(["Total sections:", sectionsData.length]);
-    metadataData.push(["Export format:", "Excel (.xlsx)"]);
-    metadataData.push([]); // Empty row
+    // Title and export details
+    metadataData.push(['📋 EXPORT INFORMATION & LEGEND']);
+    metadataData.push([]);
+    metadataData.push(['📊 Export Details']);
+    metadataData.push(['Generated on:', new Date().toLocaleString()]);
+    metadataData.push(['Total sections:', sectionsData.length]);
+    metadataData.push(['Export format:', 'Microsoft Excel (.xlsx)']);
+    metadataData.push(['Generated by:', 'CRT Portal - Schedule Management System']);
+    metadataData.push([]);
 
-    metadataData.push(["LEGEND"]);
-    metadataData.push(["REGULAR:", "Regular class sessions"]);
-    metadataData.push(["BREAK:", "Break periods"]);
-    metadataData.push(["EXAM:", "Examination sessions"]);
-    metadataData.push(["SPECIAL:", "Special events or sessions"]);
-    metadataData.push([]); // Empty row
+    // Legend
+    metadataData.push(['🎨 Slot Type Legend']);
+    metadataData.push(['📚 REGULAR', 'Regular class sessions']);
+    metadataData.push(['🍽️ BREAK', 'Break periods & lunch time']);
+    metadataData.push(['📝 EXAM', 'Examination sessions']);
+    metadataData.push(['⭐ SPECIAL', 'Special events or sessions']);
+    metadataData.push(['⬜ EMPTY', 'Unscheduled time slots']);
+    metadataData.push([]);
 
-    metadataData.push(["TIME FORMAT"]);
-    metadataData.push(["All times are in 24-hour format (HH:MM)"]);
-    metadataData.push(["Time slots show start-end time range"]);
+    // Usage instructions
+    metadataData.push(['📖 How to Read This Schedule']);
+    metadataData.push(['• Each sheet represents one section\'s weekly schedule']);
+    metadataData.push(['• Days are shown as rows (Monday to Sunday)']);
+    metadataData.push(['• Time slots are shown as columns (e.g., 09:00-10:00)']);
+    metadataData.push(['• Each cell contains: Activity Type, Faculty Name, Time, Notes']);
+    metadataData.push(['• Colors indicate different types of activities']);
+    metadataData.push(['• Empty cells represent unscheduled time slots']);
+    metadataData.push(['• Summary statistics are provided at the bottom of each sheet']);
 
     const ws = XLSX.utils.aoa_to_sheet(metadataData);
-    ws["!cols"] = [{ wch: 15 }, { wch: 30 }];
+    
+    // Set column widths
+    ws["!cols"] = [
+      { wch: 35 }, // Main column
+      { wch: 40 }, // Description column
+    ];
 
-    XLSX.utils.book_append_sheet(workbook, ws, "Metadata");
+    XLSX.utils.book_append_sheet(workbook, ws, "Info & Legend");
   }
 
-  private static applyScheduleGridStyling(
+  // Utility function to set cell value with style
+  private static setCellValue(
     ws: XLSX.WorkSheet,
-    gridData: any[][],
-    timeSlots: TimeSlot[]
+    address: string,
+    value: any,
+    style?: any
   ): void {
-    // This would apply cell styling based on slot types
-    // Implementation depends on the Excel library's styling capabilities
-    // For now, we'll keep it simple as XLSX.js has limited styling support
-    // You could implement cell coloring here if needed
-    // Example: Different background colors for different slot types
+    ws[address] = {
+      t: typeof value === 'number' ? 'n' : 's',
+      v: value,
+      s: style || {},
+    };
+  }
+
+  // Convert column number to Excel column letter
+  private static numberToColumn(num: number): string {
+    let result = '';
+    while (num > 0) {
+      num--;
+      result = String.fromCharCode(65 + (num % 26)) + result;
+      num = Math.floor(num / 26);
+    }
+    return result;
+  }
+
+  // Format slot content for display
+  private static formatSlotContent(slot: TimeSlot, sectionName: string): string {
+    let content = '';
+    
+    // Main activity
+    switch (slot.slotType) {
+      case 'BREAK':
+        content = `🍽️ ${slot.title || 'Break'}`;
+        break;
+      case 'EXAM':
+        content = `📝 ${slot.title || 'Examination'}`;
+        break;
+      case 'SPECIAL':
+        content = `⭐ ${slot.title || 'Special Event'}`;
+        break;
+      default:
+        content = `📚 ${sectionName}`;
+    }
+    
+    // Add faculty information
+    if (slot.inchargeFacultyName) {
+      content += `\n👨‍🏫 ${slot.inchargeFacultyName}`;
+    }
+    
+    // Add time for clarity
+    content += `\n⏰ ${slot.startTime} - ${slot.endTime}`;
+    
+    // Add description if available
+    if (slot.description && slot.description.trim()) {
+      content += `\n📋 ${slot.description}`;
+    }
+    
+    return content;
+  }
+
+  // Get style for slot type
+  private static getSlotStyle(slotType: keyof typeof SLOT_COLORS): any {
+    const colors = SLOT_COLORS[slotType];
+    return {
+      fill: { fgColor: { rgb: colors.bg } },
+      font: { color: { rgb: colors.text }, size: 10 },
+      border: CELL_BORDER,
+      alignment: { 
+        wrapText: true, 
+        vertical: "top", 
+        horizontal: "left",
+        indent: 1
+      },
+    };
+  }
+
+  // Enhanced overview sheet with better formatting
+  private static addOverviewSheetEnhanced(
+    workbook: XLSX.WorkBook,
+    sectionsData: SectionScheduleData[]
+  ): void {
+    const overviewData: any[][] = [];
+
+    // Title and summary stats
+    overviewData.push(["📊 SECTIONS OVERVIEW DASHBOARD"]);
+    overviewData.push([`Generated: ${new Date().toLocaleString()}`]);
+    overviewData.push([]);
+
+    const totalSections = sectionsData.length;
+    const sectionsWithSchedule = sectionsData.filter(s => s.hasSchedule).length;
+    const totalTimeSlots = sectionsData.reduce((sum, s) => sum + s.timeSlots.length, 0);
+    const totalStudents = sectionsData.reduce((sum, s) => sum + (s.sectionStrength || 0), 0);
+
+    overviewData.push(["SUMMARY STATISTICS"]);
+    overviewData.push(["🏫 Total Sections:", totalSections]);
+    overviewData.push(["📅 Active Schedules:", sectionsWithSchedule]);
+    overviewData.push(["⏰ Total Time Slots:", totalTimeSlots]);
+    overviewData.push(["👥 Total Students:", totalStudents]);
+    overviewData.push([]);
+
+    // Detailed table header
+    overviewData.push([
+      'Section Name', 'Room', 'Training Program', 'Students', 
+      'Total Slots', 'Classes', 'Breaks', 'Exams', 'Special', 'Status'
+    ]);
+
+    // Detailed table data
+    sectionsData.forEach((section) => {
+      const regularSlots = section.timeSlots.filter(s => s.slotType === "REGULAR").length;
+      const breakSlots = section.timeSlots.filter(s => s.slotType === "BREAK").length;
+      const examSlots = section.timeSlots.filter(s => s.slotType === "EXAM").length;
+      const specialSlots = section.timeSlots.filter(s => s.slotType === "SPECIAL").length;
+      
+      overviewData.push([
+        section.sectionName,
+        section.roomName || "Not Assigned",
+        section.trainingName || "N/A",
+        section.sectionStrength || 0,
+        section.timeSlots.length,
+        regularSlots,
+        breakSlots,
+        examSlots,
+        specialSlots,
+        section.hasSchedule ? "✅ Active" : "❌ No Schedule"
+      ]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(overviewData);
+
+    // Set column widths
+    ws["!cols"] = [
+      { wch: 18 }, // Section Name
+      { wch: 25 }, // Room
+      { wch: 20 }, // Training
+      { wch: 10 }, // Students
+      { wch: 12 }, // Total Slots
+      { wch: 10 }, // Regular
+      { wch: 10 }, // Breaks
+      { wch: 10 }, // Exams
+      { wch: 10 }, // Special
+      { wch: 15 }, // Status
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, ws, "Overview");
   }
 }

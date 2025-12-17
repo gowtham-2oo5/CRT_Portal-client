@@ -59,17 +59,26 @@ export function OtpDialog({
     setError("");
 
     try {
+      console.log("[OTP] Starting OTP verification for:", usernameOrEmail);
       const result = await ClientAuth.verifyOtp(usernameOrEmail, otp);
+      console.log("[OTP] OTP verification result:", result);
 
       if (result.success && result.data) {
+        console.log("[OTP] OTP verification successful, result.data:", result.data);
+        console.log("[OTP] User from result.data:", result.data.user);
+        console.log("[OTP] isFirstLogin from result.data:", result.data.isFirstLogin);
+        
         const currentUser = await ClientAuth.getCurrentUser();
-        // alert("Verification success" + currentUser?.name);
-
-        console.log(
-          "[OTP] Current user after verification:",
-          currentUser?.name
-        );
-        console.log("[OTP] isFirstLogin flag:", currentUser?.isFirstLogin);
+        console.log("[OTP] Current user after verification (full object):", currentUser);
+        
+        if (currentUser) {
+          console.log("[OTP] Current user name:", currentUser.name);
+          console.log("[OTP] Current user isFirstLogin flag:", currentUser.isFirstLogin);
+          console.log("[OTP] Current user role:", currentUser.role);
+          console.log("[OTP] Current user email:", currentUser.email);
+        } else {
+          console.error("[OTP] getCurrentUser returned null after successful OTP verification!");
+        }
 
         toast.success("Login successful!");
 

@@ -19,12 +19,21 @@ function DashboardContent({ children }: DashboardLayoutProps) {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
+    console.log("[DashboardLayout] useEffect triggered, user:", user);
+    console.log("[DashboardLayout] user?.isFirstLogin:", user?.isFirstLogin);
+    
     // Check if user needs to reset password on first login
     if (user?.isFirstLogin) {
+      console.log("[DashboardLayout] First login detected! Setting up password modal...");
       // Small delay to let dashboard render first
       setTimeout(() => {
+        console.log("[DashboardLayout] Showing password reset modal now...");
         setShowPasswordModal(true);
       }, 500);
+    } else if (user) {
+      console.log("[DashboardLayout] User exists but not first login");
+    } else {
+      console.log("[DashboardLayout] No user object available");
     }
   }, [user]);
 

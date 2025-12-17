@@ -120,16 +120,37 @@ export interface AttendanceAnalytics {
   }[];
 }
 
-export interface FilteredTimeSlot {
-  id: number;
+// TimeSlotStatusDTO from backend
+export interface TimeSlotStatusDTO {
+  timeSlotId: number;
   startTime: string;
   endTime: string;
   isBreak: boolean;
   breakDescription?: string;
-  inchargeFacultyId: string;
-  inchargeFacultyName: string;
-  inchargeFacultyEmail: string;
-  inchargeFacultyPhone: string;
+  facultyId: string;
+  facultyName: string;
+  facultyEmail: string;
+  facultyPhone: string;
+  sectionId: string;
+  sectionName: string;
+  roomId: string;
+  roomName: string;
+  attendancePosted: boolean;
+  pastEndTime: boolean;
+  day?: string;
+}
+
+// Legacy FilteredTimeSlot interface for backward compatibility
+export interface FilteredTimeSlot {
+  timeSlotId: number; // Changed from 'id' to match backend
+  startTime: string;
+  endTime: string;
+  isBreak: boolean;
+  breakDescription?: string;
+  facultyId: string; // Changed from 'inchargeFacultyId' to match backend
+  facultyName: string; // Changed from 'inchargeFacultyName' to match backend
+  facultyEmail: string; // Changed from 'inchargeFacultyEmail' to match backend
+  facultyPhone: string; // Changed from 'inchargeFacultyPhone' to match backend
   sectionId: string;
   sectionName: string;
   roomId: string;
@@ -138,6 +159,12 @@ export interface FilteredTimeSlot {
   attendancePosted?: boolean;
   pastEndTime?: boolean;
   day?: string;
+  // Legacy compatibility
+  id?: number;
+  inchargeFacultyId?: string;
+  inchargeFacultyName?: string;
+  inchargeFacultyEmail?: string;
+  inchargeFacultyPhone?: string;
 }
 
 export interface FacultyWithPendingAttendance {

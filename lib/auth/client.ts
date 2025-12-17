@@ -15,6 +15,8 @@ export class ClientAuth {
   // Store user info in session storage
   private static setUserInfo(user: User) {
     if (typeof window === "undefined") return;
+    console.log("[ClientAuth] setUserInfo - Storing user:", user);
+    console.log("[ClientAuth] setUserInfo - isFirstLogin:", user.isFirstLogin);
     sessionStorage.setItem("user-info", JSON.stringify(user));
   }
 
@@ -41,10 +43,18 @@ export class ClientAuth {
     }
 
     const userInfo = sessionStorage.getItem("user-info");
-    if (!userInfo) return null;
+    console.log("[ClientAuth] getUserInfo - Raw from sessionStorage:", userInfo);
+    
+    if (!userInfo) {
+      console.log("[ClientAuth] getUserInfo - No user in sessionStorage");
+      return null;
+    }
 
     try {
-      return JSON.parse(userInfo) as User;
+      const user = JSON.parse(userInfo) as User;
+      console.log("[ClientAuth] getUserInfo - Parsed user:", user);
+      console.log("[ClientAuth] getUserInfo - isFirstLogin:", user.isFirstLogin);
+      return user;
     } catch (error) {
       console.error("[ClientAuth] Error parsing user info:", error);
       return null;

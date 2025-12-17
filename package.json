@@ -48,6 +48,7 @@
     "tailwindcss": "^4.1.10",
     "uploadthing": "^7.7.3",
     "xlsx": "^0.18.5",
+    "xlsx-js-style": "^1.2.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {

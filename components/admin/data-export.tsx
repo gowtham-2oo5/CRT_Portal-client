@@ -489,61 +489,107 @@ export function DataExport() {
                 <Settings className="h-5 w-5" />
                 Export Options
               </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Customize your Excel export with professional formatting
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="includeEmpty"
-                    checked={exportOptions.includeEmptySlots}
-                    onCheckedChange={(checked) =>
-                      setExportOptions((prev) => ({
-                        ...prev,
-                        includeEmptySlots: checked as boolean,
-                      }))
-                    }
-                  />
-                  <Label htmlFor="includeEmpty" className="text-sm">
-                    Include empty time slots
-                  </Label>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm text-muted-foreground flex items-center gap-1">
+                    <FileSpreadsheet className="h-3 w-3" />
+                    Content Options
+                  </h4>
+                  
+                  <div className="space-y-3 ml-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="includeEmpty"
+                        checked={exportOptions.includeEmptySlots}
+                        onCheckedChange={(checked) =>
+                          setExportOptions((prev) => ({
+                            ...prev,
+                            includeEmptySlots: checked as boolean,
+                          }))
+                        }
+                      />
+                      <Label htmlFor="includeEmpty" className="text-sm">
+                        Include empty time slots
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="includeMetadata"
+                        checked={exportOptions.includeMetadata}
+                        onCheckedChange={(checked) =>
+                          setExportOptions((prev) => ({
+                            ...prev,
+                            includeMetadata: checked as boolean,
+                          }))
+                        }
+                      />
+                      <Label htmlFor="includeMetadata" className="text-sm">
+                        Include info & legend sheet
+                      </Label>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="includeMetadata"
-                    checked={exportOptions.includeMetadata}
-                    onCheckedChange={(checked) =>
-                      setExportOptions((prev) => ({
-                        ...prev,
-                        includeMetadata: checked as boolean,
-                      }))
-                    }
-                  />
-                  <Label htmlFor="includeMetadata" className="text-sm">
-                    Include metadata & summary
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="colorCode"
-                    checked={exportOptions.colorCode}
-                    onCheckedChange={(checked) =>
-                      setExportOptions((prev) => ({
-                        ...prev,
-                        colorCode: checked as boolean,
-                      }))
-                    }
-                  />
-                  <Label htmlFor="colorCode" className="text-sm">
-                    Color-code slot types
-                  </Label>
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm text-muted-foreground flex items-center gap-1">
+                    <Building className="h-3 w-3" />
+                    Formatting Options
+                  </h4>
+                  
+                  <div className="space-y-3 ml-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="colorCode"
+                        checked={exportOptions.colorCode}
+                        onCheckedChange={(checked) =>
+                          setExportOptions((prev) => ({
+                            ...prev,
+                            colorCode: checked as boolean,
+                          }))
+                        }
+                      />
+                      <Label htmlFor="colorCode" className="text-sm">
+                        Color-code slot types
+                      </Label>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground ml-6">
+                      {exportOptions.colorCode ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-blue-200 border border-blue-300 rounded" />
+                            <span>Regular Classes</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-orange-200 border border-orange-300 rounded" />
+                            <span>Break Periods</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-red-200 border border-red-300 rounded" />
+                            <span>Examinations</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-purple-200 border border-purple-300 rounded" />
+                            <span>Special Events</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <span>Enable to see color preview</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="filename" className="text-sm">
-                  Filename
+                <Label htmlFor="filename" className="text-sm font-medium">
+                  Custom Filename
                 </Label>
                 <Input
                   id="filename"
@@ -555,7 +601,11 @@ export function DataExport() {
                     }))
                   }
                   placeholder="Enter filename..."
+                  className="text-sm"
                 />
+                <p className="text-xs text-muted-foreground">
+                  💡 Tip: Use descriptive names like 'Q1_2024_Schedules.xlsx'
+                </p>
               </div>
             </CardContent>
           </Card>
