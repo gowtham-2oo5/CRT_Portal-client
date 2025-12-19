@@ -83,28 +83,14 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = sessionStorage.getItem("refresh_token");
-        const response = await apiClient.post("/auth/refresh-token", {
-          refreshToken,
-        });
-
-        // Update tokens
-        if (response.data.token) {
-          sessionStorage.setItem("access_token", response.data.token);
-        }
-        if (response.data.refreshToken) {
-          sessionStorage.setItem("refresh_token", response.data.refreshToken);
-        }
-
-        processQueue(null);
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError);
+        // For cross-domain, cookies won't work, so we skip refresh
+        // User will need to login again
+        processQueue(new Error("Session expired"));
         sessionStorage.removeItem("user-info");
         sessionStorage.removeItem("access_token");
         sessionStorage.removeItem("refresh_token");
         window.location.href = "/";
-        return Promise.reject(refreshError);
+        return Promise.reject(error);
       } finally {
         isRefreshing = false;
       }
