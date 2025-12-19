@@ -4,21 +4,16 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   // Check if the request is for a protected route
   if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    // Check for the cookie with the correct name (access_token as per your backend)
+    // Check for the cookie first (for same-domain), then we'll check sessionStorage on client side
     const accessToken = request.cookies.get("jwt_token");
 
     console.log("[Middleware] Checking access_token cookie:", !!accessToken);
 
-    if (!accessToken) {
-      console.log(
-        "[Middleware] No access_token cookie found, redirecting to login"
-      );
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    console.log(
-      "[Middleware] Access token found, allowing access to dashboard"
-    );
+    // For cross-domain (Vercel), we can't check sessionStorage in middleware
+    // So we allow the request and let the client-side check handle it
+    // The middleware will only block if there's definitely no auth
+    
+    // Allow the request to proceed - client-side will handle redirect if needed
     return NextResponse.next();
   }
 

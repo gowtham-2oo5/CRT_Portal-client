@@ -16,6 +16,18 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
+// Add request interceptor to include token from sessionStorage
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem("access_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export const bulkUploadClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: BULK_UPLOAD_API_TIMEOUT,
@@ -71,13 +83,26 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await apiClient.post("/auth/refresh-token");
+        const refreshToken = sessionStorage.getItem("refresh_token");
+        const response = await apiClient.post("/auth/refresh-token", {
+          refreshToken,
+        });
+
+        // Update tokens
+        if (response.data.token) {
+          sessionStorage.setItem("access_token", response.data.token);
+        }
+        if (response.data.refreshToken) {
+          sessionStorage.setItem("refresh_token", response.data.refreshToken);
+        }
 
         processQueue(null);
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
         sessionStorage.removeItem("user-info");
+        sessionStorage.removeItem("access_token");
+        sessionStorage.removeItem("refresh_token");
         window.location.href = "/";
         return Promise.reject(refreshError);
       } finally {

@@ -26,6 +26,8 @@ export class ClientAuth {
 
     // Clear session storage
     sessionStorage.removeItem("user-info");
+    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem("refresh_token");
 
     // For httpOnly cookies, we can't directly clear them from JavaScript
     // The actual cookie clearing happens via the /auth/logout endpoint
@@ -142,6 +144,14 @@ export class ClientAuth {
       // Store user info from response
       if (response.data.user) {
         this.setUserInfo(response.data.user);
+      }
+
+      // Store tokens in sessionStorage for cross-domain support
+      if (response.data.token) {
+        sessionStorage.setItem("access_token", response.data.token);
+      }
+      if (response.data.refreshToken) {
+        sessionStorage.setItem("refresh_token", response.data.refreshToken);
       }
 
       return {
