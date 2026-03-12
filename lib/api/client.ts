@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://crt-portal-api.gows.me/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://crt-api.gowth.tech/api";
 const API_TIMEOUT = 10000;
 const BULK_UPLOAD_API_TIMEOUT = 300000;
 
